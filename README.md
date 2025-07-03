@@ -8,7 +8,11 @@ CI/CD, GitOps, 서비스 디스커버리, API 게이트웨이 등을 통합하�
 - Jenkins (CI/CD)
 - ArgoCD (GitOps)
 - Spring Eureka / API Gateway
-- Ingress-NGINX + Local NGINX + certbot
+- kubernetes-NGINX + Local NGINX + certbot
+  -> 기존에 NCP LoadBalancer와 Certificate Manager을 이용하여 Ingress-nginx로 구성하였으나
+  금전적인문제로 가장 간단한 방법인 nginx을 이용하여 구성한 뒤 추후에 LoadBalancer 구조로 변경 예정
+- yaml파일을 통한 배포(kubectl apply)
+  -> 추후 배포 구조를 helm을 이용한 구조로 변경예정
 - NCP VPC + IaaS
 
 ## 🧱 시스템 구조
