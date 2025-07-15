@@ -83,6 +83,8 @@ graph TD
    - 🧊 **3D 시뮬레이션**
    - 🧪 **LAB 실험 기능**
 
+### 3-2. 🌐 서비스 흐름 (사용자 요청 → 서비스 응답)
+
 ```mermaid
 graph TD
 
@@ -96,24 +98,24 @@ graph TD
     api[api.sj-lab.co.kr]
   end
 
-  User[사용자 브라우저 접속 (HTTPS)]
-  Gateway[Spring Cloud Gateway]
-  Registry[Spring Eureka]
-  Service1[2D 지도 서비스]
-  Service2[3D 시뮬레이션]
-  Service3[LAB 실험 기능]
+  user["사용자 브라우저 접속 (HTTPS)"]
+  gateway["Spring Cloud Gateway"]
+  registry["Spring Eureka"]
+  service1["2D 지도 서비스"]
+  service2["3D 시뮬레이션"]
+  service3["LAB 실험 기능"]
 
-  User --> jenkins
-  User --> argo
-  User --> eureka
-  User --> dashboard
-  User --> web
-  User --> api
+  user --> jenkins
+  user --> argo
+  user --> eureka
+  user --> dashboard
+  user --> web
+  user --> api
 
-  api --> Gateway --> Registry
-  Gateway --> Service1
-  Gateway --> Service2
-  Gateway --> Service3
+  api --> gateway --> registry
+  gateway --> service1
+  gateway --> service2
+  gateway --> service3
 ```
 
 ---
