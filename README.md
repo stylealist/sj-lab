@@ -94,7 +94,7 @@ graph TD
     argo[argo.sj-lab.co.kr]
     eureka[eureka.sj-lab.co.kr]
     dashboard[dashboard.sj-lab.co.kr]
-    nginxweb[sj-lab.co.kr]
+    web[sj-lab.co.kr]
     api[api.sj-lab.co.kr]
   end
 
@@ -109,7 +109,7 @@ graph TD
   user --> argo
   user --> eureka
   user --> dashboard
-  user --> nginxweb
+  user --> web
   user --> api
 
   api --> gateway --> registry
