@@ -35,7 +35,7 @@ graph TD
   Jenkins[Jenkins - CI 파이프라인]
   DockerBuild[Docker 이미지 빌드]
   Registry["NCP Container Registry - 이미지 저장"]
-  ManifestRepo[K8s Manifest 저장소 (Helm values)]
+  ManifestRepo["K8s Manifest 저장소 - Helm values"]
   ArgoCD[ArgoCD - GitOps 배포]
   K8s[Kubernetes 클러스터]
   K8sNGINX[Kubernetes NGINX - 웹 서비스 호스팅]
