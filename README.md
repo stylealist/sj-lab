@@ -25,9 +25,27 @@
 
 ---
 
-## 3. 🏗️ 시스템 아키텍처 및 CI/CD & GitOps 구조
+## 3. ⚙️ 기술 스택
 
-### 3-1. 🚀 배포 흐름 (CI + GitOps)
+| 구분             | 기술 |
+|------------------|------|
+| **인프라**       | NCP VPC, Ubuntu 24.04, kubeadm |
+| **컨테이너**     | Docker |
+| **오케스트레이션** | Kubernetes, NGINX proxy |
+| **CI/CD**        | Jenkins, NCP Container Registry |
+| **GitOps**       | ArgoCD |
+| **MSA**          | Spring Eureka, Spring Cloud Gateway |
+| **웹 서버**      | Kubernetes NGINX, Local NGINX, certbot |
+| **백엔드**       | Spring Boot, Flask |
+| **프론트엔드**   | HTML/CSS, JavaScript, React, OpenLayers, Three.js, Fabric.js |
+| **DB/스토리지**  | PostgreSQL, JSON, GeoJSON |
+| **기타**         | Helm(도입 예정), Prometheus/Grafana(예정), Socket.IO |
+
+---
+
+## 4. 🏗️ 시스템 아키텍처 및 CI/CD & GitOps 구조
+
+### 4-1. 🚀 배포 흐름 (CI + GitOps)
 
 이 프로젝트는 CI/CD 및 GitOps 기반으로 다음과 같은 배포 구조를 따릅니다:
 
@@ -57,7 +75,7 @@ graph TD
   ManifestRepo --> ArgoCD --> K8s
 ```
 
-### 3-2. 🌐 서비스 흐름 (사용자 요청 → 서비스 응답)
+### 4-2. 🌐 서비스 흐름 (사용자 요청 → 서비스 응답)
 
 본 시스템은 **서브도메인 기반 Reverse Proxy 구조**로 구성되어 있으며,  
 사용자의 HTTPS 요청은 Local NGINX를 통해 각 Kubernetes 서비스로 분기됩니다.
@@ -117,24 +135,6 @@ graph TD
   gateway --> service2
   gateway --> service3
 ```
-
----
-
-## 4. ⚙️ 기술 스택
-
-| 구분             | 기술 |
-|------------------|------|
-| **인프라**       | NCP VPC, Ubuntu 24.04, kubeadm |
-| **컨테이너**     | Docker |
-| **오케스트레이션** | Kubernetes, NGINX proxy |
-| **CI/CD**        | Jenkins, NCP Container Registry |
-| **GitOps**       | ArgoCD |
-| **MSA**          | Spring Eureka, Spring Cloud Gateway |
-| **웹 서버**      | Kubernetes NGINX, Local NGINX, certbot |
-| **백엔드**       | Spring Boot, Flask |
-| **프론트엔드**   | HTML/CSS, JavaScript, React, OpenLayers, Three.js, Fabric.js |
-| **DB/스토리지**  | PostgreSQL, JSON, GeoJSON |
-| **기타**         | Helm(도입 예정), Prometheus/Grafana(예정), Socket.IO |
 
 ---
 
