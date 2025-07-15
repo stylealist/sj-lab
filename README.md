@@ -25,7 +25,7 @@
 
 ---
 
-## 3. 🏗️ 시스템 아키텍처
+## 3. 🏗️ 시스템 아키텍처 및 CI/CD & GitOps 구조
 
 ### 3-1. 🚀 배포 흐름 (CI + GitOps)
 
@@ -135,32 +135,6 @@ graph TD
 | **프론트엔드**   | HTML/CSS, JavaScript, React, OpenLayers, Three.js, Fabric.js |
 | **DB/스토리지**  | PostgreSQL, JSON, GeoJSON |
 | **기타**         | Helm(도입 예정), Prometheus/Grafana(예정), Socket.IO |
-
----
-
-## 5. 🔄 CI/CD & GitOps 구조
-
-- GitHub 코드 푸시 → Jenkins Webhook → Docker 이미지 빌드 → NCP Container Registry 푸시  
-- Git 저장소(YAML) 변경 → ArgoCD 감지 → Kubernetes 자동 배포  
-- nginx proxy 기반으로 각 서비스 라우팅
-
-```bash
-[Git Push] → [Jenkins 빌드] → [NCP Container Registry 푸시] → [ArgoCD 감지] → [K8s 자동 배포]
-
----
-
-## 6. 📡 주요 서비스 구조
-
-| 서비스 이름              | 설명 |
-|--------------------------|------|
-| **2D 지도 서비스**         | OpenLayers 기반 재난 시각화, CCTV, 시설물 편집, 신고 기능 등 |
-| **3D 시뮬레이션**           | Three.js 기반 산불·연무 확산, 교량 붕괴 등 재난 시뮬레이션 |
-| **LAB 실험실**             | LSTM 예측, 바람 벡터 시각화, 도형 편집 툴 등 실험 기능 |
-| **API Gateway**           | 서브도메인·경로 기반 라우팅, CORS·필터 처리 (Spring Cloud Gateway) |
-| **Service Discovery**     | Spring Eureka 기반 마이크로서비스 자동 등록·탐색 |
-| **Jenkins (CI/CD)**       | GitHub Webhook → Docker 빌드·푸시 자동화 |
-| **Argo CD (GitOps)**      | Git 상태 감지 → Kubernetes 자동 배포, 실시간 Sync·Rollback |
-| **Kubernetes Dashboard**  | 클러스터 자원 모니터링 및 웹 UI 관리 |
 
 ---
 
