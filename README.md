@@ -49,7 +49,7 @@ graph TD
   Registry["NCP Container Registry - 이미지 저장"]
   ManifestRepo["K8s Manifest 저장소 - 이미지 버전명 Push"]
   ArgoCD[ArgoCD - GitOps Sync]
-  K8s[Kubernetes 클러스터 - 컨테이너 배포포]
+  K8s[Kubernetes 클러스터 - 컨테이너 배포]
 
   Dev --> GitHub --> Webhook --> Jenkins
   Jenkins --> DockerBuild --> Registry
@@ -59,34 +59,58 @@ graph TD
 
 ### 3-2. 🌐 서비스 흐름 (사용자 요청 → 서비스 응답)
 
-서비스는 로컬에서 HTTPS로 접속된 사용자 요청이 Kubernetes 내부 MSA 서비스까지 전달되는 다음과 같은 흐름으로 작동합니다:
+본 시스템은 **서브도메인 기반 Reverse Proxy 구조**로 구성되어 있으며,  
+사용자의 HTTPS 요청은 Local NGINX를 통해 각 Kubernetes 서비스로 분기됩니다.
 
-1. 사용자가 브라우저를 통해 **HTTPS 접속**을 시도합니다.
-2. 요청은 먼저 **로컬 NGINX**로 전달되어 **TLS 종료 및 Reverse Proxy** 처리가 수행됩니다.
-3. Proxy된 요청은 **Kubernetes 클러스터 내부의 NGINX Pod**(웹 서버 역할)로 전달됩니다.
-4. 이후 요청은 **Spring Cloud Gateway**로 이동하여 API Gateway 역할을 수행합니다.
-5. **Spring Cloud Gateway**는 **Spring Eureka**로부터 각 마이크로서비스의 위치(IP/Port)를 동적으로 조회합니다.
-6. 라우팅된 요청은 해당 서비스로 전달되며, 주요 서비스는 다음과 같습니다:
-   - 🗺️ **2D 지도 서비스**: OpenLayers 기반 지도 시각화, CCTV, 시설물 편집 기능 등
-   - 🧊 **3D 시뮬레이션 서비스**: Three.js 기반 산불·연무 확산 시뮬레이션
-   - 🧪 **LAB 실험 기능**: LSTM 예측, 도형 편집 도구, 실험용 AI 기능 등
+1. 사용자가 브라우저에서 각 서브도메인에 접속합니다.
+2. **Local NGINX**는 요청된 도메인을 기준으로 Kubernetes 클러스터 내부 서비스로 Reverse Proxy 합니다.
+3. 도메인에 따른 역할은 다음과 같습니다:
+
+| 도메인 | 설명 |
+|--------|------|
+| `sj-lab.co.kr` | Kubernetes NGINX에서 서빙하는 웹 프론트 (정적 HTML 페이지) |
+| `api.sj-lab.co.kr` | Spring Cloud Gateway → 각 마이크로서비스 API로 라우팅 |
+| `eureka.sj-lab.co.kr` | Eureka Dashboard (MSA 서비스 등록 확인) |
+| `jenkins.sj-lab.co.kr` | Jenkins CI 서비스 |
+| `argo.sj-lab.co.kr` | Argo CD GitOps 배포 관리 UI |
+| `dashboard.sj-lab.co.kr` | Kubernetes Dashboard |
+
+4. `api.sj-lab.co.kr`으로 들어온 요청은 **Spring Cloud Gateway**가 처리하며,
+5. Gateway는 **Spring Eureka**로부터 각 마이크로서비스 위치를 동적으로 조회하고,
+6. 요청을 적절한 서비스로 전달합니다:
+
+   - 🗺️ **2D 지도 서비스**
+   - 🧊 **3D 시뮬레이션**
+   - 🧪 **LAB 실험 기능**
 
 ```mermaid
 graph TD
-  User[사용자 브라우저 접속 시도]
-  K8sNGINX[Kubernetes NGINX - 웹 서비스 호스팅]
-  LocalNGINX[로컬 NGINX - HTTPS + Reverse Proxy]
-  Gateway[Spring Cloud Gateway]
-  Eureka[Spring Eureka]
+  User[사용자 브라우저 접속 (HTTPS)]
+
+  subgraph Local NGINX (TLS 종료 + Reverse Proxy)
+    jenkins[jenkins.sj-lab.co.kr]
+    argo[argo.sj-lab.co.kr]
+    eureka[eureka.sj-lab.co.kr]
+    dashboard[dashboard.sj-lab.co.kr]
+    web[sj-lab.co.kr (웹 프론트)]
+    api[api.sj-lab.co.kr (Spring Cloud Gateway)]
+  end
+
+  gateway[Spring Cloud Gateway]
+  registry[Spring Eureka]
   Service1[2D 지도 서비스]
   Service2[3D 시뮬레이션]
   Service3[LAB 실험 기능]
 
-  User --> K8sNGINX --> LocalNGINX --> Gateway
-  Gateway --> Eureka
-  Gateway --> Service1
-  Gateway --> Service2
-  Gateway --> Service3
+  User --> jenkins
+  User --> argo
+  User --> eureka
+  User --> dashboard
+  User --> web
+  User --> api --> gateway --> registry
+  gateway --> Service1
+  gateway --> Service2
+  gateway --> Service3
 ```
 ---
 
