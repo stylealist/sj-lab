@@ -27,29 +27,30 @@
 
 ## 3. 🏗️ 시스템 아키텍처
 
+## 3. 🏗️ 시스템 아키텍처
+
 ```mermaid
 graph TD
   GitHub[GitHub - 코드 저장소]
   Jenkins[Jenkins - CI 빌드]
-  ncpRegistry[("NCP Container Registry - Docker 이미지 저장")]
+  NCPRegistry["NCP Container Registry - 이미지 저장"]
   ArgoCD[ArgoCD - GitOps 배포]
   K8s[Kubernetes - 클러스터 운영]
-  kubernetesNGINX[웹페이지 운영]
-  localNGINX[로컬 NGINX - Reverse Proxy + HTTPS - 서비스 라우팅]
-  Eureka[Spring Eureka]
-  Gateway[Spring Cloud Gateway]
-  map[2D 지도 서비스]
-  미정[3D 시뮬레이션]
-  미정[LAB 실험 기능]
+  K8sNGINX[쿠버네티스 NGINX - 웹 서비스 호스팅]
+  LocalNGINX[로컬 NGINX - Reverse Proxy + HTTPS]
+  Eureka[Spring Eureka - 서비스 등록]
+  Gateway[Spring Cloud Gateway - API 라우팅]
+  Service1[2D 지도 서비스]
+  Service2[3D 시뮬레이션]
+  Service3[LAB 실험 기능]
 
-  GitHub --> Jenkins --> DockerHub
+  GitHub --> Jenkins --> NCPRegistry
   GitHub --> ArgoCD --> K8s
-  K8s --> Ingress --> Gateway --> Eureka
-  Gateway --> map
-  Gateway --> 미정
-  Gateway --> 미정
-  LocalNGINX --> kubernetesNGINX
-```
+  LocalNGINX --> K8sNGINX --> Gateway --> Eureka
+  Gateway --> Service1
+  Gateway --> Service2
+  Gateway --> Service3
+
 ---
 
 ## 4. ⚙️ 기술 스택
