@@ -27,6 +27,20 @@
 
 ## 3. 🏗️ 시스템 아키텍처
 
+## 3. 🏗️ 시스템 아키텍처
+
+### 3-1. 🚀 배포 흐름 (CI + GitOps)
+
+이 프로젝트는 CI/CD 및 GitOps 기반으로 다음과 같은 배포 구조를 따릅니다:
+
+1. **개발자**가 GitHub에 소스 코드를 Push하면,
+2. GitHub의 **Webhook**이 Jenkins를 트리거합니다.
+3. **Jenkins**는 소스 코드를 기반으로 Docker 이미지를 빌드하여,
+4. **NCP Container Registry**에 이미지를 저장합니다.
+5. 이후 Jenkins는 Kubernetes 배포 설정이 포함된 Git 저장소(`Helm values.yaml`)를 수정합니다.
+6. **ArgoCD**는 해당 Git 저장소를 감시하다가 변경이 감지되면,
+7. Helm을 통해 **Kubernetes 클러스터**에 자동으로 새로운 버전을 배포합니다.
+
 ```mermaid
 graph TD
   Dev[개발자 Git Push]
@@ -38,20 +52,40 @@ graph TD
   ManifestRepo["K8s Manifest 저장소 - Helm values"]
   ArgoCD[ArgoCD - GitOps 배포]
   K8s[Kubernetes 클러스터]
-  K8sNGINX[Kubernetes NGINX - 웹 서비스 호스팅]
+
+  Dev --> GitHub --> Webhook --> Jenkins
+  Jenkins --> DockerBuild --> Registry
+  Jenkins --> ManifestRepo
+  ManifestRepo --> ArgoCD --> K8s
+```
+
+### 3-2. 🌐 서비스 흐름 (사용자 요청 → 서비스 응답)
+
+서비스는 로컬에서 HTTPS로 접속된 사용자 요청이 Kubernetes 내부 MSA 서비스까지 전달되는 다음과 같은 흐름으로 작동합니다:
+
+1. 사용자가 브라우저를 통해 **HTTPS 접속**을 시도합니다.
+2. 요청은 먼저 **로컬 NGINX**로 전달되어 **TLS 종료 및 Reverse Proxy** 처리가 수행됩니다.
+3. Proxy된 요청은 **Kubernetes 클러스터 내부의 NGINX Pod**(웹 서버 역할)로 전달됩니다.
+4. 이후 요청은 **Spring Cloud Gateway**로 이동하여 API Gateway 역할을 수행합니다.
+5. **Spring Cloud Gateway**는 **Spring Eureka**로부터 각 마이크로서비스의 위치(IP/Port)를 동적으로 조회합니다.
+6. 라우팅된 요청은 해당 서비스로 전달되며, 주요 서비스는 다음과 같습니다:
+   - 🗺️ **2D 지도 서비스**: OpenLayers 기반 지도 시각화, CCTV, 시설물 편집 기능 등
+   - 🧊 **3D 시뮬레이션 서비스**: Three.js 기반 산불·연무 확산 시뮬레이션
+   - 🧪 **LAB 실험 기능**: LSTM 예측, 도형 편집 도구, 실험용 AI 기능 등
+
+```mermaid
+graph TD
+  User[사용자 브라우저 접속 시도]
   LocalNGINX[로컬 NGINX - HTTPS + Reverse Proxy]
+  K8sNGINX[Kubernetes NGINX - 웹 서비스 호스팅]
   Gateway[Spring Cloud Gateway]
   Eureka[Spring Eureka]
   Service1[2D 지도 서비스]
   Service2[3D 시뮬레이션]
   Service3[LAB 실험 기능]
 
-  Dev --> GitHub --> Webhook --> Jenkins
-  Jenkins --> DockerBuild --> Registry
-  Jenkins --> ManifestRepo
-  ManifestRepo --> ArgoCD --> K8s
-
-  LocalNGINX --> K8sNGINX --> Gateway --> Eureka
+  User --> LocalNGINX --> K8sNGINX --> Gateway
+  Gateway --> Eureka
   Gateway --> Service1
   Gateway --> Service2
   Gateway --> Service3
