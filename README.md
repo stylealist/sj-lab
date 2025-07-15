@@ -85,22 +85,27 @@ graph TD
 
 ```mermaid
 graph TD
-  subgraph localNginx ["Local NGINX: HTTPS 및 Reverse Proxy"]
+  %% 사용자 요청
+  User[사용자 브라우저 접속 (HTTPS)]
+
+  %% 로컬 NGINX 블록
+  subgraph localNginx
     jenkins[jenkins.sj-lab.co.kr]
     argo[argo.sj-lab.co.kr]
     eureka[eureka.sj-lab.co.kr]
     dashboard[dashboard.sj-lab.co.kr]
     web[sj-lab.co.kr (웹 프론트)]
-    api[api.sj-lab.co.kr]
+    api[api.sj-lab.co.kr (API Gateway)]
   end
 
-  User[사용자 브라우저 접속 (HTTPS)]
+  %% 내부 서비스
   Gateway[Spring Cloud Gateway]
   Registry[Spring Eureka]
   Service1[2D 지도 서비스]
   Service2[3D 시뮬레이션]
   Service3[LAB 실험 기능]
 
+  %% 연결
   User --> jenkins
   User --> argo
   User --> eureka
@@ -112,7 +117,7 @@ graph TD
   Gateway --> Service1
   Gateway --> Service2
   Gateway --> Service3
-```
+
 ---
 
 ## 4. ⚙️ 기술 스택
