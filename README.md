@@ -158,12 +158,12 @@ GitOps 기반 배포를 통해 Kubernetes에 자동 반영되며, 실서비스�
 
 | 역할 | 설명 | GitHub 저장소 | 서비스 주소 |
 |------|------|---------------|--------------|
-| 🧩 Kubernetes 인프라 & GitOps | Argo CD, Helm Chart, Kubernetes 리소스 정의 등 인프라 전체 관리 | [sj-lab-k8s-manifests](https://github.com/stylealist/sj-lab-k8s-manifests.git) | N/A |
+| 🧩 Kubernetes 인프라 & GitOps | Argo CD, Helm Chart, Kubernetes 리소스 정의 등 인프라 전체 관리 | [sj-lab-k8s-manifests](https://github.com/stylealist/sj-lab-k8s-manifests.git) |  |
 | 🌐 API Gateway (Spring Cloud Gateway) | 클라이언트 요청을 각 MSA 서비스로 분기하는 게이트웨이 | [sj-lab-apigateway](https://github.com/stylealist/sj-lab-apigateway.git) | [https://api.sj-lab.co.kr](https://api.sj-lab.co.kr) |
 | 📡 Eureka Discovery Server | 마이크로서비스 등록 및 동적 위치 조회 | [sj-lab-discoveryServer](https://github.com/stylealist/sj-lab-discoveryServer.git) | [https://eureka.sj-lab.co.kr](https://eureka.sj-lab.co.kr) |
-| ⚙️ Argo CD (GitOps 배포 UI) | Git 저장소 기반의 Kubernetes 배포 자동화 도구 | (Helm 관리) | [https://argo.sj-lab.co.kr](https://argo.sj-lab.co.kr) |
-| 🔧 Jenkins (CI 서버) | Docker 이미지 빌드 및 GitOps 트리거링 | (로컬 관리) | [https://jenkins.sj-lab.co.kr](https://jenkins.sj-lab.co.kr) |
-| 📊 Kubernetes Dashboard | 클러스터 리소스 시각화 대시보드 | (내부 리소스) | [https://dashboard.sj-lab.co.kr](https://dashboard.sj-lab.co.kr) |
+| ⚙️ Argo CD (GitOps 배포 UI) | Git 저장소 기반의 Kubernetes 배포 자동화 도구 | [sj-lab-k8s-manifests](https://github.com/stylealist/sj-lab-k8s-manifests.git) | [https://argo.sj-lab.co.kr](https://argo.sj-lab.co.kr) |
+| 🔧 Jenkins (CI 서버) | Docker 이미지 빌드 및 GitOps 트리거링 | [sj-lab-k8s-manifests](https://github.com/stylealist/sj-lab-k8s-manifests.git) | [https://jenkins.sj-lab.co.kr](https://jenkins.sj-lab.co.kr) |
+| 📊 Kubernetes Dashboard | 클러스터 리소스 시각화 대시보드 | [sj-lab-k8s-manifests](https://github.com/stylealist/sj-lab-k8s-manifests.git) | [https://dashboard.sj-lab.co.kr](https://dashboard.sj-lab.co.kr) |
 
 ---
 
