@@ -148,3 +148,21 @@ graph TD
 
 ---
 
+## 5. 🧾 실제 프로젝트 구성 및 GitHub 저장소
+
+이 프로젝트는 **Kubernetes 기반 MSA 아키텍처**로 구성되어 있으며, 각 구성 요소는 역할에 따라 독립된 GitHub 저장소로 분리되어 관리됩니다.  
+GitOps 방식으로 통합 배포되며, 각 저장소는 아래와 같은 역할을 담당합니다:
+
+| 역할 | 설명 | GitHub 저장소 |
+|------|------|----------------|
+| 🧩 **Kubernetes 인프라 & GitOps** | Argo CD, Helm Chart, Kubernetes 리소스(YAML) 정의 등 전체 인프라를 구성하고 관리합니다. | [sj-lab-k8s-manifests](https://github.com/stylealist/sj-lab-k8s-manifests.git) |
+| 🌐 **API Gateway (Spring Cloud Gateway)** | 클라이언트 요청을 각 MSA 서비스로 분기하는 게이트웨이 역할을 수행합니다. | [sj-lab-apigateway](https://github.com/stylealist/sj-lab-apigateway.git) |
+| 📡 **Eureka Discovery Server** | 각 마이크로서비스를 등록하고 동적으로 위치를 조회하기 위한 서비스 디스커버리입니다. | [sj-lab-discoveryServer](https://github.com/stylealist/sj-lab-discoveryServer.git) |
+| 🛰️ **지도 백엔드 서비스 (REST API)** | OpenLayers 기반의 2D 지도 서비스 기능을 제공하는 REST API 서버입니다. | [mapservice-rest](https://github.com/stylealist/mapservice-rest.git) |
+| 🗺️ **지도 프론트엔드 서비스 (React)** | 사용자에게 지도를 시각적으로 제공하는 React 기반의 SPA 프론트엔드입니다. | [mapservice-react](https://github.com/stylealist/mapservice-react.git) |
+
+> 이들 저장소는 GitOps 구조에 따라 Argo CD가 주기적으로 감시하며, 변경 시 자동으로 Kubernetes에 반영됩니다.
+
+---
+
+
