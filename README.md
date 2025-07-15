@@ -85,7 +85,7 @@ graph TD
 
 ```mermaid
 graph TD
-  subgraph LocalNGINX[Local NGINX (HTTPS + Reverse Proxy)]
+  subgraph LocalNGINX[Local NGINX (HTTPS - Reverse Proxy)]
     jenkins[jenkins.sj-lab.co.kr]
     argo[argo.sj-lab.co.kr]
     eureka[eureka.sj-lab.co.kr]
