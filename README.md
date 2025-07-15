@@ -35,11 +35,11 @@
 | **CI/CD**        | Jenkins, NCP Container Registry |
 | **GitOps**       | ArgoCD |
 | **MSA**          | Spring Eureka, Spring Cloud Gateway |
-| **웹 서버**      | Kubernetes NGINX, Local NGINX, certbot |
+| **웹 서버**      | Kubernetes NGINX, Local NGINX, certbot,ingress nginx(사용료 이슈로 추 후에 도입예정) |
 | **백엔드**       | Spring Boot, Flask |
 | **프론트엔드**   | HTML/CSS, JavaScript, React, OpenLayers, Three.js, Fabric.js |
 | **DB/스토리지**  | PostgreSQL, JSON, GeoJSON |
-| **기타**         | Helm(도입 예정), Prometheus/Grafana(예정), Socket.IO |
+| **기타**         | Helm, Prometheus/Grafana(예정), Socket.IO |
 
 ---
 
