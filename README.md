@@ -158,12 +158,12 @@ GitOps 기반 배포를 통해 Kubernetes에 자동 반영되며, 실서비스�
 
 | 역할 | 설명 | GitHub 저장소 | 서비스 주소 |
 |------|------|---------------|--------------|
-| 🧩 Kubernetes 인프라 & GitOps | Argo CD, Helm Chart, Kubernetes 리소스 정의 등 인프라 전체 관리 | [sj-lab-k8s-manifests](https://github.com/stylealist/sj-lab-k8s-manifests.git) |  |
+| 🧩 Kubernetes 인프라 & GitOps | Argo CD, Helm Chart, Kubernetes 리소스 정의 등 인프라 전체 관리 | [sj-lab-k8s-manifests](https://github.com/stylealist/sj-lab-k8s-manifests.git) | - |
+| 📊 Kubernetes Dashboard | 클러스터 리소스 시각화 대시보드 | [sj-lab-k8s-manifests](https://github.com/stylealist/sj-lab-k8s-manifests.git) | [https://dashboard.sj-lab.co.kr](https://dashboard.sj-lab.co.kr) |
+| 🔧 Jenkins (CI 서버) | Docker 이미지 빌드 및 GitOps 트리거링 | [sj-lab-k8s-manifests](https://github.com/stylealist/sj-lab-k8s-manifests.git) | [https://jenkins.sj-lab.co.kr](https://jenkins.sj-lab.co.kr) |
+| ⚙️ Argo CD (GitOps 배포 UI) | Git 저장소 기반의 Kubernetes 배포 자동화 도구 | [sj-lab-k8s-manifests](https://github.com/stylealist/sj-lab-k8s-manifests.git) | [https://argo.sj-lab.co.kr](https://argo.sj-lab.co.kr) |
 | 🌐 API Gateway (Spring Cloud Gateway) | 클라이언트 요청을 각 MSA 서비스로 분기하는 게이트웨이 | [sj-lab-apigateway](https://github.com/stylealist/sj-lab-apigateway.git) | [https://api.sj-lab.co.kr](https://api.sj-lab.co.kr) |
 | 📡 Eureka Discovery Server | 마이크로서비스 등록 및 동적 위치 조회 | [sj-lab-discoveryServer](https://github.com/stylealist/sj-lab-discoveryServer.git) | [https://eureka.sj-lab.co.kr](https://eureka.sj-lab.co.kr) |
-| ⚙️ Argo CD (GitOps 배포 UI) | Git 저장소 기반의 Kubernetes 배포 자동화 도구 | [sj-lab-k8s-manifests](https://github.com/stylealist/sj-lab-k8s-manifests.git) | [https://argo.sj-lab.co.kr](https://argo.sj-lab.co.kr) |
-| 🔧 Jenkins (CI 서버) | Docker 이미지 빌드 및 GitOps 트리거링 | [sj-lab-k8s-manifests](https://github.com/stylealist/sj-lab-k8s-manifests.git) | [https://jenkins.sj-lab.co.kr](https://jenkins.sj-lab.co.kr) |
-| 📊 Kubernetes Dashboard | 클러스터 리소스 시각화 대시보드 | [sj-lab-k8s-manifests](https://github.com/stylealist/sj-lab-k8s-manifests.git) | [https://dashboard.sj-lab.co.kr](https://dashboard.sj-lab.co.kr) |
 
 ---
 
@@ -171,8 +171,8 @@ GitOps 기반 배포를 통해 Kubernetes에 자동 반영되며, 실서비스�
 
 | 역할 | 설명 | GitHub 저장소 | 서비스 주소 |
 |------|------|----------------|--------------|
-| 🛰️ 지도 백엔드 (REST API) | OpenLayers 기반 지도 백엔드 API | [mapservice-rest](https://github.com/stylealist/mapservice-rest.git) | 경유: [https://api.sj-lab.co.kr/map](https://api.sj-lab.co.kr/map) |
-| 🗺️ 지도 프론트엔드 (React) | 사용자 지도 시각화 SPA | [mapservice-react](https://github.com/stylealist/mapservice-react.git) | [https://www.sj-lab.co.kr](https://www.sj-lab.co.kr) |
+| 🛰️ 지도 백엔드 (REST API) | OpenLayers 기반 지도 백엔드 API | [mapservice-rest](https://github.com/stylealist/mapservice-rest.git) | [https://api.sj-lab.co.kr/map](https://api.sj-lab.co.kr/map) |
+| 🗺️ 지도 프론트엔드 (React) | 사용자 지도 시각화 SPA | [mapservice-react](https://github.com/stylealist/mapservice-react.git) | [https://www.sj-lab.co.kr/map](https://www.sj-lab.co.kr/map) |
 
 > 모든 서비스는 `*.sj-lab.co.kr` 도메인 기반으로 구성되어 있으며,  
 > Local NGINX를 통한 HTTPS Reverse Proxy 구조를 사용합니다.
