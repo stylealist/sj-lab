@@ -94,7 +94,7 @@ graph TD
     argo[argo.sj-lab.co.kr]
     eureka[eureka.sj-lab.co.kr]
     dashboard[dashboard.sj-lab.co.kr]
-    nginxweb[www.sj-lab.co.kr]
+    nginxweb[sj-lab.co.kr]
     api[api.sj-lab.co.kr]
   end
 
