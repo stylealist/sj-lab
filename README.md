@@ -148,19 +148,34 @@ graph TD
 
 ---
 
-## 6. 🧾 실제 프로젝트 구성 및 GitHub 저장소
+## 5. 🧾 실제 프로젝트 구성 및 GitHub / 서비스 주소
 
-이 프로젝트는 **Kubernetes 기반 MSA 아키텍처**로 구성되어 있으며, 각 구성 요소는 역할에 따라 독립된 GitHub 저장소로 분리되어 관리됩니다.  
-GitOps 방식으로 통합 배포되며, 각 저장소는 아래와 같은 역할을 담당합니다:
+이 프로젝트는 **Kubernetes 기반 MSA 아키텍처**로 구성되어 있으며,  
+각 구성 요소는 역할에 따라 **인프라 관련**과 **서비스 관련**으로 구분됩니다.  
+GitOps 기반 배포를 통해 Kubernetes에 자동 반영되며, 실서비스는 서브도메인 기반으로 분기됩니다.
 
-| 역할 | 설명 | GitHub 저장소 |
-|------|------|----------------|
-| 🧩 **Kubernetes 인프라 & GitOps** | Argo CD, Helm Chart, Kubernetes 리소스(YAML) 정의 등 전체 인프라를 구성하고 관리합니다. | [sj-lab-k8s-manifests](https://github.com/stylealist/sj-lab-k8s-manifests.git) |
-| 🌐 **API Gateway (Spring Cloud Gateway)** | 클라이언트 요청을 각 MSA 서비스로 분기하는 게이트웨이 역할을 수행합니다. | [sj-lab-apigateway](https://github.com/stylealist/sj-lab-apigateway.git) |
-| 📡 **Eureka Discovery Server** | 각 마이크로서비스를 등록하고 동적으로 위치를 조회하기 위한 서비스 디스커버리입니다. | [sj-lab-discoveryServer](https://github.com/stylealist/sj-lab-discoveryServer.git) |
-| 🛰️ **지도 백엔드 서비스 (REST API)** | OpenLayers 기반의 2D 지도 서비스 기능을 제공하는 REST API 서버입니다. | [mapservice-rest](https://github.com/stylealist/mapservice-rest.git) |
-| 🗺️ **지도 프론트엔드 서비스 (React)** | 사용자에게 지도를 시각적으로 제공하는 React 기반의 SPA 프론트엔드입니다. | [mapservice-react](https://github.com/stylealist/mapservice-react.git) |
+### 📦 인프라 구성 (CI/CD, GitOps, 서비스 디스커버리 등)
 
-> 이들 저장소는 GitOps 구조에 따라 Argo CD가 주기적으로 감시하며, 변경 시 자동으로 Kubernetes에 반영됩니다.
+| 역할 | 설명 | GitHub 저장소 | 서비스 주소 |
+|------|------|---------------|--------------|
+| 🧩 Kubernetes 인프라 & GitOps | Argo CD, Helm Chart, Kubernetes 리소스 정의 등 인프라 전체 관리 | [sj-lab-k8s-manifests](https://github.com/stylealist/sj-lab-k8s-manifests.git) | N/A |
+| 🌐 API Gateway (Spring Cloud Gateway) | 클라이언트 요청을 각 MSA 서비스로 분기하는 게이트웨이 | [sj-lab-apigateway](https://github.com/stylealist/sj-lab-apigateway.git) | [https://api.sj-lab.co.kr](https://api.sj-lab.co.kr) |
+| 📡 Eureka Discovery Server | 마이크로서비스 등록 및 동적 위치 조회 | [sj-lab-discoveryServer](https://github.com/stylealist/sj-lab-discoveryServer.git) | [https://eureka.sj-lab.co.kr](https://eureka.sj-lab.co.kr) |
+| ⚙️ Argo CD (GitOps 배포 UI) | Git 저장소 기반의 Kubernetes 배포 자동화 도구 | (Helm 관리) | [https://argo.sj-lab.co.kr](https://argo.sj-lab.co.kr) |
+| 🔧 Jenkins (CI 서버) | Docker 이미지 빌드 및 GitOps 트리거링 | (로컬 관리) | [https://jenkins.sj-lab.co.kr](https://jenkins.sj-lab.co.kr) |
+| 📊 Kubernetes Dashboard | 클러스터 리소스 시각화 대시보드 | (내부 리소스) | [https://dashboard.sj-lab.co.kr](https://dashboard.sj-lab.co.kr) |
+
+---
+
+### 🛰️ 서비스 구성 (사용자 기능 제공 마이크로서비스)
+
+| 역할 | 설명 | GitHub 저장소 | 서비스 주소 |
+|------|------|----------------|--------------|
+| 🛰️ 지도 백엔드 (REST API) | OpenLayers 기반 지도 백엔드 API | [mapservice-rest](https://github.com/stylealist/mapservice-rest.git) | 경유: [https://api.sj-lab.co.kr/map](https://api.sj-lab.co.kr/map) |
+| 🗺️ 지도 프론트엔드 (React) | 사용자 지도 시각화 SPA | [mapservice-react](https://github.com/stylealist/mapservice-react.git) | [https://www.sj-lab.co.kr](https://www.sj-lab.co.kr) |
+
+> 모든 서비스는 `*.sj-lab.co.kr` 도메인 기반으로 구성되어 있으며,  
+> Local NGINX를 통한 HTTPS Reverse Proxy 구조를 사용합니다.
+
 
 ---
