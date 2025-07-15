@@ -29,28 +29,28 @@
 
 ```mermaid
 graph TD
-  subgraph GitHub
-    AppRepo[앱 소스 코드 저장소]
-    ManifestsRepo[K8s 매니페스트 저장소]
-  end
-
-  Jenkins[Jenkins - CI 빌드]
-  NCPRegistry["NCP Container Registry - 이미지 저장"]
+  Dev[개발자 Git Push]
+  GitHub[GitHub - 앱 코드 저장소]
+  Webhook[Webhook 트리거]
+  Jenkins[Jenkins - CI 파이프라인]
+  DockerBuild[Docker 이미지 빌드]
+  Registry["NCP Container Registry - 이미지 저장"]
+  ManifestRepo[K8s Manifest 저장소 (Helm values)]
   ArgoCD[ArgoCD - GitOps 배포]
-  K8s[Kubernetes - 클러스터 운영]
-  K8sNGINX[쿠버네티스 NGINX - 웹 서비스 호스팅]
-  LocalNGINX[로컬 NGINX - Reverse Proxy + HTTPS]
-  Gateway[Spring Cloud Gateway - API 라우팅]
-  Eureka[Spring Eureka - 서비스 등록]
+  K8s[Kubernetes 클러스터]
+  K8sNGINX[Kubernetes NGINX - 웹 서비스 호스팅]
+  LocalNGINX[로컬 NGINX - HTTPS + Reverse Proxy]
+  Gateway[Spring Cloud Gateway]
+  Eureka[Spring Eureka]
   Service1[2D 지도 서비스]
   Service2[3D 시뮬레이션]
   Service3[LAB 실험 기능]
 
-  %% CI/CD 흐름
-  AppRepo --> Jenkins --> NCPRegistry
-  ManifestsRepo --> ArgoCD --> K8s
+  Dev --> GitHub --> Webhook --> Jenkins
+  Jenkins --> DockerBuild --> Registry
+  Jenkins --> ManifestRepo
+  ManifestRepo --> ArgoCD --> K8s
 
-  %% 트래픽 흐름
   LocalNGINX --> K8sNGINX --> Gateway --> Eureka
   Gateway --> Service1
   Gateway --> Service2
