@@ -165,4 +165,27 @@ GitOps 방식으로 통합 배포되며, 각 저장소는 아래와 같은 역�
 
 ---
 
+### 🧬 MSA 아키텍처 구성 흐름도
+
+```mermaid
+graph TD
+
+  User["👤 사용자"]
+  Front["🗺️ 지도 프론트엔드 (React)"]
+  Gateway["🌐 API Gateway"]
+  Eureka["📡 Eureka 서버"]
+  MapRest["🛰️ 지도 REST API 서비스"]
+  Future1["📦 예측 시뮬레이션 서비스"]
+  Future2["📦 실험 LAB 서비스"]
+
+  User --> Front
+  Front --> Gateway
+  Gateway --> Eureka
+  Gateway --> MapRest
+  Gateway --> Future1
+  Gateway --> Future2
+  Eureka --> MapRest
+  Eureka --> Future1
+  Eureka --> Future2
+
 
