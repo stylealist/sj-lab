@@ -114,7 +114,7 @@ graph TD
   Gateway --> Service1
   Gateway --> Service2
   Gateway --> Service3
-
+```
 
 ---
 
