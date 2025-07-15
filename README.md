@@ -31,7 +31,7 @@
 graph TD
   GitHub[GitHub - 코드 저장소]
   Jenkins[Jenkins - CI 빌드]
-  ncpRegistry["NCP Container Registry - Docker 이미지 저장"]
+  ncpRegistry[("NCP Container Registry - Docker 이미지 저장")]
   ArgoCD[ArgoCD - GitOps 배포]
   K8s[Kubernetes - 클러스터 운영]
   kubernetesNGINX[웹페이지 운영]
