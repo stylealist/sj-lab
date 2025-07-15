@@ -31,24 +31,24 @@
 graph TD
   GitHub[GitHub - 코드 저장소]
   Jenkins[Jenkins - CI 빌드]
-  DockerHub[(DockerHub - 이미지 저장)]
+  NCP Container Registry[(Docker 이미지 저장)]
   ArgoCD[ArgoCD - GitOps 배포]
   K8s[Kubernetes - 클러스터 운영]
-  LocalNGINX[로컬 NGINX - Reverse Proxy + HTTPS]
-  Ingress[Ingress NGINX - 서비스 라우팅]
+  kubernetesNGINX[웹페이지 운영]
+  localNGINX[로컬 NGINX - Reverse Proxy + HTTPS - 서비스 라우팅]
   Eureka[Spring Eureka]
   Gateway[Spring Cloud Gateway]
-  Service1[2D 지도 서비스]
-  Service2[3D 시뮬레이션]
-  Service3[LAB 실험 기능]
+  map[2D 지도 서비스]
+  미정[3D 시뮬레이션]
+  미정[LAB 실험 기능]
 
   GitHub --> Jenkins --> DockerHub
   GitHub --> ArgoCD --> K8s
   K8s --> Ingress --> Gateway --> Eureka
-  Gateway --> Service1
-  Gateway --> Service2
-  Gateway --> Service3
-  LocalNGINX --> Ingress
+  Gateway --> map
+  Gateway --> 미정
+  Gateway --> 미정
+  LocalNGINX --> kubernetesNGINX
 ```
 ---
 
@@ -56,10 +56,10 @@ graph TD
 
 | 구분             | 기술 |
 |------------------|------|
-| **인프라**       | NCP VPC, Ubuntu 20.04, kubeadm |
+| **인프라**       | NCP VPC, Ubuntu 24.04, kubeadm |
 | **컨테이너**     | Docker |
-| **오케스트레이션** | Kubernetes, Ingress NGINX |
-| **CI/CD**        | Jenkins, DockerHub |
+| **오케스트레이션** | Kubernetes, NGINX proxy |
+| **CI/CD**        | Jenkins, NCP Container Registry |
 | **GitOps**       | ArgoCD |
 | **MSA**          | Spring Eureka, Spring Cloud Gateway |
 | **웹 서버**      | Kubernetes NGINX, Local NGINX, certbot |
@@ -72,12 +72,12 @@ graph TD
 
 ## 5. 🔄 CI/CD & GitOps 구조
 
-- GitHub 코드 푸시 → Jenkins Webhook → Docker 이미지 빌드 → DockerHub 푸시  
+- GitHub 코드 푸시 → Jenkins Webhook → Docker 이미지 빌드 → NCP Container Registry 푸시  
 - Git 저장소(YAML) 변경 → ArgoCD 감지 → Kubernetes 자동 배포  
-- Ingress proxy 기반으로 각 서비스 라우팅
+- nginx proxy 기반으로 각 서비스 라우팅
 
 ```bash
-[Git Push] → [Jenkins 빌드] → [DockerHub 푸시] → [ArgoCD 감지] → [K8s 자동 배포]
+[Git Push] → [Jenkins 빌드] → [NCP Container Registry 푸시] → [ArgoCD 감지] → [K8s 자동 배포]
 
 ---
 
@@ -96,12 +96,3 @@ graph TD
 
 ---
 
-## 7. 🛡️ 보안 구성
-
-- **HTTPS 구성**: certbot + Local NGINX → TLS 인증서 자동 발급 및 갱신
-- **Reverse Proxy**: `.well-known/acme-challenge/` 경로 proxy 처리
-- **Ingress 보안**: TLS termination 및 Subdomain별 라우팅
-- **Kubernetes Secret**: 민감 정보 보호(DB, API Key 등)
-- **도입 예정 기능**: Spring Security + JWT 인증/인가 시스템
-
----
