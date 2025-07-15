@@ -108,10 +108,10 @@ graph TD
   subgraph localNginx
     jenkins[jenkins.sj-lab.co.kr]
     argo[argo.sj-lab.co.kr]
-    eureka[eureka.sj-lab.co.kr]
+    api[api.sj-lab.co.kr]
     dashboard[dashboard.sj-lab.co.kr]
     web[sj-lab.co.kr]
-    api[api.sj-lab.co.kr]
+    eureka[eureka.sj-lab.co.kr]
   end
 
   user["사용자 브라우저 접속 (HTTPS)"]
