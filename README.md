@@ -45,8 +45,7 @@ graph TD
   Service3[LAB 실험 기능]
 
   GitHub --> Jenkins --> NCPRegistry
-  GitHub --> ArgoCD --> K8s
-  LocalNGINX --> K8sNGINX --> Gateway --> Eureka
+  GitHub --> ArgoCD --> K8s --> K8sNGINX --> LocalNGINX --> Gateway --> Eureka
   Gateway --> Service1
   Gateway --> Service2
   Gateway --> Service3
