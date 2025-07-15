@@ -49,7 +49,7 @@ graph TD
   Gateway --> Service2
   Gateway --> Service3
   LocalNGINX --> Ingress
-
+```
 ---
 
 ## 4. ⚙️ 기술 스택
