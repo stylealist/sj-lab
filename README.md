@@ -27,8 +27,6 @@
 
 ## 3. 🏗️ 시스템 아키텍처
 
-## 3. 🏗️ 시스템 아키텍처
-
 ### 3-1. 🚀 배포 흐름 (CI + GitOps)
 
 이 프로젝트는 CI/CD 및 GitOps 기반으로 다음과 같은 배포 구조를 따릅니다:
@@ -43,15 +41,15 @@
 
 ```mermaid
 graph TD
-  Dev[개발자 Git Push]
+  Dev[개발자 GitHub Push]
   GitHub[GitHub - 앱 코드 저장소]
   Webhook[Webhook 트리거]
   Jenkins[Jenkins - CI 파이프라인]
   DockerBuild[Docker 이미지 빌드]
   Registry["NCP Container Registry - 이미지 저장"]
-  ManifestRepo["K8s Manifest 저장소 - Helm values"]
-  ArgoCD[ArgoCD - GitOps 배포]
-  K8s[Kubernetes 클러스터]
+  ManifestRepo["K8s Manifest 저장소 - 이미지 버전명 Push"]
+  ArgoCD[ArgoCD - GitOps Sync]
+  K8s[Kubernetes 클러스터 - 컨테이너 배포포]
 
   Dev --> GitHub --> Webhook --> Jenkins
   Jenkins --> DockerBuild --> Registry
@@ -76,15 +74,15 @@ graph TD
 ```mermaid
 graph TD
   User[사용자 브라우저 접속 시도]
-  LocalNGINX[로컬 NGINX - HTTPS + Reverse Proxy]
   K8sNGINX[Kubernetes NGINX - 웹 서비스 호스팅]
+  LocalNGINX[로컬 NGINX - HTTPS + Reverse Proxy]
   Gateway[Spring Cloud Gateway]
   Eureka[Spring Eureka]
   Service1[2D 지도 서비스]
   Service2[3D 시뮬레이션]
   Service3[LAB 실험 기능]
 
-  User --> LocalNGINX --> K8sNGINX --> Gateway
+  User --> K8sNGINX --> LocalNGINX --> Gateway
   Gateway --> Eureka
   Gateway --> Service1
   Gateway --> Service2
