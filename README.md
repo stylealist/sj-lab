@@ -132,6 +132,7 @@ graph TD
   service1["2D 지도 서비스"]
   service2["3D 시뮬레이션"]
   service3["LAB 실험 기능"]
+  service4["스케쥴러"]
 
   user --> jenkins
   user --> argo
@@ -144,6 +145,7 @@ graph TD
   gateway --> service1
   gateway --> service2
   gateway --> service3
+  gateway --> service4
 ```
 
 ---
