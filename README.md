@@ -173,6 +173,7 @@ GitOps 기반 배포를 통해 Kubernetes에 자동 반영되며, 실서비스�
 |------|------|----------------|--------------|
 | 🛰️ 지도 백엔드 (REST API) | OpenLayers 기반 지도 백엔드 API | [mapservice-rest](https://github.com/stylealist/mapservice-rest.git) | [https://api.sj-lab.co.kr/map](https://api.sj-lab.co.kr/map) |
 | 🗺️ 지도 프론트엔드 (React) | 사용자 지도 시각화 SPA | [mapservice-react](https://github.com/stylealist/mapservice-react.git) | [https://www.sj-lab.co.kr/map](https://www.sj-lab.co.kr/map) |
+| ⏲️ 스케쥴러 (SCHEDULER) | 데이터 스케쥴링 백엔드 | [sj-lab-scheduler](https://github.com/stylealist/sj-lab-scheduler.git) | [https://www.api.sj-lab.co.kr/scheduler](https://www.api.sj-lab.co.kr/scheduler) |
 
 > 모든 서비스는 `*.sj-lab.co.kr` 도메인 기반으로 구성되어 있으며,  
 > Local NGINX를 통한 HTTPS Reverse Proxy 구조를 사용합니다.
