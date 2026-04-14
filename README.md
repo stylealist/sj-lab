@@ -50,7 +50,7 @@
 | **GitOps**       | ArgoCD |
 | **MSA**          | Spring Eureka, Spring Cloud Gateway |
 | **웹 서버**      | Kubernetes NGINX, Local NGINX, certbot, ingress nginx(추 후 확장예정) |
-| **백엔드**       | Spring Boot, Flask |
+| **백엔드**       | Spring Boot, FastAPI |
 | **프론트엔드**   | HTML/CSS, JavaScript, React, OpenLayers, Three.js |
 | **DB/스토리지**  | PostgreSQL, JSON, GeoJSON |
 | **기타**         | Helm, Prometheus/Grafana(예정), Socket.IO |
