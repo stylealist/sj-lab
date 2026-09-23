@@ -1,6 +1,8 @@
-# 🧪 SJ-LAB: Kubernetes & MSA 기반 공간정보(GIS) 및 시설물 관리 통합 플랫폼
+# 🧪 SJ-LAB: Kubernetes & MSA 기반 멀티 서비스 클라우드 웹 플랫폼 (Cloud Native Multi-Service Lab)
 
-> **SJ-LAB**은 모바일 현장 시설물 점검부터 공간정보(GIS) 시각화, MSA 분산 백엔드, 통합 인증(SSO), Kubernetes GitOps 자동 배포까지 전 주기를 아우르는 엔드투엔드(End-to-End) 클라우드 네이티브 웹 플랫폼입니다.
+> **SJ-LAB**은 Naver Cloud VPC 위에 직접 구축한 Kubernetes 클러스터와 MSA(Spring Cloud Gateway, Netflix Eureka) 아키텍처를 기반으로, **공간정보(GIS), 3D 가시화, AI/빅데이터 예측 모델, OpenAPI 등 다양한 도메인의 웹 서비스와 실험적 기술 프로젝트를 유연하게 탑재하고 확장하는 종합 클라우드 웹 플랫폼**입니다.
+>
+> 현재 플랫폼의 첫 번째 플래그십 프로젝트로 **[시설물 관리 2D GIS 서비스]**(모바일 현장조사 → 30초 증분 동기화 → PostGIS → 공간 API → 내업 관리 지도 SPA)가 완벽히 구축되어 실서비스 운영 중이며, 중앙 랜딩 허브([`sj-lab-hub`](https://sj-lab.co.kr))를 중심으로 3D 시뮬레이션, AI 실험실(LAB) 등의 다양한 서비스 모듈이 지속적으로 확장·통합되는 구조를 갖추고 있습니다.
 
 ---
 
@@ -10,9 +12,9 @@
 
 | 구분 | 서비스 명칭 | 접속 URL | 주요 역할 및 확인 포인트 |
 |---|---|---|---|
-| **웹 서비스** | **통합 랜딩 허브 (sj-lab-hub)** | [https://sj-lab.co.kr](https://sj-lab.co.kr) | 플랫폼 전체 런치패드, 기능 카드 및 첫 진입 SSO 게이트웨이 |
-| **웹 서비스** | **시설물 관리 지도 (sj-lab-mapservice)** | [https://sj-lab.co.kr/map/](https://sj-lab.co.kr/map/) | 2,500건 시설물 GIS 시각화, 내업(사무실 조치) 관리, 실시간 CCTV 재생 |
-| **인증** | **중앙 인증 서버 (sj-lab-authserver)** | [https://api.sj-lab.co.kr/auth/login.html](https://api.sj-lab.co.kr/auth/login.html) | QFieldCloud 위임 로그인, sj-lab 전용 JWT 발급, 데모 계정 지원 |
+| **플랫폼 대문** | **통합 랜딩 허브 (sj-lab-hub)** | [https://sj-lab.co.kr](https://sj-lab.co.kr) | 플랫폼 전체 런치패드, 기능별 서비스 카드 및 첫 진입 SSO 게이트웨이 |
+| **GIS 서비스** | **시설물 관리 지도 (sj-lab-mapservice)** | [https://sj-lab.co.kr/map/](https://sj-lab.co.kr/map/) | [플래그십] 2,500건 시설물 공간 시각화, 내업(사무실 조치) 관리, 실시간 CCTV 재생 |
+| **인증** | **중앙 인증 서버 (sj-lab-authserver)** | [https://api.sj-lab.co.kr/auth/login.html](https://api.sj-lab.co.kr/auth/login.html) | 플랫폼 통합 SSO, QFieldCloud 위임 로그인, 데모 계정 지원 |
 | **API** | **API 게이트웨이 (연결 테스트)** | [https://api.sj-lab.co.kr/map/check](https://api.sj-lab.co.kr/map/check) | **클릭 시 API 연결 성공 메시지 반환 (`HTTP 200`)**<br>※ 기본 루트(`/`)는 라우트가 없어 404가 발생하므로 테스트 URL로 연결 검증 |
 | **DevOps** | **Jenkins (CI 파이프라인)** | [https://jenkins.sj-lab.co.kr](https://jenkins.sj-lab.co.kr) | 소스코드 감지, 컨테이너 빌드 및 NCP Registry 푸시 자동화 파이프라인 |
 | **DevOps** | **Kubernetes Dashboard** | [https://dashboard.sj-lab.co.kr](https://dashboard.sj-lab.co.kr) | 클러스터 노드, 파드(Pod), 서비스 등 K8s 워크로드 리소스 시각화 모니터링 |
@@ -24,11 +26,33 @@
 > 1. [https://sj-lab.co.kr](https://sj-lab.co.kr) 또는 [https://sj-lab.co.kr/map/](https://sj-lab.co.kr/map/)에 접속합니다.
 > 2. 로그인 화면이 나타나면 폼 하단의 **`[체험용 계정으로 로그인]` 버튼**을 클릭합니다.
 > 3. 별도의 회원가입이나 계정 입력 없이 **자동으로 데모 토큰이 발급되어 즉시 대시보드 및 지도 화면으로 입장**합니다.
-> 4. 백엔드 API 게이트웨이 연결 상태는 **[https://api.sj-lab.co.kr/map/check](https://api.sj-lab.co.kr/map/check)** 링크를 클릭하여 `HTTP 200` 정상 응답(`"Hi, there. This is a message from First Service on PORT ..."`)을 즉시 확인하실 수 있습니다.
+> 4. 백엔드 API 게이트웨이 연결 상태는 **[https://api.sj-lab.co.kr/map/check](https://api.sj-lab.co.kr/map/check)** 링크를 클릭하여 `HTTP 200` 정상 응답(`"[SJ-LAB] API 게이트웨이 및 지도/시설물 백엔드 서비스(mapservice-rest)가 정상적으로 연결되어 원활히 운영 중입니다."`)을 즉시 확인하실 수 있습니다.
 
 ---
 
-## 🖥️ 2. 핵심 웹 서비스 상세 안내
+## 🧭 2. 플랫폼 서비스 맵 & 확장 아키텍처
+
+SJ-LAB은 단일 목적의 서비스가 아닌, **중앙 허브([`sj-lab-hub`](https://sj-lab.co.kr))를 중심으로 여러 도메인의 마이크로서비스가 독립적으로 탑재되는 확장형 웹 플랫폼**입니다.
+
+```
+                    ┌─────────────────────────────────┐
+                    │      SJ-LAB 통합 랜딩 허브      │
+                    │      (https://sj-lab.co.kr)     │
+                    └────────────────┬────────────────┘
+                                     │
+         ┌───────────────────────────┼───────────────────────────┐
+         │                           │                           │
+         ▼                           ▼                           ▼
+┌──────────────────┐       ┌──────────────────┐       ┌──────────────────┐
+│  시설물 관리 2D   │       │  3D 공간 시뮬레이션 │       │  AI / 데이터 실험실 │
+│  (GIS 플랫폼)    │       │  (Digital Twin)  │       │  (Predictive Lab)│
+├──────────────────┤       ├──────────────────┤       ├──────────────────┤
+│ • [운영 중]       │       │ • [확장 예정]     │       │ • [확장 예정]     │
+│ • 현장조사 모바일 │       │ • Three.js 렌더링 │       │ • 시계열 예측    │
+│ • OpenLayers SPA │       │ • Cesium 지형분석 │       │ • 음성 STT 요약  │
+│ • 내업 조치 관리 │       │ • 3D BIM/건물모델│       │ • RAG 기반 지식검색│
+└──────────────────┘       └──────────────────┘       └──────────────────┘
+```
 
 ### 2-1. `sj-lab-hub` — 플랫폼 통합 랜딩 허브
 > **URL**: [https://sj-lab.co.kr](https://sj-lab.co.kr) (React 18 · Webpack 5)
@@ -38,10 +62,10 @@
 - **선제적 SSO 인증 게이트 (Zero-FOUC)**: React 컴포넌트가 파싱되기 전 `<head>` 단계에서 인라인 스크립트로 토큰 유효성을 판별하여, 미인증 사용자에게 미완성 화면이 일절 노출되지 않고 즉각 로그인으로 전환됩니다.
 - **동적 환경 분기 라우팅**: 클라이언트의 접속 주소를 감지하여 로컬(포트 3000 -> 4000)과 운영(서브패스 `/` -> `/map/`) 간의 이동 경로를 자동 보정합니다.
 
-### 2-2. `sj-lab-mapservice` — 시설물 관리 지도 웹 서비스
+### 2-2. `sj-lab-mapservice` — [플래그십] 시설물 관리 2D 지도 웹 서비스
 > **URL**: [https://sj-lab.co.kr/map/](https://sj-lab.co.kr/map/) (Vanilla JS ES Modules · OpenLayers 7 SPA)
 
-모바일 현장조사 데이터와 전국 공공 공간정보를 결합하여 웹 지도에서 통합 모니터링하고, 사무실 조치(내업)를 등록·관리하는 핵심 업무 시스템입니다.
+모바일 현장조사 데이터와 전국 공공 지리정보를 결합하여 웹 지도에서 통합 모니터링하고, 사무실 조치(내업)를 등록·관리하는 SJ-LAB의 첫 번째 핵심 구현 시스템입니다.
 - **공간정보 다차원 연쇄 필터링**:
   - 시·도 → 시·군·구 → 읍·면·동 3단계 행정구역 연쇄 필터 및 경계 영역(BBOX) 자동 카메라 이동.
   - 시설물 상태(전체 / 보수 필요 / 보수 불필요) 및 내업 상태(처리 대기, 미완료, 접수, 처리중, 완료, 보류) 다중 조건 필터링.
@@ -62,9 +86,9 @@
 
 ---
 
-## 🔄 3. 엔드투엔드(End-to-End) 업무 및 데이터 흐름 프로세스
+## 🔄 3. [플래그십 서비스 파이프라인] 엔드투엔드 데이터 흐름 프로세스
 
-SJ-LAB은 재난·공공시설물을 **현장에서 모바일로 점검하고(Field), 사무실에서 웹으로 조치(Office)하는 전체 업무 라이프사이클**을 유기적인 데이터 파이프라인으로 연결합니다.
+SJ-LAB 플랫폼에 구축된 **시설물 점검 및 관리 서비스**의 현장(모바일) → 동기화(ETL) → 백엔드(MSA) → 웹 화면(SPA)으로 이어지는 데이터 라이프사이클입니다.
 
 ### 3-1. 전체 아키텍처 흐름도 (End-to-End Pipeline)
 
@@ -172,20 +196,22 @@ SJ-LAB은 재난·공공시설물을 **현장에서 모바일로 점검하고(Fi
 
 ---
 
-## 📦 4. 11개 서브 프로젝트 구성 및 역할 총괄 표
+## 📦 4. 플랫폼 서브 프로젝트 구성 및 역할 총괄 표
+
+플랫폼 공통 인프라 모듈과 현재 서비스 중인 도메인 모듈들의 매핑입니다:
 
 | 분류 | 저장소 | 주요 기술 | 핵심 역할 및 책임 | 서비스 경로 / 노출 포트 |
 |---|---|---|---|---|
-| **백엔드 (총괄)** | [mapservice-rest](https://github.com/stylealist/mapservice-rest) | Java 17, Spring Boot 3.3.2, PostGIS, MyBatis | 공간정보 GeoJSON API, BBOX 격자 표본화, 내업 기록/사진 관리, 총괄 아키텍처 기준 저장소 | `api.sj-lab.co.kr/map/**`<br>(로컬 랜덤) |
+| **플랫폼 대문** | [sj-lab-hub](https://github.com/stylealist/sj-lab-hub) | React 18, Webpack 5, Babel | 플랫폼 단일 대문(Landing), 서비스 런치패드, React 구동 전 SSO 인증 게이트웨이 | `sj-lab.co.kr`<br>(로컬 3000) |
+| **GIS 프론트** | [sj-lab-mapservice](https://github.com/stylealist/sj-lab-mapservice) | Vanilla JS (ES Modules), OpenLayers 7, Hls.js | [시설물] 무빌드 정적 SPA, 2,500건 시설물 공간 시각화, 클러스터링/스파이더링, 내업 관리 UI | `sj-lab.co.kr/map/`<br>(로컬 4000) |
+| **GIS 백엔드** | [mapservice-rest](https://github.com/stylealist/mapservice-rest) | Java 17, Spring Boot 3.3.2, PostGIS, MyBatis | [시설물] 공간정보 GeoJSON API, BBOX 격자 표본화, 내업 기록/사진 관리, 기준 저장소 | `api.sj-lab.co.kr/map/**`<br>(로컬 랜덤) |
 | **게이트웨이** | [sj-lab-apigateway](https://github.com/stylealist/sj-lab-apigateway) | Spring Cloud Gateway, WebFlux, Netty | 마이크로서비스 단일 진입점, Eureka 기반 클라이언트 로드밸런싱, 중앙 집중식 CORS 제어 | `api.sj-lab.co.kr`<br>(로컬 8100) |
 | **디스커버리** | [sj-lab-discoveryServer](https://github.com/stylealist/sj-lab-discoveryServer) | Spring Cloud Netflix Eureka Server | 서비스 동적 등록/위치 추적, 헬스체크 및 라이프사이클 관리 | `eureka.sj-lab.co.kr`<br>(로컬 8761) |
-| **데이터 배치** | [sj-lab-scheduler](https://github.com/stylealist/sj-lab-scheduler) | Spring Boot, PostGIS, `@Scheduled` | 공공 API(CCTV, 버스, 병원, 약국 등) 정기 수집, 공간 투영(3857) 및 GeoJSON 뷰 생성 | `api.sj-lab.co.kr/scheduler/**`<br>(로컬 랜덤) |
-| **인증 서버** | [sj-lab-authserver](https://github.com/stylealist/sj-lab-authserver) | Spring Security 6, JJWT (HS256) | QFieldCloud 계정 위임 인증, sj-lab 전용 JWT 발급, 세션 쿠키/해시 기반 무DB SSO | `api.sj-lab.co.kr/auth/**`<br>(로컬 랜덤) |
+| **인증 서버** | [sj-lab-authserver](https://github.com/stylealist/sj-lab-authserver) | Spring Security 6, JJWT (HS256) | 플랫폼 통합 SSO, QFieldCloud 위임 인증, sj-lab 전용 JWT 발급, 무DB 세션-토큰 | `api.sj-lab.co.kr/auth/**`<br>(로컬 랜덤) |
+| **데이터 배치** | [sj-lab-scheduler](https://github.com/stylealist/sj-lab-scheduler) | Spring Boot, PostGIS, `@Scheduled` | [시설물] 공공 API 정기 수집, 공간 투영(3857) 및 GeoJSON 뷰 생성 | `api.sj-lab.co.kr/scheduler/**`<br>(로컬 랜덤) |
 | **AI 마이크로서비스**| [fast-api-ai](https://github.com/stylealist/fast-api-ai) | Python 3.12, FastAPI, Uvicorn | Spring Cloud 연동 Python 마이크로서비스, 음성 STT 요약 및 AI/RAG 엔진 기반 | `api.sj-lab.co.kr/fast-api-ai/**`<br>(로컬 8000) |
-| **지도 프론트** | [sj-lab-mapservice](https://github.com/stylealist/sj-lab-mapservice) | Vanilla JS (ES Modules), OpenLayers 7, Hls.js | 무빌드 정적 SPA, 약 2,500건 시설물 공간 시각화, 클러스터링/스파이더링, 내업 관리 UI | `sj-lab.co.kr/map/`<br>(로컬 4000) |
-| **랜딩 허브** | [sj-lab-hub](https://github.com/stylealist/sj-lab-hub) | React 18, Webpack 5, Babel | 플랫폼 단일 대문(Landing), 서비스 런치패드, React 구동 전 SSO 인증 게이트웨이 | `sj-lab.co.kr`<br>(로컬 3000) |
-| **모바일 앱** | [infra-manage-app](https://github.com/stylealist/infra-manage-app) | C++17, Qt/QML, QGIS Core SDK, CMake | QField 기반 커스텀 포크 현장조사 앱, 3단계 점검 폼 및 사진/음성/영상 미디어 수집 | 모바일 (Android/Windows) |
-| **동기화 워커** | [sj-qfieldsync](https://github.com/stylealist/sj-qfieldsync) | Python, GeoPandas, GDAL, psycopg2 | QFieldCloud ↔ PostGIS 30초 주기 증분 ETL, 스키마 진화 수용, 영구 불변 ID 보장 | 단독 백그라운드 워커 |
+| **모바일 앱** | [infra-manage-app](https://github.com/stylealist/infra-manage-app) | C++17, Qt/QML, QGIS Core SDK, CMake | [시설물] QField 기반 커스텀 포크 현장조사 앱, 3단계 점검 폼 및 사진/음성/영상 미디어 수집 | 모바일 (Android/Windows) |
+| **동기화 워커** | [sj-qfieldsync](https://github.com/stylealist/sj-qfieldsync) | Python, GeoPandas, GDAL, psycopg2 | [시설물] QFieldCloud ↔ PostGIS 30초 주기 증분 ETL, 스키마 진화 수용, 영구 불변 ID 보장 | 단독 백그라운드 워커 |
 | **GitOps 배포** | [sj-lab-k8s-manifests](https://github.com/stylealist/sj-lab-k8s-manifests) | Kubernetes, Helm 3, ArgoCD | 전 서비스 Helm 차트 모음, GitOps 배포 SSOT, ConfigMap 체크섬 롤링 업데이트 | 클러스터 인프라 |
 
 ---
