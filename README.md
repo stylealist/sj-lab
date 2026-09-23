@@ -1,186 +1,116 @@
-# 🧪 SJ-LAB: Kubernetes 기반 DevOps & MSA 실무형 포트폴리오 
-> [!WARNING]
-> ※ 시스템이 NCP로 구성되어있어 금액부담으로 인해 평소에는 시스템이 내려가있습니다.
+# 🧪 SJ-LAB: Kubernetes & MSA 기반 공간정보(GIS) 및 시설물 관리 통합 플랫폼
 
-> Naver Cloud VPC 환경 위에 직접 Kubernetes 인프라를 구성하고,  
-> MSA 구조의 웹 서비스를 구축한 **DevOps 기반 실무형 프로젝트**입니다.  
-> 2D/3D 지도 플랫폼, 실시간 예측, 시뮬레이션 등 다양한 서비스를 모듈화하여 실험 가능한 구조로 구현하였습니다.
-
----
-## 👋 Intro
-
-안녕하세요, **5년차 웹 개발자 주성중**입니다.  
-**백엔드부터 DevOps, 인프라, 프론트엔드까지 전방위로 직접 구축하고 운영할 수 있는 풀스택 역량**을 갖추고 있으며,  
-지금 이 순간에도 더 나은 서비스를 만들기 위한 실험과 학습을 반복하고 있습니다.
-
-실제 서비스와 클라우드 환경에서 마주한 문제들을 **Kubernetes, GitOps, MSA**로 풀어가며,  
-기획부터 배포까지 **개발 전 과정을 주도적으로 책임지는 개발자**로 성장해왔습니다.
-
-기술을 단순히 ‘배우는 것’에 그치지 않고, **프로젝트로 증명하고 운영으로 완성하는 개발자**로서,  
-지금까지의 여정을 이 포트폴리오에 담았습니다.
-
----
-## 1. 📌 프로젝트 개요
-
-| 항목 | 내용 |
-|------|------|
-| **프로젝트명** | SJ-LAB (SungJoong-LAB) |
-| **개발 기간** | 2025년 05월 ~ 현재 |
-| **참여 인원** | 1인 (단독 개발) |
-| **역할** | Full-Stack 개발, 인프라 설계, CI/CD 구축, K8s 운영, 웹 서비스 개발 등 100% 구현 |
+> **SJ-LAB**은 모바일 현장 시설물 점검부터 공간정보(GIS) 시각화, MSA 분산 백엔드, 통합 인증(SSO), Kubernetes GitOps 자동 배포까지 전 주기를 아우르는 엔드투엔드(End-to-End) 클라우드 네이티브 웹 플랫폼입니다.
 
 ---
 
-## 2. 🧩 개요
+## 1. 플랫폼 개요 및 엔드투엔드(End-to-End) 데이터 흐름
 
-> **DevOps와 MSA 아키텍처를 실제 클라우드 인프라에 적용한 웹 플랫폼입니다.**  
-> 다양한 지도 기반 서비스, 실시간 실험(LAB), 예측 모델 등을 MSA로 분리하여 구성하고,  
-> GitOps 기반의 자동 배포 시스템으로 확장성과 운영 편의성을 확보하였습니다.
-
----
-
-## 3. ⚙️ 기술 스택
-
-| 구분             | 기술 |
-|------------------|------|
-| **인프라**       | NCP VPC, Ubuntu 24.04, kubeadm |
-| **컨테이너**     | Docker |
-| **오케스트레이션** | Kubernetes, NGINX proxy |
-| **CI/CD**        | Jenkins, NCP Container Registry |
-| **GitOps**       | ArgoCD |
-| **MSA**          | Spring Eureka, Spring Cloud Gateway |
-| **웹 서버**      | Kubernetes NGINX, Local NGINX, certbot, ingress nginx(추 후 확장예정) |
-| **백엔드**       | Spring Boot, FastAPI |
-| **프론트엔드**   | HTML/CSS, JavaScript, React, OpenLayers, Three.js |
-| **DB/스토리지**  | PostgreSQL, JSON, GeoJSON |
-| **기타**         | Helm, Prometheus/Grafana(예정), Socket.IO |
-
----
-
-## 4. 🏗️ 시스템 아키텍처 및 CI/CD & GitOps 구조
-
-### 4-1. 🚀 배포 흐름 (CI + GitOps)
-
-이 프로젝트는 CI/CD 및 GitOps 기반으로 다음과 같은 배포 구조를 따릅니다:
-
-1. **개발자**가 GitHub에 소스 코드를 Push하면,
-2. GitHub의 **Webhook**이 Jenkins를 트리거합니다.
-3. **Jenkins**는 소스 코드를 기반으로 Docker 이미지를 빌드하여,
-4. **NCP Container Registry**에 이미지를 저장합니다.
-5. 이후 Jenkins는 Kubernetes 배포 설정이 포함된 Git 저장소(`Helm values.yaml`)를 수정합니다.
-6. **ArgoCD**는 해당 Git 저장소를 감시하다가 변경이 감지되면,
-7. Helm을 통해 **Kubernetes 클러스터**에 자동으로 새로운 버전을 배포합니다.
+SJ-LAB은 재난·공공시설물을 **현장에서 모바일로 점검하고(Field), 사무실에서 웹으로 조치(Office)하는 전체 업무 라이프사이클**을 지원합니다. 11개의 독립적인 마이크로서비스와 인프라 모듈이 유기적으로 연동되어 대규모 공간 데이터 파이프라인을 형성합니다.
 
 ```mermaid
-graph TD
-  Dev[개발자 GitHub Push]
-  GitHub[GitHub - 앱 코드 저장소]
-  Webhook[Webhook 트리거]
-  Jenkins[Jenkins - CI 파이프라인]
-  DockerBuild[Docker 이미지 빌드]
-  Registry["NCP Container Registry - 이미지 저장"]
-  ManifestRepo["K8s Manifest 저장소 - 이미지 버전명 Push"]
-  ArgoCD[ArgoCD - GitOps Sync]
-  K8s[Kubernetes 클러스터 - 컨테이너 배포]
+flowchart TD
+    subgraph 현장_수집_파이프라인 ["1. 현장 수집 및 ETL 파이프라인"]
+        FieldApp["모바일 현장조사 앱<br>(infra-manage-app)"] -->|"점검 결과 업로드"| QFieldCloud["QFieldCloud<br>(qfield.sj-lab.co.kr)"]
+        QFieldCloud -->|"30초 주기 변경 감지"| Worker["동기화 워커<br>(sj-qfieldsync)"]
+        Worker -->|"동적 스키마 확장 & UPSERT"| PostGIS[("PostgreSQL 17 / PostGIS 3.4<br>(qfield.facility_total_view)")]
+    end
 
-  Dev --> GitHub --> Webhook --> Jenkins
-  Jenkins --> DockerBuild --> Registry
-  Jenkins --> ManifestRepo
-  ManifestRepo --> ArgoCD --> K8s
-```
+    subgraph 공공데이터_수집_배치 ["2. 공공데이터 배치 파이프라인"]
+        PublicAPI["공공데이터포털 / ITS / 생활안전지도"] -->|"정기 크론 스케줄링"| Scheduler["공공데이터 수집 배치<br>(sj-lab-scheduler)"]
+        Scheduler -->|"공간 투영(EPSG:3857) & GeoJSON 뷰 생성"| PostGIS
+    end
 
-### 4-2. 🌐 서비스 흐름 (사용자 요청 → 서비스 응답)
+    subgraph MSA_백엔드_인프라 ["3. MSA 서비스 백엔드 & 인프라"]
+        PostGIS -->|"MyBatis 공간 쿼리"| MapAPI["지도/시설물 GeoJSON API<br>(mapservice-rest)"]
+        Eureka["Eureka 서비스 레지스트리<br>(sj-lab-discoveryServer)"] <--->|"인스턴스 등록 / 디스커버리"| MapAPI
+        Eureka <--->|"인스턴스 등록 / 디스커버리"| Scheduler
+        Eureka <--->|"인스턴스 등록 / 디스커버리"| AuthServer["통합 인증 서버 (SSO)<br>(sj-lab-authserver)"]
+        Eureka <--->|"인스턴스 등록 / 디스커버리"| FastAPIAI["FastAPI AI 서비스<br>(fast-api-ai)"]
+        QFieldCloud -.->|"계정 위임 검증"| AuthServer
+    end
 
-본 시스템은 **서브도메인 기반 Reverse Proxy 구조**로 구성되어 있으며,  
-사용자의 HTTPS 요청은 Local NGINX를 통해 각 Kubernetes 서비스로 분기됩니다.
+    subgraph 트래픽_및_프론트엔드 ["4. 게이트웨이 및 프론트엔드 포털"]
+        Gateway["Spring Cloud Gateway<br>(sj-lab-apigateway)"] <--->|"라우팅 테이블 질의"| Eureka
+        Gateway -->|"/map/**"| MapAPI
+        Gateway -->|"/auth/**"| AuthServer
+        Gateway -->|"/scheduler/**"| Scheduler
+        Gateway -->|"/fast-api-ai/**"| FastAPIAI
 
-1. 사용자가 브라우저에서 각 서브도메인에 접속합니다.
-2. **Local NGINX**는 요청된 도메인을 기준으로 Kubernetes 클러스터 내부 서비스로 Reverse Proxy 합니다.
-3. 도메인에 따른 역할은 다음과 같습니다:
+        UserBrowser["사용자 브라우저"] -->|"https://sj-lab.co.kr"| Hub["랜딩 허브 (React)<br>(sj-lab-hub)"]
+        UserBrowser -->|"https://sj-lab.co.kr/map/"| MapService["지도 프론트엔드 (OpenLayers SPA)<br>(sj-lab-mapservice)"]
+        UserBrowser -->|"https://api.sj-lab.co.kr"| Gateway
+        Hub -.->|"SSO 인증 게이트"| AuthServer
+        MapService -.->|"SSO 인증 게이트"| AuthServer
+    end
 
-| 도메인 | 설명 |
-|--------|------|
-| `sj-lab.co.kr` | Kubernetes NGINX에서 서빙하는 웹 프론트 (정적 HTML 페이지) |
-| `api.sj-lab.co.kr` | Spring Cloud Gateway → 각 마이크로서비스 API로 라우팅 |
-| `eureka.sj-lab.co.kr` | Eureka Dashboard (MSA 서비스 등록 확인) |
-| `jenkins.sj-lab.co.kr` | Jenkins CI 서비스 |
-| `argo.sj-lab.co.kr` | Argo CD GitOps 배포 관리 UI |
-| `dashboard.sj-lab.co.kr` | Kubernetes Dashboard |
-
-4. `api.sj-lab.co.kr`으로 들어온 요청은 **Spring Cloud Gateway**가 처리하며,
-5. Gateway는 **Spring Eureka**로부터 각 마이크로서비스 위치를 동적으로 조회하고,
-6. 요청을 적절한 서비스로 전달합니다:
-
-   - 🗺️ **2D 지도 서비스**
-   - 🧊 **3D 시뮬레이션**
-   - 🧪 **LAB 실험 기능**
-
-```mermaid
-graph TD
-
-  %% subgraph는 항상 먼저 선언
-  subgraph localNginx
-    jenkins[jenkins.sj-lab.co.kr]
-    argo[argo.sj-lab.co.kr]
-    api[api.sj-lab.co.kr]
-    dashboard[dashboard.sj-lab.co.kr]
-    web[sj-lab.co.kr]
-    eureka[eureka.sj-lab.co.kr]
-  end
-
-  user["사용자 브라우저 접속 (HTTPS)"]
-  gateway["Spring Cloud Gateway"]
-  registry["Spring Eureka"]
-  service1["2D 지도 서비스"]
-  service2["3D 시뮬레이션"]
-  service3["LAB 실험 기능"]
-  service4["스케쥴러"]
-
-  user --> jenkins
-  user --> argo
-  user --> eureka
-  user --> dashboard
-  user --> web
-  user --> api
-
-  api --> gateway --> registry
-  gateway --> service1
-  gateway --> service2
-  gateway --> service3
-  gateway --> service4
+    subgraph 배포_자동화 ["5. CI/CD & GitOps 인프라"]
+        GitRepo["GitHub 서비스 저장소들"] -->|"Push Webhook"| Jenkins["Jenkins CI"]
+        Jenkins -->|"Docker Build & Push"| Registry["NCP Container Registry"]
+        Jenkins -->|"image.tag 자동 커밋"| ManifestRepo["GitOps 배포 저장소<br>(sj-lab-k8s-manifests)"]
+        ManifestRepo -->|"Auto-Sync & Self-Heal"| ArgoCD["ArgoCD"]
+        ArgoCD -->|"Helm 롤링 배포"| K8sCluster["Kubernetes Cluster"]
+    end
 ```
 
 ---
 
-## 5. 🧾 실제 프로젝트 구성 및 GitHub / 서비스 주소
+## 2. 11개 서브 프로젝트 구성 및 역할 명세
 
-이 프로젝트는 **Kubernetes 기반 MSA 아키텍처**로 구성되어 있으며,  
-각 구성 요소는 역할에 따라 **인프라 관련**과 **서비스 관련**으로 구분됩니다.  
-GitOps 기반 배포를 통해 Kubernetes에 자동 반영되며, 실서비스는 서브도메인 기반으로 분기됩니다.
+플랫폼을 구성하는 11개 저장소의 역할과 핵심 기술, 서비스 경로 매핑입니다:
 
-### 📦 인프라 구성 (CI/CD, GitOps, 서비스 디스커버리 등)
+| 분류 | 저장소 | 주요 기술 | 핵심 역할 및 책임 | 서비스 경로 / 노출 포트 |
+|---|---|---|---|---|
+| **백엔드 (총괄)** | [mapservice-rest](https://github.com/stylealist/mapservice-rest) | Java 17, Spring Boot 3.3.2, PostGIS, MyBatis | 공간정보 GeoJSON API, BBOX 격자 표본화, 내업 기록/사진 관리, 총괄 아키텍처 기준 저장소 | `api.sj-lab.co.kr/map/**`<br>(로컬 랜덤) |
+| **게이트웨이** | [sj-lab-apigateway](https://github.com/stylealist/sj-lab-apigateway) | Spring Cloud Gateway, WebFlux, Netty | 마이크로서비스 단일 진입점, Eureka 기반 클라이언트 로드밸런싱, 중앙 집중식 CORS 제어 | `api.sj-lab.co.kr`<br>(로컬 8100) |
+| **디스커버리** | [sj-lab-discoveryServer](https://github.com/stylealist/sj-lab-discoveryServer) | Spring Cloud Netflix Eureka Server | 서비스 동적 등록/위치 추적, 헬스체크 및 라이프사이클 관리 | `eureka.sj-lab.co.kr`<br>(로컬 8761) |
+| **데이터 배치** | [sj-lab-scheduler](https://github.com/stylealist/sj-lab-scheduler) | Spring Boot, PostGIS, `@Scheduled` | 공공 API(CCTV, 버스, 병원, 약국 등) 정기 수집, 공간 투영(3857) 및 GeoJSON 뷰 생성 | `api.sj-lab.co.kr/scheduler/**`<br>(로컬 랜덤) |
+| **인증 서버** | [sj-lab-authserver](https://github.com/stylealist/sj-lab-authserver) | Spring Security 6, JJWT (HS256) | QFieldCloud 계정 위임 인증, sj-lab 전용 JWT 발급, 세션 쿠키/해시 기반 무DB SSO | `api.sj-lab.co.kr/auth/**`<br>(로컬 랜덤) |
+| **AI 마이크로서비스**| [fast-api-ai](https://github.com/stylealist/fast-api-ai) | Python 3.12, FastAPI, Uvicorn | Spring Cloud 연동 Python 마이크로서비스, 음성 STT 요약 및 AI/RAG 엔진 기반 | `api.sj-lab.co.kr/fast-api-ai/**`<br>(로컬 8000) |
+| **지도 프론트** | [sj-lab-mapservice](https://github.com/stylealist/sj-lab-mapservice) | Vanilla JS (ES Modules), OpenLayers 7, Hls.js | 무빌드 정적 SPA, 약 2,500건 시설물 공간 시각화, 클러스터링/스파이더링, 내업 관리 UI | `sj-lab.co.kr/map/`<br>(로컬 4000) |
+| **랜딩 허브** | [sj-lab-hub](https://github.com/stylealist/sj-lab-hub) | React 18, Webpack 5, Babel | 플랫폼 단일 대문(Landing), 서비스 런치패드, React 구동 전 SSO 인증 게이트웨이 | `sj-lab.co.kr`<br>(로컬 3000) |
+| **모바일 앱** | [infra-manage-app](https://github.com/stylealist/infra-manage-app) | C++17, Qt/QML, QGIS Core SDK, CMake | QField 기반 커스텀 포크 현장조사 앱, 3단계 점검 폼 및 사진/음성/영상 미디어 수집 | 모바일 (Android/Windows) |
+| **동기화 워커** | [sj-qfieldsync](https://github.com/stylealist/sj-qfieldsync) | Python, GeoPandas, GDAL, psycopg2 | QFieldCloud ↔ PostGIS 30초 주기 증분 ETL, 스키마 진화 수용, 영구 불변 ID 보장 | 단독 백그라운드 워커 |
+| **GitOps 배포** | [sj-lab-k8s-manifests](https://github.com/stylealist/sj-lab-k8s-manifests) | Kubernetes, Helm 3, ArgoCD | 전 서비스 Helm 차트 모음, GitOps 배포 SSOT, ConfigMap 체크섬 롤링 업데이트 | 클러스터 인프라 |
 
-| 역할 | 설명 | GitHub 저장소 | 서비스 주소 |
-|------|------|---------------|--------------|
-| 🧩 Kubernetes 인프라 & GitOps | Argo CD, Helm Chart, Kubernetes 리소스 정의 등 인프라 전체 관리 | [sj-lab-k8s-manifests](https://github.com/stylealist/sj-lab-k8s-manifests.git) | - |
-| 📊 Kubernetes Dashboard | 클러스터 리소스 시각화 대시보드 | [sj-lab-k8s-manifests](https://github.com/stylealist/sj-lab-k8s-manifests.git) | [https://dashboard.sj-lab.co.kr](https://dashboard.sj-lab.co.kr) |
-| 🔧 Jenkins (CI 서버) | Docker 이미지 빌드 및 GitOps 트리거링 | [sj-lab-k8s-manifests](https://github.com/stylealist/sj-lab-k8s-manifests.git) | [https://jenkins.sj-lab.co.kr](https://jenkins.sj-lab.co.kr) |
-| ⚙️ Argo CD (GitOps 배포 UI) | Git 저장소 기반의 Kubernetes 배포 자동화 도구 | [sj-lab-k8s-manifests](https://github.com/stylealist/sj-lab-k8s-manifests.git) | [https://argo.sj-lab.co.kr](https://argo.sj-lab.co.kr) |
-| 🌐 API Gateway (Spring Cloud Gateway) | 클라이언트 요청을 각 MSA 서비스로 분기하는 게이트웨이 | [sj-lab-apigateway](https://github.com/stylealist/sj-lab-apigateway.git) | [https://api.sj-lab.co.kr](https://api.sj-lab.co.kr) |
-| 📡 Eureka Discovery Server | 마이크로서비스 등록 및 동적 위치 조회 | [sj-lab-discoveryServer](https://github.com/stylealist/sj-lab-discoveryServer.git) | [https://eureka.sj-lab.co.kr](https://eureka.sj-lab.co.kr) |
+---
+
+## 3. 핵심 엔지니어링 구현 및 아키텍처 원칙
+
+### 3.1 공간정보(GIS) 성능 최적화 파이프라인
+- **Zero-Serialization GeoJSON 조립**: 애플리케이션의 DTO 변환 및 메모리 직렬화 병목을 제거하기 위해 PostGIS SQL 엔진 내부에서 `json_build_object`와 `ST_AsGeoJSON`을 통해 완성된 GeoJSON 문자열을 직접 빌드하여 반환합니다.
+- **BBOX 격자 표본화(Spatial Grid Sampling)**: 수십만 건의 대용량 공간 레이어를 무분별하게 전송하지 않고, 뷰포트 영역을 가상 격자로 분할하여 `row_number() OVER (PARTITION BY grid_x, grid_y)`를 통해 화면에 균등 분산된 표본을 고속 서빙합니다.
+- **프론트엔드 스파이더링(Spidering) & Declutter**: OpenLayers 렌더러의 Declutter 메커니즘을 분석하여 시설물 핀을 `declutterMode: "obstacle"`로 최우선 렌더링하고, 고배율(Zoom 18 이상)에서 겹치는 동일 좌표 객체를 원형으로 펼쳐 개별 선택성을 보장합니다.
+
+### 3.2 무(無)데이터베이스 위임 SSO 아키텍처
+- 별도의 회원 DB를 구축하여 계정 파편화를 일으키지 않고, 현장조사 플랫폼인 QFieldCloud의 인증 API를 위임 검증하여 내부 서비스 전용 JWT를 발급합니다.
+- **분리형 세션-토큰 모델**: 인증 서버 오리진의 `HttpOnly; SameSite=Lax` 세션 쿠키와 각 정적 SPA의 `localStorage` 액세스 토큰을 URL Fragment(`#auth_token=...`)로 연계하여, 서드파티 쿠키 차단 문제 없이 단일 로그인 경험을 제공합니다.
+
+### 3.3 복원력과 스키마 진화(Schema Evolution)
+- **ETL 스키마 자동 보강**: 현장 점검 양식이 수시로 변경되는 환경에 대응하여, 새 필드 유입 시 `ALTER TABLE ADD COLUMN`을 통해 PostGIS 물리 테이블을 무중단으로 확장하고 전체 테이블 컬럼 합집합 기반의 `facility_total_view`를 동적으로 재생성합니다.
+- **영구 불변 식별자(Immutable ID)**: QFieldCloud 프로젝트 삭제 시 물리 행을 아카이브 테이블(`facility_deleted_archive`)로 이동하여 원본 고유 ID를 보존함으로써, 상위 웹 서비스의 내업 조치 기록이 영구히 단절되지 않도록 무결성을 유지합니다.
+- **Graceful Degradation**: 신규 기능 테이블(내업 테이블 등)이 DB에 즉시 반영되지 않은 과도기 배포 환경에서도 `to_regclass` 시스템 카탈로그 조회를 통해 기본 지도 표출이 중단되지 않도록 단계적 폴백(Fallback)을 적용했습니다.
+
+### 3.4 GitOps 기반 배포 자동화
+- 개발자가 서비스 저장소에 코드를 푸시하면 Jenkins가 Docker 이미지를 빌드하여 NCP Container Registry에 푸시하고, 매니페스트 저장소(`sj-lab-k8s-manifests`)의 `image.tag`를 자동 갱신합니다.
+- ArgoCD가 매니페스트 저장소의 변경을 감지하여 실시간 Auto-Sync 및 Self-Heal을 수행하며 클러스터 무중단 롤아웃을 완성합니다.
 
 ---
 
-### 🛰️ 서비스 구성 (사용자 기능 제공 마이크로서비스)
+## 4. 로컬 통합 개발 환경 구동
 
-| 역할 | 설명 | GitHub 저장소 | 서비스 주소 |
-|------|------|----------------|--------------|
-| 🛰️ 지도 백엔드 (REST API) | OpenLayers 기반 지도 백엔드 API | [mapservice-rest](https://github.com/stylealist/mapservice-rest.git) | [https://api.sj-lab.co.kr/map](https://api.sj-lab.co.kr/map) |
-| 🗺️ 지도 프론트엔드 (React) | 사용자 지도 시각화 SPA | [mapservice-react](https://github.com/stylealist/mapservice-react.git) | [https://www.sj-lab.co.kr/map](https://www.sj-lab.co.kr/map) |
-| ⏲️ 스케쥴러 (SCHEDULER) | 데이터 스케쥴링 백엔드 | [sj-lab-scheduler](https://github.com/stylealist/sj-lab-scheduler.git) | [https://www.api.sj-lab.co.kr/scheduler](https://www.api.sj-lab.co.kr/scheduler) |
+총괄 저장소(`mapservice-rest`)의 파워셸 스크립트를 통해 전체 마이크로서비스 스택을 원클릭으로 기동하고 관리할 수 있습니다:
 
-> 모든 서비스는 `*.sj-lab.co.kr` 도메인 기반으로 구성되어 있으며,  
-> Local NGINX를 통한 HTTPS Reverse Proxy 구조를 사용합니다.
+```powershell
+# Eureka → mapservice-rest → sj-lab-authserver → apigateway → 프론트 순차 기동
+powershell -ExecutionPolicy Bypass -File scripts\local-stack.ps1 start
 
+# 무빌드 빠른 재기동
+powershell -ExecutionPolicy Bypass -File scripts\local-stack.ps1 start -NoBuild
 
----
+# 프로세스 상태 확인
+powershell -ExecutionPolicy Bypass -File scripts\local-stack.ps1 status
+
+# 로컬 스택 정상 종료
+powershell -ExecutionPolicy Bypass -File scripts\local-stack.ps1 stop
+```
