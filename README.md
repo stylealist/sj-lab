@@ -6,37 +6,25 @@
 
 ## 🌐 1. 서비스 접속 및 실서비스 체험 안내 (Live Demo)
 
-플랫폼의 모든 웹 서비스 및 DevOps 도구는 서브도메인 기반 HTTPS 환경으로 구성되어 운영 중입니다.
+플랫폼의 모든 웹 서비스, API 게이트웨이 및 클라우드 DevOps 도구는 서브도메인 기반 HTTPS 환경으로 구성되어 실서비스 운영 중입니다.
 
-### 1-1. 사용자 웹 서비스 & API
-
-| 서비스 명칭 | 접속 URL | 주요 역할 및 특징 |
-|---|---|---|
-| **통합 랜딩 허브 (sj-lab-hub)** | [https://sj-lab.co.kr](https://sj-lab.co.kr) | 플랫폼 전체 런치패드, 기능 카드 및 첫 진입 SSO 게이트웨이 |
-| **시설물 관리 지도 (sj-lab-mapservice)** | [https://sj-lab.co.kr/map/](https://sj-lab.co.kr/map/) | 2,500건 시설물 GIS 시각화, 내업(사무실 조치) 관리, 실시간 CCTV 재생 |
-| **중앙 인증 서버 (sj-lab-authserver)** | [https://api.sj-lab.co.kr/auth/login.html](https://api.sj-lab.co.kr/auth/login.html) | QFieldCloud 위임 로그인, sj-lab 전용 JWT 발급, 데모 로그인 지원 |
-| **API 게이트웨이 (sj-lab-apigateway)** | [https://api.sj-lab.co.kr](https://api.sj-lab.co.kr) | 마이크로서비스 단일 진입점, CORS 제어, 라우팅 프록시 |
-| **API 연결 확인 테스트 URL** | [https://api.sj-lab.co.kr/map/check](https://api.sj-lab.co.kr/map/check) | 게이트웨이 라우팅 및 백엔드 헬스체크 정상 연결 메시지 반환 (`HTTP 200`) |
-
-> ⚠️ **API Gateway 접속 시 주의사항**:
-> 게이트웨이 기본 루트(`https://api.sj-lab.co.kr/`)는 별도의 기본 페이지 라우트가 없어 브라우저 접속 시 404가 반환됩니다. API 게이트웨이의 정상 작동 및 백엔드 라우팅 연결 여부는 **[https://api.sj-lab.co.kr/map/check](https://api.sj-lab.co.kr/map/check)** 또는 행정구역 API **[https://api.sj-lab.co.kr/map/admin-area/sido](https://api.sj-lab.co.kr/map/admin-area/sido)** 로 접속하시면 연결 성공 메시지 및 JSON 응답을 즉시 확인하실 수 있습니다.
+| 구분 | 서비스 명칭 | 접속 URL | 주요 역할 및 확인 포인트 |
+|---|---|---|---|
+| **웹 서비스** | **통합 랜딩 허브 (sj-lab-hub)** | [https://sj-lab.co.kr](https://sj-lab.co.kr) | 플랫폼 전체 런치패드, 기능 카드 및 첫 진입 SSO 게이트웨이 |
+| **웹 서비스** | **시설물 관리 지도 (sj-lab-mapservice)** | [https://sj-lab.co.kr/map/](https://sj-lab.co.kr/map/) | 2,500건 시설물 GIS 시각화, 내업(사무실 조치) 관리, 실시간 CCTV 재생 |
+| **인증** | **중앙 인증 서버 (sj-lab-authserver)** | [https://api.sj-lab.co.kr/auth/login.html](https://api.sj-lab.co.kr/auth/login.html) | QFieldCloud 위임 로그인, sj-lab 전용 JWT 발급, 데모 계정 지원 |
+| **API** | **API 게이트웨이 (연결 테스트)** | [https://api.sj-lab.co.kr/map/check](https://api.sj-lab.co.kr/map/check) | **클릭 시 API 연결 성공 메시지 반환 (`HTTP 200`)**<br>※ 기본 루트(`/`)는 라우트가 없어 404가 발생하므로 테스트 URL로 연결 검증 |
+| **DevOps** | **Jenkins (CI 파이프라인)** | [https://jenkins.sj-lab.co.kr](https://jenkins.sj-lab.co.kr) | 소스코드 감지, 컨테이너 빌드 및 NCP Registry 푸시 자동화 파이프라인 |
+| **DevOps** | **Kubernetes Dashboard** | [https://dashboard.sj-lab.co.kr](https://dashboard.sj-lab.co.kr) | 클러스터 노드, 파드(Pod), 서비스 등 K8s 워크로드 리소스 시각화 모니터링 |
+| **DevOps** | **ArgoCD (GitOps 배포)** | [https://argo.sj-lab.co.kr](https://argo.sj-lab.co.kr) | Helm 차트 Git 저장소 기반 클러스터 선언적 자동 배포 및 동기화 UI |
+| **인프라** | **Eureka 서비스 레지스트리** | [https://eureka.sj-lab.co.kr](https://eureka.sj-lab.co.kr) | Spring Cloud 마이크로서비스 인스턴스 등록 및 헬스 상태 실시간 조회 |
+| **모바일** | **QFieldCloud 관리** | [https://qfield.sj-lab.co.kr](https://qfield.sj-lab.co.kr) | 현장조사 모바일 앱 프로젝트 관리, 델타 변경 이력 및 원격 동기화 서버 |
 
 > ### 💡 [체험 방법] 1초 만에 바로 확인하기
 > 1. [https://sj-lab.co.kr](https://sj-lab.co.kr) 또는 [https://sj-lab.co.kr/map/](https://sj-lab.co.kr/map/)에 접속합니다.
 > 2. 로그인 화면이 나타나면 폼 하단의 **`[체험용 계정으로 로그인]` 버튼**을 클릭합니다.
 > 3. 별도의 회원가입이나 계정 입력 없이 **자동으로 데모 토큰이 발급되어 즉시 대시보드 및 지도 화면으로 입장**합니다.
-
----
-
-### 1-2. DevOps & 클라우드 인프라 관리 대시보드
-
-| 도구 / 대시보드 | 접속 URL | 역할 및 설명 |
-|---|---|---|
-| **ArgoCD (GitOps 배포)** | [https://argo.sj-lab.co.kr](https://argo.sj-lab.co.kr) | Git 저장소(Helm) 기반 Kubernetes 클러스터 선언적 자동 배포 및 동기화 UI |
-| **Jenkins (CI 파이프라인)** | [https://jenkins.sj-lab.co.kr](https://jenkins.sj-lab.co.kr) | 소스코드 변경 감지, Docker 이미지 빌드 및 NCP Registry 푸시 자동화 서버 |
-| **Kubernetes Dashboard** | [https://dashboard.sj-lab.co.kr](https://dashboard.sj-lab.co.kr) | 클러스터 노드, 파드(Pod), 서비스, PVC 등 K8s 워크로드 리소스 시각화 모니터링 |
-| **Eureka 서비스 레지스트리** | [https://eureka.sj-lab.co.kr](https://eureka.sj-lab.co.kr) | Spring Cloud 마이크로서비스 인스턴스 등록 및 헬스 상태 실시간 조회 대시보드 |
-| **QFieldCloud 관리** | [https://qfield.sj-lab.co.kr](https://qfield.sj-lab.co.kr) | 모바일 현장조사 앱 프로젝트 관리, 델타 변경 이력 및 원격 동기화 서버 |
+> 4. 백엔드 API 게이트웨이 연결 상태는 **[https://api.sj-lab.co.kr/map/check](https://api.sj-lab.co.kr/map/check)** 링크를 클릭하여 `HTTP 200` 정상 응답(`"Hi, there. This is a message from First Service on PORT ..."`)을 즉시 확인하실 수 있습니다.
 
 ---
 
