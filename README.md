@@ -21,6 +21,7 @@
 | **DevOps** | **ArgoCD (GitOps 배포)** | [https://argo.sj-lab.co.kr](https://argo.sj-lab.co.kr) | Helm 차트 Git 저장소 기반 클러스터 선언적 자동 배포 및 동기화 UI |
 | **인프라** | **Eureka 서비스 레지스트리** | [https://eureka.sj-lab.co.kr](https://eureka.sj-lab.co.kr) | Spring Cloud 마이크로서비스 인스턴스 등록 및 헬스 상태 실시간 조회 |
 | **모바일** | **QFieldCloud 관리** | [https://qfield.sj-lab.co.kr](https://qfield.sj-lab.co.kr) | 현장조사 모바일 앱 프로젝트 관리, 델타 변경 이력 및 원격 동기화 서버 |
+| **기록** | **개발 변경 로그 (v1.0 ~ 현재)** | [https://claude.ai/artifact/HhEYu2UmxSko5h8uef7hB9](https://claude.ai/artifact/HhEYu2UmxSko5h8uef7hB9) | 하네스(Harness) 엔지니어링으로 개발하며 버전마다 남긴 작업 기록 — 무엇을 왜 바꿨는지, 어떻게 검증했는지 |
 
 > ### 💡 [체험 방법] 1초 만에 바로 확인하기
 > 1. [https://sj-lab.co.kr](https://sj-lab.co.kr) 또는 [https://sj-lab.co.kr/map/](https://sj-lab.co.kr/map/)에 접속합니다.
