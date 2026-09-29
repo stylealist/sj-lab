@@ -205,7 +205,7 @@ SJ-LAB 플랫폼에 구축된 **시설물 점검 및 관리 서비스**의 현�
 |---|---|---|---|---|
 | **플랫폼 대문** | [sj-lab-hub](https://github.com/stylealist/sj-lab-hub) | React 18, Webpack 5, Babel | 플랫폼 단일 대문(Landing), 서비스 런치패드, React 구동 전 SSO 인증 게이트웨이 | `sj-lab.co.kr`<br>(로컬 3000) |
 | **GIS 프론트** | [sj-lab-mapservice](https://github.com/stylealist/sj-lab-mapservice) | Vanilla JS (ES Modules), OpenLayers 7, Hls.js | [시설물] 무빌드 정적 SPA, 2,500건 시설물 공간 시각화, 클러스터링/스파이더링, 내업 관리 UI | `sj-lab.co.kr/map/`<br>(로컬 4000) |
-| **GIS 백엔드** | [mapservice-rest](https://github.com/stylealist/mapservice-rest) | Java 17, Spring Boot 3.3.2, PostGIS, MyBatis | [시설물] 공간정보 GeoJSON API, BBOX 격자 표본화, 내업 기록/사진 관리, 기준 저장소 | `api.sj-lab.co.kr/map/**`<br>(로컬 랜덤) |
+| **GIS 백엔드** | [mapservice-rest](https://github.com/stylealist/mapservice-rest) | Java 17, Spring Boot 3.3.2, PostGIS, MyBatis | [시설물] 공간정보 GeoJSON API, BBOX 격자 표본화, 내업 기록/사진 관리 | `api.sj-lab.co.kr/map/**`<br>(로컬 랜덤) |
 | **게이트웨이** | [sj-lab-apigateway](https://github.com/stylealist/sj-lab-apigateway) | Spring Cloud Gateway, WebFlux, Netty | 마이크로서비스 단일 진입점, Eureka 기반 클라이언트 로드밸런싱, 중앙 집중식 CORS 제어 | `api.sj-lab.co.kr`<br>(로컬 8100) |
 | **디스커버리** | [sj-lab-discoveryServer](https://github.com/stylealist/sj-lab-discoveryServer) | Spring Cloud Netflix Eureka Server | 서비스 동적 등록/위치 추적, 헬스체크 및 라이프사이클 관리 | `eureka.sj-lab.co.kr`<br>(로컬 8761) |
 | **인증 서버** | [sj-lab-authserver](https://github.com/stylealist/sj-lab-authserver) | Spring Security 6, JJWT (HS256) | 플랫폼 통합 SSO, QFieldCloud 위임 인증, sj-lab 전용 JWT 발급, 무DB 세션-토큰 | `api.sj-lab.co.kr/auth/**`<br>(로컬 랜덤) |
@@ -241,7 +241,7 @@ SJ-LAB 플랫폼에 구축된 **시설물 점검 및 관리 서비스**의 현�
 
 ## 💻 6. 로컬 통합 개발 환경 구동
 
-총괄 저장소(`mapservice-rest`)의 파워셸 스크립트를 통해 전체 마이크로서비스 스택을 원클릭으로 기동하고 관리할 수 있습니다:
+총괄 저장소(이 저장소 `sj-lab`)의 파워셸 스크립트를 통해 전체 마이크로서비스 스택을 원클릭으로 기동하고 관리할 수 있습니다:
 
 ```powershell
 # Eureka → mapservice-rest → sj-lab-authserver → apigateway → 프론트 순차 기동

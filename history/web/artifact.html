@@ -388,7 +388,7 @@
         <button type="button" role="tab" id="gtab-0" aria-controls="vgroup-0" aria-selected="false" tabindex="-1">v1.0 – v1.14</button>
         <button type="button" role="tab" id="gtab-1" aria-controls="vgroup-1" aria-selected="false" tabindex="-1">v1.15 – v1.29</button>
         <button type="button" role="tab" id="gtab-2" aria-controls="vgroup-2" aria-selected="false" tabindex="-1">v1.30 – v1.35</button>
-        <button type="button" role="tab" id="gtab-3" aria-controls="vgroup-3" aria-selected="false" tabindex="-1">v2.0 – v3.0</button>
+        <button type="button" role="tab" id="gtab-3" aria-controls="vgroup-3" aria-selected="false" tabindex="-1">v2.0 – v3.1</button>
       </div>
       <div class="vstep">
         <span class="vnow" aria-live="polite"></span>
@@ -499,7 +499,8 @@
       <button type="button" class="vchip" role="tab" data-ver="2.57" aria-controls="pane-v2.57" title="허브 카드 열기·게이트웨이·배포 준비"><span class="pv">v2.57</span><span class="pt">배포 준비</span></button>
       <button type="button" class="vchip" role="tab" data-ver="2.58" aria-controls="pane-v2.58" title="로그인 후 돌아오지 못하던 문제 수정"><span class="pv">v2.58</span><span class="pt">로그인 복귀</span></button>
       <button type="button" class="vchip" role="tab" data-ver="2.59" aria-controls="pane-v2.59" title="공개 API 배포 파이프라인 정리"><span class="pv">v2.59</span><span class="pt">배포 잡</span></button>
-      <button type="button" class="vchip" role="tab" data-ver="3.0" aria-controls="pane-v3.0" title="총괄 저장소를 sj-lab 으로 이전"><span class="pv">v3.0<span class="dot" title="최신" aria-label="최신"></span></span><span class="pt">집 옮기기</span></button>
+      <button type="button" class="vchip" role="tab" data-ver="3.0" aria-controls="pane-v3.0" title="총괄 저장소를 sj-lab 으로 이전"><span class="pv">v3.0</span><span class="pt">집 옮기기</span></button>
+      <button type="button" class="vchip" role="tab" data-ver="3.1" aria-controls="pane-v3.1" title="새 총괄 저장소에서 개발이 되는지 확인"><span class="pv">v3.1<span class="dot" title="최신" aria-label="최신"></span></span><span class="pt">이사 확인</span></button>
     </div>
   </div>
 </nav>
@@ -7225,6 +7226,58 @@ sj-lab-openapi-web (화면)
 </div>
 
 
+<!-- ===================== v3.1 ===================== -->
+<div class="vpane" data-ver="3.1" id="pane-v3.1" hidden>
+<header class="masthead">
+  <div class="wrap">
+    <div class="stamp">
+      <span class="ver">v3.1</span>
+      <span>2026-09-30</span>
+      <span>sj-lab(확인)</span>
+    </div>
+    <h1>이사한 집에서<br>정말 일이 되는지</h1>
+    <p class="plainline">새 총괄 저장소에서 예전처럼 개발이 되는지 직접 확인했습니다</p>
+    <p class="dek">
+      밖에서는 알 수 없는 것들(지시문 자동 읽힘, DB·깃허브 연결, 가드 훅)이 있어,
+      그 폴더에서 <b>실제 세션을 하나 띄워</b> 안에서 확인하게 했습니다.
+    </p>
+    <dl class="facts">
+      <div><dt>확인 항목</dt><dd class="ok">7개 전부 정상</dd></div>
+      <div><dt>막힌 것</dt><dd class="ok">없음</dd></div>
+      <div><dt>찾은 오류</dt><dd>README 2줄</dd></div>
+      <div><dt>확인 세션</dt><dd>읽기 전용 · 정리 완료</dd></div>
+    </dl>
+  </div>
+</header>
+
+<section class="band">
+  <div class="wrap">
+    <p class="eyebrow">결과</p>
+    <h2>7가지 모두 정상</h2>
+    <div class="tbl">
+      <table>
+        <thead><tr><th>확인</th><th>결과</th></tr></thead>
+        <tbody>
+          <tr><td>지시문 자동 로드</td><td class="ok">CLAUDE.md + 문서 3종</td></tr>
+          <tr><td>DB 연결</td><td class="ok">읽기 전용 계정 · map 테이블 19개 · api 스키마 있음</td></tr>
+          <tr><td>깃허브 연결</td><td class="ok">저장소 조회 성공</td></tr>
+          <tr><td>가드 훅</td><td class="ok">금지 명령 차단</td></tr>
+          <tr><td>다른 저장소 읽기</td><td class="ok">승인창 없이 열림(3곳)</td></tr>
+          <tr><td>로컬 기동 스크립트</td><td class="ok">status 정상 · Eureka 4개 서비스</td></tr>
+          <tr><td>파일 구성</td><td class="ok">문서 13 · 기록 97 · SQL 6 · 설정</td></tr>
+        </tbody>
+      </table>
+    </div>
+    <ul class="notes">
+      <li>확인 중 README 에 <b>옷 정보 2줄</b>(기준 저장소가 아직 백엔드로 적혀 있음)을 찾아 고쳤습니다</li>
+      <li>새 세션이 "이 폴더를 신뢰하시겠습니까?" 창에서 멈추지 않도록 신뢰 목록에도 등록해 두었습니다</li>
+      <li>비밀값 파일은 자리에 있으면서 깃에는 올라가지 않은 상태입니다</li>
+    </ul>
+  </div>
+</section>
+</div>
+
+
 <footer>
   <div class="wrap">
     <p class="k">접속 URL</p>
@@ -7235,7 +7288,7 @@ sj-lab-openapi-web (화면)
       <li><em>로컬 스택 기동</em><span class="url">powershell -ExecutionPolicy Bypass -File scripts\local-stack.ps1 start</span></li>
       <li><em>운영 로그인 페이지</em><span class="url">https://api.sj-lab.co.kr/auth/login.html</span></li>
       <li><em>sj-lab-authserver</em><span class="url">https://github.com/stylealist/sj-lab-authserver</span></li>
-      <li><em>기록 원본</em><span class="url">mapservice-rest/history/history_v1.0.md ~ v1.35.md, v2.0.md ~ v3.0.md</span></li>
+      <li><em>기록 원본</em><span class="url">mapservice-rest/history/history_v1.0.md ~ v1.35.md, v2.0.md ~ v3.1.md</span></li>
     </ul>
     <p class="colophon">
       총괄 허브 <code>C:\developer\workspace\mapservice-rest</code> 기준 · 커밋과 push는 사용자가 요청할 때만 수행합니다 ·
