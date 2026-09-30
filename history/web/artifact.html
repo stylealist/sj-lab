@@ -388,7 +388,7 @@
         <button type="button" role="tab" id="gtab-0" aria-controls="vgroup-0" aria-selected="false" tabindex="-1">v1.0 – v1.14</button>
         <button type="button" role="tab" id="gtab-1" aria-controls="vgroup-1" aria-selected="false" tabindex="-1">v1.15 – v1.29</button>
         <button type="button" role="tab" id="gtab-2" aria-controls="vgroup-2" aria-selected="false" tabindex="-1">v1.30 – v1.35</button>
-        <button type="button" role="tab" id="gtab-3" aria-controls="vgroup-3" aria-selected="false" tabindex="-1">v2.0 – v3.3</button>
+        <button type="button" role="tab" id="gtab-3" aria-controls="vgroup-3" aria-selected="false" tabindex="-1">v2.0 – v3.4</button>
       </div>
       <div class="vstep">
         <span class="vnow" aria-live="polite"></span>
@@ -502,7 +502,8 @@
       <button type="button" class="vchip" role="tab" data-ver="3.0" aria-controls="pane-v3.0" title="총괄 저장소를 sj-lab 으로 이전"><span class="pv">v3.0</span><span class="pt">집 옮기기</span></button>
       <button type="button" class="vchip" role="tab" data-ver="3.1" aria-controls="pane-v3.1" title="새 총괄 저장소에서 개발이 되는지 확인"><span class="pv">v3.1</span><span class="pt">이사 확인</span></button>
       <button type="button" class="vchip" role="tab" data-ver="3.2" aria-controls="pane-v3.2" title="API 센터 색을 보라에서 파랑 계열로 통일"><span class="pv">v3.2</span><span class="pt">API 센터 색 통일</span></button>
-      <button type="button" class="vchip" role="tab" data-ver="3.3" aria-controls="pane-v3.3" title="API 센터의 허브 버튼을 지도와 같은 모양으로"><span class="pv">v3.3<span class="dot" title="최신" aria-label="최신"></span></span><span class="pt">허브 버튼 통일</span></button>
+      <button type="button" class="vchip" role="tab" data-ver="3.3" aria-controls="pane-v3.3" title="API 센터의 허브 버튼을 지도와 같은 모양으로"><span class="pv">v3.3</span><span class="pt">허브 버튼 통일</span></button>
+      <button type="button" class="vchip" role="tab" data-ver="3.4" aria-controls="pane-v3.4" title="API 센터에 소개 · 저장소 문의 화면 추가"><span class="pv">v3.4<span class="dot" title="최신" aria-label="최신"></span></span><span class="pt">소개 · 저장소 화면</span></button>
     </div>
   </div>
 </nav>
@@ -7446,6 +7447,75 @@ sj-lab-openapi-web (화면)
 </section>
 </div>
 
+<!-- ===================== v3.4 ===================== -->
+<div class="vpane" data-ver="3.4" id="pane-v3.4" hidden>
+<header class="masthead">
+  <div class="wrap">
+    <div class="stamp">
+      <span class="ver">v3.4</span>
+      <span>2026-09-30</span>
+      <span>openapi-web · hub</span>
+    </div>
+    <h1>API 센터에도<br>소개와 저장소 · 문의를</h1>
+    <p class="plainline">지도 서비스처럼 소개 · 저장소 문의 화면을 만들고 헤더 배치도 같게 맞췄습니다</p>
+    <p class="dek">
+      API 센터에는 문서 화면 하나뿐이라, 처음 온 사람이 <b>이게 뭘 하는 곳인지 · 코드는 어디 있는지 ·
+      막히면 누구에게 묻는지</b>를 알 방법이 없었습니다.
+    </p>
+    <dl class="facts">
+      <div><dt>늘어난 화면</dt><dd>2개</dd></div>
+      <div><dt>공개 저장소</dt><dd class="ok">15개(실제 확인)</dd></div>
+      <div><dt>인프라 링크</dt><dd class="ok">9개 모두 200</dd></div>
+      <div><dt>빌드</dt><dd class="ok">성공</dd></div>
+    </dl>
+  </div>
+</header>
+
+<section class="band">
+  <div class="wrap">
+    <p class="eyebrow">만든 화면</p>
+    <h2>소개 · 저장소 · 문의</h2>
+    <div class="tbl">
+      <table>
+        <thead><tr><th>화면</th><th>담은 내용</th></tr></thead>
+        <tbody>
+          <tr><td rowspan="4">소개</td><td>숫자 — 열어 둔 API 12개 · 3묶음 · 키 하루 1,000회 · 샘플 코드 3가지</td></tr>
+          <tr><td>데이터가 어디서 오는지 — 현장 앱 → 동기화 → 지도 데이터 → 공개 API, 4단계</td></tr>
+          <tr><td>할 수 있는 것 6가지 — 카탈로그로 화면 그리기 · 바로 눌러 보기 · 샘플 코드 · 내 키와 사용량 · 화면 범위만 받기 · 공공데이터 6종</td></tr>
+          <tr><td>쓰는 기술 — 이 화면 / 공개 API 서버 / 플랫폼 3묶음</td></tr>
+          <tr><td>저장소 · 문의</td><td>만든 사람 · <b>공개 저장소 15개</b> · 이메일 · <b>돌아가는 곳 9개</b></td></tr>
+        </tbody>
+      </table>
+    </div>
+    <ul class="notes">
+      <li>저장소 15개는 <b>GitHub에서 실제 공개 여부를 확인</b>해 넣었습니다(비공개 저장소 제외)</li>
+      <li>인프라 링크 9개는 <b>전부 응답을 확인(200)</b>한 뒤 넣었습니다 — 없는 주소는 넣지 않는다는 규칙</li>
+      <li>문장 18곳을 존댓말로 다시 정리해 지도 서비스 화면과 말투를 맞췄습니다</li>
+    </ul>
+  </div>
+</section>
+
+<section class="band">
+  <div class="wrap">
+    <p class="eyebrow">헤더 배치</p>
+    <h2>지도 서비스와 같은 순서로</h2>
+    <div class="cmd">전   [브랜드]      [API문서 소개 저장소·문의]      [허브] [아이디 님] [로그아웃]
+후   [브랜드]              [허브] [API문서 소개 저장소·문의] │ [아이디님] [로그아웃]
+                          └──────── 오른쪽 한 덩어리 ────────┘</div>
+    <ul class="notes">
+      <li>순서를 <b>허브 → 탭 → 구분선 → 아이디 · 로그아웃</b>으로 (지도 서비스와 동일)</li>
+      <li>탭이 알약 3개에서 <b>하나로 묶인 분절 버튼</b>으로, 선택된 탭은 파란 배경</li>
+      <li>로그아웃도 알약 모양으로, 아이디 앞에는 사람 아이콘</li>
+      <li>허브 배포가 늦어 보라색으로 남아 있던 <b>허브 OpenAPI 카드 색(v3.2)도 이번에 함께</b> 반영</li>
+    </ul>
+    <ul class="notes" style="margin-top:1.2rem">
+      <li><b>못 넣은 것</b> — 지도 탭의 마우스 올릴 때 빛이 훑는 효과, 좁은 화면에서 허브 글자 숨기기.
+        이 페이지는 스타일을 넣는 방식이 달라 둘 다 만들 수 없습니다(배경·글자색 변화는 같음)</li>
+    </ul>
+  </div>
+</section>
+</div>
+
 
 <footer>
   <div class="wrap">
@@ -7458,7 +7528,7 @@ sj-lab-openapi-web (화면)
       <li><em>운영 로그인 페이지</em><span class="url">https://api.sj-lab.co.kr/auth/login.html</span></li>
       <li><em>sj-lab-authserver</em><span class="url">https://github.com/stylealist/sj-lab-authserver</span></li>
       <li><em>API 센터</em><span class="url">https://sj-lab.co.kr/openapi/</span></li>
-      <li><em>기록 원본</em><span class="url">sj-lab/history/history_v1.0.md ~ v1.35.md, v2.0.md ~ v3.3.md</span></li>
+      <li><em>기록 원본</em><span class="url">sj-lab/history/history_v1.0.md ~ v1.35.md, v2.0.md ~ v3.4.md</span></li>
     </ul>
     <p class="colophon">
       총괄 허브 <code>C:\developer\workspace\sj-lab</code> 기준 · 커밋과 push는 사용자가 요청할 때만 수행합니다 ·
