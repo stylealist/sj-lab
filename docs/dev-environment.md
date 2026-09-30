@@ -44,12 +44,12 @@
 | 랜덤(`server.port: 0`) | `sj-lab-scheduler` (context-path `/scheduler`) | 게이트웨이 `/scheduler/**`. 기동만 해도 cron 배치가 실제 DB에 적재하므로 검증용으로 함부로 띄우지 말 것. **CCTV는 기동 시 1회 즉시 수집됨**(스트리밍 URL이 주기적으로 갱신돼야 재생됨, 다음 06:00 cron까지 기다리지 않음) |
 | `8000` | `fast-api-ai` (`python main.py`, `root_path=/fast-api-ai`) | 게이트웨이 `/fast-api-ai/**`. 로컬은 Eureka에 `127.0.0.1`로 등록 |
 | 랜덤(`server.port: 0`) | `sj-lab-authserver` (context-path `/auth`) | 게이트웨이 `/auth/**`. **hub·mapservice는 로그인 게이트가 있어 이게 없으면 접속 자체가 안 됨**(로그인 페이지 503). 로그인 페이지 `http://localhost:8100/auth/login.html` |
-| 랜덤(`server.port: 0`) | `sj-lab-openapi` (context-path `/open-api`) | 게이트웨이 `/open-api/**`. 데이터는 mapservice-rest 를 불러 중계하므로 **mapservice-rest 가 떠 있어야** 동작합니다. 따로 확인할 때는 `--server.port=8110` 처럼 별도 포트로 띄울 것 |
+| `8110` | `sj-lab-openapi` (context-path `/open-api`) | 게이트웨이 `/open-api/**`. 데이터는 mapservice-rest 를 불러 중계하므로 **mapservice-rest 가 떠 있어야** 동작합니다. **`local-stack.ps1`이 8110에 띄웁니다**(2026-09-30). `.claude\settings.local.json`의 `OPENAPI_DB_URL`/`OPENAPI_DB_USERNAME`/`OPENAPI_DB_PASSWORD`가 셋 다 있으면 **API 키·사용량 기능까지 켜서** 띄우고, 없으면 키 API만 503이고 공개 조회는 정상입니다 |
 | `3000` | `sj-lab-hub` (`npm start`) | 허브 첫 화면. OpenAPI 카드를 누르면 로컬에서는 4100 으로 간다 |
-| `4100` | `sj-lab-openapi-web` (`npm start`, webpack dev server) | API 활용 페이지. **API 호출은 dev server 프록시**(`/open-api` → `localhost:8100`)로 넘기므로 게이트웨이 CORS 목록에 4100을 넣지 않습니다. 게이트웨이에 `/open-api` 라우트를 넣기 전에는 `OPENAPI_PROXY_TARGET=http://localhost:8110`으로 백엔드를 직접 가리켜 확인 |
+| `4100` | `sj-lab-openapi-web` (`npm start`, webpack dev server) | API 활용 페이지. **API 호출은 dev server 프록시**(`/open-api` → `localhost:8100`)로 넘기므로 게이트웨이 CORS 목록에 4100을 넣지 않습니다. **떠 있는 게이트웨이가 `/open-api` 라우트 추가 이전 빌드면 8100이 404를 냅니다** — 그때는 `OPENAPI_PROXY_TARGET=http://localhost:8110`으로 띄워 백엔드를 직접 가리키세요(2026-09-30 실제 발생). 이 경우 화면의 "기본 주소"에 표시되는 `localhost:8100/open-api`는 안내용이라 로컬에서 그대로 부르면 404입니다 |
 | `4000` | 프론트엔드 정적 서버(`node scripts/static-server.js <프론트경로> 4000`) | 게이트웨이 CORS 허용 origin. **`python -m http.server`로 띄우지 말 것** — Range 요청을 지원하지 않아 소개 영상의 재생 위치를 옮길 수 없습니다(2026-09-28 확인) |
 
-**기동 순서**: Eureka(8761) → mapservice-rest → 게이트웨이(8100) → 프론트(4000). 게이트웨이·백엔드는 반드시 `local` 프로파일로 띄워야 Eureka 주소(`localhost:8761`)가 잡힙니다(게이트웨이는 프로파일이 없으면 Eureka 주소가 비어 있음). 백엔드가 막 뜬 직후에는 게이트웨이의 레지스트리 캐시가 갱신될 때까지 잠시 503이 날 수 있으니, Eureka 대시보드에서 `MAPSERVICE-REST`가 UP인지 먼저 확인합니다.
+**기동 순서**: Eureka(8761) → mapservice-rest → authserver → sj-lab-openapi(8110) → 게이트웨이(8100) → 프론트(4000). 게이트웨이·백엔드는 반드시 `local` 프로파일로 띄워야 Eureka 주소(`localhost:8761`)가 잡힙니다(게이트웨이는 프로파일이 없으면 Eureka 주소가 비어 있음). 백엔드가 막 뜬 직후에는 게이트웨이의 레지스트리 캐시가 갱신될 때까지 잠시 503이 날 수 있으니, Eureka 대시보드에서 `MAPSERVICE-REST`가 UP인지 먼저 확인합니다.
 
 **IntelliJ 없이 한 번에 기동**: `scripts\local-stack.ps1`이 Eureka → mapservice-rest → sj-lab-authserver → 게이트웨이 → 프론트 순서로 띄웁니다(JDK 17 자동 탐색, `local` 프로파일 고정).
 

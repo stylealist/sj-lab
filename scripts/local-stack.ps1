@@ -7,9 +7,13 @@
     powershell -ExecutionPolicy Bypass -File scripts\local-stack.ps1 status
     powershell -ExecutionPolicy Bypass -File scripts\local-stack.ps1 stop
 
-  기동 순서: Eureka(8761) → mapservice-rest(랜덤 포트) → sj-lab-authserver(랜덤 포트, 로그인) → API Gateway(8100) → 프론트 정적 서버(4000)
+  기동 순서: Eureka(8761) → mapservice-rest(랜덤 포트) → sj-lab-authserver(랜덤 포트, 로그인) → sj-lab-openapi(8110) → API Gateway(8100) → 프론트 정적 서버(4000)
   - hub·mapservice 는 로그인 게이트가 있어 authserver 없이는 접속 자체가 안 된다(로그인 페이지 503).
-  - 체험용 계정(AUTH_DEMO_*)·첨부 중계 계정(QFIELD_*)은 .claude\settings.local.json 의 env 에서 읽는다.
+  - 체험용 계정(AUTH_DEMO_*)·첨부 중계 계정(QFIELD_*)·공개 API DB 계정(OPENAPI_DB_*)은
+    .claude\settings.local.json 의 env 에서 읽는다.
+  - sj-lab-openapi 는 8110 에 띄운다. API 활용 페이지(4100)의 webpack dev server 가
+    OPENAPI_PROXY_TARGET=http://localhost:8110 으로 여기에 직접 넘기면 게이트웨이를 거치지 않는다.
+    OPENAPI_DB_* 가 있으면 API 키·사용량 기능까지 켜서 띄운다(없으면 키 API 만 503, 공개 조회는 정상).
   - 이 스크립트가 띄운 프로세스만 .local-stack\pids.json 에 기록하고, stop 은 그 프로세스만 종료한다.
   - 포트가 이미 사용 중이면(예: IntelliJ로 실행 중) 그 구성요소는 건너뛴다.
   - sj-lab-discoveryServer 는 target/ 이 git에 추적되므로 원본이 아닌 .local-stack\build 복사본에서 빌드한다.
@@ -128,6 +132,22 @@ function loadDemoCredentials {
   }
 }
 
+function loadOpenapiDbCredentials {
+  # 공개 API 의 키·사용량 기능용 DB 계정. api 스키마 두 표에 SELECT·INSERT·UPDATE 권한만 있는
+  # 전용 계정(openapi_svc)을 쓴다 — 개인/superuser 계정을 넣지 말 것.
+  # 셋이 다 있을 때만 기능을 켠다. 하나라도 비면 키 API 만 503 이고 공개 조회는 정상이다.
+  loadLocalSecrets @('OPENAPI_DB_URL', 'OPENAPI_DB_USERNAME', 'OPENAPI_DB_PASSWORD')
+  if ($env:OPENAPI_DB_URL -and $env:OPENAPI_DB_USERNAME -and $env:OPENAPI_DB_PASSWORD) {
+    $env:OPENAPI_API_KEY_ENABLED = 'true'
+    Write-Host "  공개 API 키 기능 켜짐 (DB 계정: $($env:OPENAPI_DB_USERNAME))"
+  } else {
+    # 켜진 상태로 남아 있으면 접속 주소가 비어 기동이 실패하므로 명시적으로 끈다.
+    $env:OPENAPI_API_KEY_ENABLED = 'false'
+    Write-Host '  주의: 공개 API 키 기능은 꺼집니다(키 API 만 503, 공개 조회는 정상).'
+    Write-Host '        .claude\settings.local.json 의 env 에 OPENAPI_DB_URL/USERNAME/PASSWORD 를 넣으세요.'
+  }
+}
+
 function startJava([string]$name, [string]$jar, [string]$jdkHome, [string[]]$extraArgs) {
   if (-not (Test-Path $jar)) { throw "jar 없음: $jar (-NoBuild 없이 다시 실행하세요)" }
   $log = Join-Path $stateDir "$name.log"
@@ -143,12 +163,14 @@ function startStack {
   $jdkHome = findJdk17
   $gatewayDir = Join-Path $workspaceRoot 'sj-lab-apigateway'
   $authserverDir = Join-Path $workspaceRoot 'sj-lab-authserver'
+  $openapiDir = Join-Path $workspaceRoot 'sj-lab-openapi'
   $discoverySrc = Join-Path $workspaceRoot 'sj-lab-discoveryServer'
   $discoveryBuild = Join-Path $stateDir 'build\sj-lab-discoveryServer'
 
   $needEureka = -not (testPort 8761)
   $needGateway = -not (testPort 8100)
   $needFrontend = -not (testPort 4000)
+  $needOpenapi = -not (testPort 8110)
   $running = readPids
   $backendAlive = $running -and $running.'mapservice-rest' -and (Get-Process -Id $running.'mapservice-rest' -ErrorAction SilentlyContinue)
   $needBackend = -not $backendAlive
@@ -168,6 +190,7 @@ function startStack {
     }
     if ($needBackend) { invokeMavenPackage $backendRoot $jdkHome }
     if ($needAuthserver) { invokeMavenPackage $authserverDir $jdkHome }
+    if ($needOpenapi) { invokeMavenPackage $openapiDir $jdkHome }
     if ($needGateway) { invokeMavenPackage $gatewayDir $jdkHome }
   }
 
@@ -188,6 +211,12 @@ function startStack {
     startJava 'authserver' (Join-Path $authserverDir 'target\sj-lab-authserver.jar') $jdkHome @() | Out-Null
     waitUntil { Select-String -Path (Join-Path $stateDir 'authserver.log') -Pattern 'Started AuthServerApplication' -Quiet } 180 'sj-lab-authserver'
   } else { Write-Host '  건너뜀: sj-lab-authserver 이미 실행 중' }
+
+  if ($needOpenapi) {
+    loadOpenapiDbCredentials
+    startJava 'openapi' (Join-Path $openapiDir 'target\sj-lab-openapi.jar') $jdkHome @('--server.port=8110') | Out-Null
+    waitUntil { Select-String -Path (Join-Path $stateDir 'openapi.log') -Pattern 'Started SjLabOpenApiApplication' -Quiet } 180 'sj-lab-openapi(8110)'
+  } else { Write-Host '  건너뜀: 8110 이미 사용 중' }
 
   if ($needGateway) {
     startJava 'apigateway' (Join-Path $gatewayDir 'target\sj-lab-apigateway.jar') $jdkHome @() | Out-Null
@@ -239,13 +268,19 @@ function stopStack {
 
 function showStatus {
   $pids = readPids
-  foreach ($name in 'eureka', 'mapservice-rest', 'authserver', 'apigateway', 'frontend') {
+  foreach ($name in 'eureka', 'mapservice-rest', 'authserver', 'openapi', 'apigateway', 'frontend') {
     $processId = if ($pids) { $pids.$name } else { $null }
     $alive = $processId -and (Get-Process -Id $processId -ErrorAction SilentlyContinue)
     $state = if ($alive) { "실행 중 (pid $processId)" } elseif ($processId) { '종료됨' } else { '이 스크립트로 띄우지 않음' }
     Write-Host ("  {0,-16} {1}" -f $name, $state)
   }
-  Write-Host ("  포트 리슨: 8761={0} 8100={1} 4000={2}" -f (testPort 8761), (testPort 8100), (testPort 4000))
+  Write-Host ("  포트 리슨: 8761={0} 8100={1} 8110={2} 4000={3}" -f (testPort 8761), (testPort 8100), (testPort 8110), (testPort 4000))
+  if (testPort 8110) {
+    try {
+      $ks = Invoke-RestMethod -Uri 'http://localhost:8110/open-api/keys/status' -TimeoutSec 5
+      Write-Host ("  공개 API 키 기능: {0}" -f $(if ($ks.ready) { '켜짐(발급·사용량 가능)' } else { '꺼짐(키 API 만 503)' }))
+    } catch { Write-Host '  공개 API 키 기능: 조회 불가' }
+  }
   try {
     $apps = Invoke-RestMethod -Uri 'http://localhost:8761/eureka/apps' -Headers @{ Accept = 'application/json' } -TimeoutSec 5
     $names = @($apps.applications.application) | ForEach-Object { "$($_.name)($(@($_.instance).Count))" }

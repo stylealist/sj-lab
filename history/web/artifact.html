@@ -388,7 +388,7 @@
         <button type="button" role="tab" id="gtab-0" aria-controls="vgroup-0" aria-selected="false" tabindex="-1">v1.0 – v1.14</button>
         <button type="button" role="tab" id="gtab-1" aria-controls="vgroup-1" aria-selected="false" tabindex="-1">v1.15 – v1.29</button>
         <button type="button" role="tab" id="gtab-2" aria-controls="vgroup-2" aria-selected="false" tabindex="-1">v1.30 – v1.35</button>
-        <button type="button" role="tab" id="gtab-3" aria-controls="vgroup-3" aria-selected="false" tabindex="-1">v2.0 – v3.6</button>
+        <button type="button" role="tab" id="gtab-3" aria-controls="vgroup-3" aria-selected="false" tabindex="-1">v2.0 – v3.7</button>
       </div>
       <div class="vstep">
         <span class="vnow" aria-live="polite"></span>
@@ -505,7 +505,8 @@
       <button type="button" class="vchip" role="tab" data-ver="3.3" aria-controls="pane-v3.3" title="API 센터의 허브 버튼을 지도와 같은 모양으로"><span class="pv">v3.3</span><span class="pt">허브 버튼 통일</span></button>
       <button type="button" class="vchip" role="tab" data-ver="3.4" aria-controls="pane-v3.4" title="API 센터에 소개 · 저장소 문의 화면 추가"><span class="pv">v3.4</span><span class="pt">소개 · 저장소 화면</span></button>
       <button type="button" class="vchip" role="tab" data-ver="3.5" aria-controls="pane-v3.5" title="공개 API 외부 개방과 대용량 차단"><span class="pv">v3.5</span><span class="pt">공개 API 개방</span></button>
-      <button type="button" class="vchip" role="tab" data-ver="3.6" aria-controls="pane-v3.6" title="API 키·사용량 기능을 운영에 켜기"><span class="pv">v3.6<span class="dot" title="최신" aria-label="최신"></span></span><span class="pt">API 키 켜기</span></button>
+      <button type="button" class="vchip" role="tab" data-ver="3.6" aria-controls="pane-v3.6" title="API 키·사용량 기능을 운영에 켜기"><span class="pv">v3.6</span><span class="pt">API 키 켜기</span></button>
+      <button type="button" class="vchip" role="tab" data-ver="3.7" aria-controls="pane-v3.7" title="DB 계정을 전용 최소권한으로, 로컬도 키 기능 켜짐"><span class="pv">v3.7<span class="dot" title="최신" aria-label="최신"></span></span><span class="pt">계정 분리 · 로컬 키</span></button>
     </div>
   </div>
 </nav>
@@ -7705,6 +7706,108 @@ bbox   없이 호출                             400  필수 파라미터가 없
 </section>
 </div>
 
+<!-- ===================== v3.7 ===================== -->
+<div class="vpane" data-ver="3.7" id="pane-v3.7" hidden>
+<header class="masthead">
+  <div class="wrap">
+    <div class="stamp">
+      <span class="ver">v3.7</span>
+      <span>2026-09-30</span>
+      <span>sj-lab(스크립트·문서) · 운영 Secret</span>
+    </div>
+    <h1>DB 계정을 전용으로 바꾸고<br>로컬도 키가 되게</h1>
+    <p class="plainline">개인 계정 대신 권한을 최소로 줄인 전용 계정으로 바꾸고, 로컬에서도 키 기능이 켜지게 했습니다</p>
+    <p class="dek">
+      "내 API 키가 안 보인다"는 말씀에서 시작했습니다. 코드는 처음부터 다 되어 있었고,
+      <b>보고 계신 곳이 로컬</b>이라 안 보였던 것입니다.
+    </p>
+    <dl class="facts">
+      <div><dt>DB 계정</dt><dd class="ok">개인 → 전용 최소권한</dd></div>
+      <div><dt>로컬 키 기능</dt><dd class="ok">꺼짐 → 켜짐</dd></div>
+      <div><dt>기동 스크립트</dt><dd>5개 → 6개</dd></div>
+      <div><dt>운영 검증</dt><dd class="ok">발급·사용량·폐기 전부</dd></div>
+    </dl>
+  </div>
+</header>
+
+<section class="band">
+  <div class="wrap">
+    <p class="eyebrow">왜 안 보였나</p>
+    <h2>운영만 켜져 있었습니다</h2>
+    <div class="cmd">운영  keys/status → ready: true    → 키 영역 보임
+로컬  keys/status → ready: false   → 안 보임</div>
+    <p style="margin:1.1rem 0 0">
+      화면은 <code>ready</code> 가 참일 때만 키 목록·발급 버튼을 그립니다. 앞 버전에서 켠 것은
+      운영뿐이고, 로컬에 띄워 둔 공개 API 서버는 키 기능이 꺼진 채였습니다.
+    </p>
+  </div>
+</section>
+
+<section class="band">
+  <div class="wrap">
+    <p class="eyebrow">하나</p>
+    <h2>DB 계정을 전용 최소권한으로</h2>
+    <p style="margin:0 0 1rem">전에는 운영·로컬 모두 <b>개인 superuser 계정</b>을 쓰고 있었습니다.</p>
+    <div class="tbl">
+      <table>
+        <thead><tr><th>대상</th><th>권한</th></tr></thead>
+        <tbody>
+          <tr><td>스키마 <code>api</code></td><td>USAGE</td></tr>
+          <tr><td>표 2개</td><td>SELECT · INSERT · UPDATE</td></tr>
+          <tr><td>시퀀스 2개</td><td>USAGE · SELECT</td></tr>
+          <tr><td>계정 속성</td><td class="ok">superuser 아님 · DB·역할 생성 권한 없음</td></tr>
+        </tbody>
+      </table>
+    </div>
+    <p style="margin:1.1rem 0 0"><code>DELETE</code> 는 필요 없습니다 — 키 폐기는 행을 지우는 게 아니라 "사용 안 함"으로 바꾸는 것이라서요.</p>
+    <div class="cmd" style="margin-top:1.2rem">부여한 권한만으로 다 되는지 운영에서 실제로 확인
+  파드 기동 · keys/status     ready=true   (새 계정으로 접속 성공)
+  키 발급                     OK           (INSERT + 시퀀스)
+  그 키로 호출 3회             200·200·200  (사용량 INSERT + 마지막사용 UPDATE)
+  목록 · 사용량                오늘 3/1000  (SELECT)
+  키 폐기                     OK           (UPDATE)
+  공개 조회                    200          (영향 없음)</div>
+  </div>
+</section>
+
+<section class="band">
+  <div class="wrap">
+    <p class="eyebrow">둘</p>
+    <h2>기동 스크립트가 공개 API 서버도 띄웁니다</h2>
+    <div class="tbl">
+      <table>
+        <thead><tr><th></th><th>전</th><th>후</th></tr></thead>
+        <tbody>
+          <tr><td>기동 대상</td><td>5개</td><td class="ok">6개 (공개 API 추가)</td></tr>
+          <tr><td>공개 API</td><td>손으로 <code>java -jar …</code></td><td class="ok"><code>start</code> 한 번에 8110</td></tr>
+          <tr><td>키 기능</td><td>매번 환경변수 직접 주입</td><td class="ok">비밀값 파일에 있으면 자동으로 켜짐</td></tr>
+          <tr><td><code>status</code></td><td>포트 3개</td><td class="ok">포트 4개 + 키 기능 켜짐/꺼짐 표시</td></tr>
+        </tbody>
+      </table>
+    </div>
+    <ul class="notes">
+      <li>비밀값이 없으면 <b>키 기능만 꺼진 채로 정상 기동</b>합니다(공개 조회는 그대로). 값이 반쯤 들어가 기동이 실패하지 않도록 셋이 다 있을 때만 켭니다</li>
+      <li>비밀번호는 깃 제외 파일에서 읽어 넣었고 화면·명령문에 남기지 않았습니다</li>
+    </ul>
+  </div>
+</section>
+
+<section class="band">
+  <div class="wrap">
+    <p class="eyebrow">겪은 것 · 남은 것</p>
+    <h2>따옴표 하나, 그리고 아직 남은 두 가지</h2>
+    <p style="margin:0 0 1rem">
+      Secret 만들기가 두 번 막혔습니다. <b>여는 따옴표 하나</b>가 빠져 비밀번호가 따옴표 밖으로 밀려나고,
+      그 안의 <code>!</code> 를 bash 가 히스토리 확장으로 해석한 것이었습니다.
+    </p>
+    <ul class="notes">
+      <li><b>개인 superuser 비밀번호는 아직 교체 대상</b>입니다 — 이제 운영·로컬 어디서도 쓰지 않으니 안전하게 바꿀 수 있습니다</li>
+      <li><b>하루 한도는 키를 붙인 호출에만 적용</b>됩니다(키를 빼면 우회). 키 필수화나 IP 제한은 "누구나 바로 써 보는 공개 API"라는 성격과 맞바꾸는 결정이라 상의가 필요합니다</li>
+    </ul>
+  </div>
+</section>
+</div>
+
 
 <footer>
   <div class="wrap">
@@ -7717,7 +7820,7 @@ bbox   없이 호출                             400  필수 파라미터가 없
       <li><em>운영 로그인 페이지</em><span class="url">https://api.sj-lab.co.kr/auth/login.html</span></li>
       <li><em>sj-lab-authserver</em><span class="url">https://github.com/stylealist/sj-lab-authserver</span></li>
       <li><em>API 센터</em><span class="url">https://sj-lab.co.kr/openapi/</span></li>
-      <li><em>기록 원본</em><span class="url">sj-lab/history/history_v1.0.md ~ v1.35.md, v2.0.md ~ v3.6.md</span></li>
+      <li><em>기록 원본</em><span class="url">sj-lab/history/history_v1.0.md ~ v1.35.md, v2.0.md ~ v3.7.md</span></li>
     </ul>
     <p class="colophon">
       총괄 허브 <code>C:\developer\workspace\sj-lab</code> 기준 · 커밋과 push는 사용자가 요청할 때만 수행합니다 ·

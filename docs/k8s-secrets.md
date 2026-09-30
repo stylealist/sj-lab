@@ -12,6 +12,17 @@
 | `auth-demo-credentials` | `username`, `password` | sj-lab-authserver → `AUTH_DEMO_USERNAME`, `AUTH_DEMO_PASSWORD` | 선택(`optional: true`) | 파드는 정상, 로그인 페이지의 "체험용 계정으로 로그인" 버튼만 503 |
 | `openapi-db-credentials` | `url`, `username`, `password` | sj-lab-openapi → `OPENAPI_DB_URL`, `OPENAPI_DB_USERNAME`, `OPENAPI_DB_PASSWORD` | **키 기능을 켠 경우 필수**(차트 `apiKey.enabled: true`, 2026-09-30 켜짐) | 파드가 뜨지 않음 — 접속 주소가 비면 `ApiKeyStoreConfig`가 기동을 막는다(의도된 동작). 차트를 `false`로 되돌리면 Secret 없이도 뜨고 키 API만 503 |
 
+**`openapi-db-credentials`의 계정은 `openapi_svc`입니다**(2026-09-30 분리). `api` 스키마 두 표에만 권한이 있는 전용 계정이며, superuser가 아닙니다. 다른 서비스나 사람 계정으로 되돌리지 마세요 — 이 서비스가 필요한 건 아래가 전부이고, 실제로 이 권한만으로 발급·사용량 기록·폐기가 모두 동작하는 것을 확인했습니다.
+
+| 대상 | 권한 | 쓰이는 곳 |
+|---|---|---|
+| 스키마 `api` | `USAGE` | 접속 |
+| `api.openapi_api_key` | `SELECT`, `INSERT`, `UPDATE` | 목록 · 발급 · 폐기(`use_yn`) · `last_used_at` 갱신 |
+| `api.openapi_api_usage` | `SELECT`, `INSERT`, `UPDATE` | 하루 사용량 집계 · 호출 기록 |
+| 시퀀스 2개 | `USAGE`, `SELECT` | `key_id` · `usage_id` 생성 |
+
+`DELETE`는 필요 없습니다(폐기는 행 삭제가 아니라 `use_yn='n'` 갱신). 로컬도 같은 계정을 `.claude\settings.local.json`의 `env`에 두고 `local-stack.ps1`이 읽어 넣습니다.
+
 그 밖에 `kubernetes-dashboard` 네임스페이스의 `kubernetes-dashboard-certs` 등은 dashboard 차트가 직접 만드는 Secret이라 따로 관리하지 않습니다. `sj-qfieldsync`는 k8s Secret을 쓰지 않습니다.
 
 ### 주의

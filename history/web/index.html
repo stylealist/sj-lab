@@ -113,6 +113,21 @@
 
     <div class="card">
       <div class="ver-head">
+        <span class="tag">v3.7</span>
+        <span class="ver-title">DB 계정을 전용 최소권한으로 바꾸고, 로컬에서도 키 기능이 켜지게 했습니다<span class="ver-note">계정 분리 · 기동 스크립트 6개로</span></span>
+        <span class="date">2026-09-30</span>
+      </div>
+      <ul>
+        <li>"내 API 키가 안 보인다" — 코드는 다 되어 있었고 <b>보고 계신 곳이 로컬</b>이라 안 보였습니다(운영만 켜져 있었음)</li>
+        <li>운영·로컬 모두 쓰던 <b>개인 superuser 계정</b>을 `api` 스키마 두 표에만 권한이 있는 전용 계정으로 교체</li>
+        <li>부여한 권한만으로 발급·사용량·폐기가 모두 되는지 운영에서 실제로 확인</li>
+        <li>기동 스크립트가 <b>공개 API 서버도 함께</b> 띄웁니다(5개 → 6개). 비밀값이 있으면 키 기능까지 자동으로 켜짐</li>
+      </ul>
+      <p><a href="../history_v3.7.md">history_v3.7.md 원문 보기</a></p>
+    </div>
+
+    <div class="card">
+      <div class="ver-head">
         <span class="tag">v3.6</span>
         <span class="ver-title">API 키와 사용량 기능을 운영에 켰습니다<span class="ver-note">발급 → 호출 → 사용량 → 폐기까지 실제 확인</span></span>
         <span class="date">2026-09-30</span>
