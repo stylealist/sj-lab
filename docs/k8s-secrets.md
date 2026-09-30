@@ -10,6 +10,7 @@
 | `qfield-credentials` | `username`, `password` | mapservice-rest → `QFIELD_USERNAME`, `QFIELD_PASSWORD` | 선택(`optional: true`) | 파드는 정상, 시설물 첨부(사진·음성·영상) 중계 API만 503 |
 | `auth-jwt-secret` | `secret` | sj-lab-authserver → `AUTH_JWT_SECRET` | **필수**(optional 아님) | 파드가 `CreateContainerConfigError`로 뜨지 않음(의도된 동작 — 공개 기본값으로 서명하지 않기 위함) |
 | `auth-demo-credentials` | `username`, `password` | sj-lab-authserver → `AUTH_DEMO_USERNAME`, `AUTH_DEMO_PASSWORD` | 선택(`optional: true`) | 파드는 정상, 로그인 페이지의 "체험용 계정으로 로그인" 버튼만 503 |
+| `openapi-db-credentials` | `url`, `username`, `password` | sj-lab-openapi → `OPENAPI_DB_URL`, `OPENAPI_DB_USERNAME`, `OPENAPI_DB_PASSWORD` | **키 기능을 켠 경우 필수**(차트 `apiKey.enabled: true`, 2026-09-30 켜짐) | 파드가 뜨지 않음 — 접속 주소가 비면 `ApiKeyStoreConfig`가 기동을 막는다(의도된 동작). 차트를 `false`로 되돌리면 Secret 없이도 뜨고 키 API만 503 |
 
 그 밖에 `kubernetes-dashboard` 네임스페이스의 `kubernetes-dashboard-certs` 등은 dashboard 차트가 직접 만드는 Secret이라 따로 관리하지 않습니다. `sj-qfieldsync`는 k8s Secret을 쓰지 않습니다.
 
@@ -29,6 +30,7 @@ k8s Secret이 없으므로 다음처럼 대신합니다(값은 git 제외 파일
 | `auth-demo-credentials` | `AUTH_DEMO_USERNAME`/`AUTH_DEMO_PASSWORD` → `scripts\local-stack.ps1`이 authserver 기동 시 주입 |
 | `qfield-credentials` | `QFIELD_USERNAME`/`QFIELD_PASSWORD` → `scripts\local-stack.ps1`이 mapservice-rest 기동 시 주입 |
 | `ncp-registry-secret` | 필요 없음(로컬은 jar 직접 실행) |
+| `openapi-db-credentials` | 기본은 필요 없음 — `OPENAPI_API_KEY_ENABLED`가 꺼져 있으면 키 API만 503이고 공개 조회는 정상. 로컬에서 키 기능을 써 보려면 `OPENAPI_DB_URL`/`OPENAPI_DB_USERNAME`/`OPENAPI_DB_PASSWORD`와 `OPENAPI_API_KEY_ENABLED=true`를 넣어 띄운다(`api` 스키마 두 표에 SELECT·INSERT·UPDATE 권한 필요) |
 
 ## Jenkins Credentials
 

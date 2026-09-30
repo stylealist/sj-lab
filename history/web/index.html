@@ -113,6 +113,21 @@
 
     <div class="card">
       <div class="ver-head">
+        <span class="tag">v3.6</span>
+        <span class="ver-title">API 키와 사용량 기능을 운영에 켰습니다<span class="ver-note">발급 → 호출 → 사용량 → 폐기까지 실제 확인</span></span>
+        <span class="date">2026-09-30</span>
+      </div>
+      <ul>
+        <li>기능은 전부터 있었지만 운영에서 꺼져 있었습니다. 표와 접속 정보(Secret)를 확인한 뒤 <b>차트 한 줄</b>로 켰습니다</li>
+        <li>체험용 계정으로 끝까지 확인 — 발급 OK · 호출 3회 200 · <b>사용량 3/1000 기록</b> · 가짜 키 401 · 키 없이 호출 200 · 폐기 OK</li>
+        <li>Secret 생성이 셸 오류로 실패했던 건 <b>따옴표 하나가 빠져</b> 비밀번호의 <code>!</code>가 히스토리 확장으로 해석된 것이었습니다</li>
+        <li><b>남은 것</b>: 키를 붙이지 않으면 한도가 적용되지 않습니다 — 키 필수화나 IP 제한은 정책 결정이라 상의 후에</li>
+      </ul>
+      <p><a href="../history_v3.6.md">history_v3.6.md 원문 보기</a></p>
+    </div>
+
+    <div class="card">
+      <div class="ver-head">
         <span class="tag">v3.5</span>
         <span class="ver-title">공개 API를 외부에서 부를 수 있게 열고, 전국 데이터를 통째로 못 가져가게 막았습니다<span class="ver-note">CORS 개방 · bbox 필수 · 키 기능 준비 확인</span></span>
         <span class="date">2026-09-30</span>

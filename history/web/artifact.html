@@ -388,7 +388,7 @@
         <button type="button" role="tab" id="gtab-0" aria-controls="vgroup-0" aria-selected="false" tabindex="-1">v1.0 – v1.14</button>
         <button type="button" role="tab" id="gtab-1" aria-controls="vgroup-1" aria-selected="false" tabindex="-1">v1.15 – v1.29</button>
         <button type="button" role="tab" id="gtab-2" aria-controls="vgroup-2" aria-selected="false" tabindex="-1">v1.30 – v1.35</button>
-        <button type="button" role="tab" id="gtab-3" aria-controls="vgroup-3" aria-selected="false" tabindex="-1">v2.0 – v3.5</button>
+        <button type="button" role="tab" id="gtab-3" aria-controls="vgroup-3" aria-selected="false" tabindex="-1">v2.0 – v3.6</button>
       </div>
       <div class="vstep">
         <span class="vnow" aria-live="polite"></span>
@@ -504,7 +504,8 @@
       <button type="button" class="vchip" role="tab" data-ver="3.2" aria-controls="pane-v3.2" title="API 센터 색을 보라에서 파랑 계열로 통일"><span class="pv">v3.2</span><span class="pt">API 센터 색 통일</span></button>
       <button type="button" class="vchip" role="tab" data-ver="3.3" aria-controls="pane-v3.3" title="API 센터의 허브 버튼을 지도와 같은 모양으로"><span class="pv">v3.3</span><span class="pt">허브 버튼 통일</span></button>
       <button type="button" class="vchip" role="tab" data-ver="3.4" aria-controls="pane-v3.4" title="API 센터에 소개 · 저장소 문의 화면 추가"><span class="pv">v3.4</span><span class="pt">소개 · 저장소 화면</span></button>
-      <button type="button" class="vchip" role="tab" data-ver="3.5" aria-controls="pane-v3.5" title="공개 API 외부 개방과 대용량 차단"><span class="pv">v3.5<span class="dot" title="최신" aria-label="최신"></span></span><span class="pt">공개 API 개방</span></button>
+      <button type="button" class="vchip" role="tab" data-ver="3.5" aria-controls="pane-v3.5" title="공개 API 외부 개방과 대용량 차단"><span class="pv">v3.5</span><span class="pt">공개 API 개방</span></button>
+      <button type="button" class="vchip" role="tab" data-ver="3.6" aria-controls="pane-v3.6" title="API 키·사용량 기능을 운영에 켜기"><span class="pv">v3.6<span class="dot" title="최신" aria-label="최신"></span></span><span class="pt">API 키 켜기</span></button>
     </div>
   </div>
 </nav>
@@ -7628,6 +7629,82 @@ bbox   없이 호출                             400  필수 파라미터가 없
 </section>
 </div>
 
+<!-- ===================== v3.6 ===================== -->
+<div class="vpane" data-ver="3.6" id="pane-v3.6" hidden>
+<header class="masthead">
+  <div class="wrap">
+    <div class="stamp">
+      <span class="ver">v3.6</span>
+      <span>2026-09-30</span>
+      <span>k8s-manifests · openapi</span>
+    </div>
+    <h1>API 키와 사용량을<br>운영에 켰습니다</h1>
+    <p class="plainline">키를 발급받아 호출하면 사용량이 쌓이고 하루 한도가 적용됩니다</p>
+    <p class="dek">
+      기능은 전부터 만들어져 있었지만 운영에서 꺼져 있었습니다. 표와 접속 정보(Secret)가
+      준비된 것을 확인한 뒤 차트 <b>한 줄</b>을 올려 켰습니다.
+    </p>
+    <dl class="facts">
+      <div><dt>키 발급 · 폐기</dt><dd class="ok">503 → 동작</dd></div>
+      <div><dt>사용량 기록</dt><dd class="ok">쌓임</dd></div>
+      <div><dt>하루 한도</dt><dd>1,000회 (키 붙인 호출)</dd></div>
+      <div><dt>키 없는 호출</dt><dd class="ok">그대로 됨</dd></div>
+    </dl>
+  </div>
+</header>
+
+<section class="band">
+  <div class="wrap">
+    <p class="eyebrow">끝까지 해봤습니다</p>
+    <h2>발급 → 호출 → 사용량 → 폐기</h2>
+    <div class="cmd">로그인(체험용 계정)        OK
+키 발급                   OK   (원문은 발급 응답에 한 번만)
+그 키로 API 호출 3회       200 · 200 · 200
+사용량                    오늘 3 / 1000, 마지막 사용 시각 기록됨
+가짜 키로 호출             401
+키 없이 호출               200  (기존 정책 유지)
+키 폐기                   OK   → 남은 키 0개</div>
+    <ul class="notes">
+      <li>배포 전 <code>helm lint</code> 통과, <code>helm template</code> 에서 세 환경변수가 Secret 의 url · username · password 를 참조하는 것 확인</li>
+      <li>확인용 키 2개는 모두 폐기했습니다(폐기는 행을 지우지 않고 사용 안 함으로 표시하는 방식)</li>
+      <li>한글 라벨도 확인 — 처음엔 <code>?????</code> 로 보여 서버 문제인가 했지만, 제가 쓴 도구가 한글을 깨뜨린 것이었고 <b>서버는 정상</b>입니다</li>
+      <li><code>image.tag</code> 는 건드리지 않았습니다(Jenkins 관리 값)</li>
+    </ul>
+  </div>
+</section>
+
+<section class="band">
+  <div class="wrap">
+    <p class="eyebrow">켜는 길에 있던 걸림돌</p>
+    <h2>따옴표 하나 때문에 Secret 이 안 만들어졌습니다</h2>
+    <div class="cmd">--from-literal=username=stylealist' \
+                        ^ 여는 따옴표가 빠져 있었음
+
+→ 뒤따르는 비밀번호가 따옴표 밖으로 나가고
+→ 비밀번호 안의 ! 를 bash 가 히스토리 확장으로 해석
+→ event not found</div>
+    <ul class="notes">
+      <li>따옴표를 채워 해결했고, 비밀번호를 명령줄에 남기지 않는 방법(파일로 넣고 삭제)도 함께 안내했습니다</li>
+    </ul>
+  </div>
+</section>
+
+<section class="band">
+  <div class="wrap">
+    <p class="eyebrow">남은 이야기</p>
+    <h2>하루 한도는 아직 완전하지 않습니다</h2>
+    <p style="margin:0 0 1rem">
+      <b>키를 붙이지 않으면 한도가 적용되지 않습니다.</b> 실제로 막으려면 키를 필수로 하거나
+      IP 단위 제한을 넣어야 하는데, 이건 "누구나 바로 써 보는 공개 API" 라는 성격과 맞바꾸는 결정이라
+      상의가 필요합니다.
+    </p>
+    <ul class="notes">
+      <li>그 밖에 점검에서 뽑아 둔 두 가지 — 기계가 읽는 규격(OpenAPI 3) 제공, 카탈로그에 에러 코드 표 넣기</li>
+    </ul>
+  </div>
+</section>
+</div>
+
 
 <footer>
   <div class="wrap">
@@ -7640,7 +7717,7 @@ bbox   없이 호출                             400  필수 파라미터가 없
       <li><em>운영 로그인 페이지</em><span class="url">https://api.sj-lab.co.kr/auth/login.html</span></li>
       <li><em>sj-lab-authserver</em><span class="url">https://github.com/stylealist/sj-lab-authserver</span></li>
       <li><em>API 센터</em><span class="url">https://sj-lab.co.kr/openapi/</span></li>
-      <li><em>기록 원본</em><span class="url">sj-lab/history/history_v1.0.md ~ v1.35.md, v2.0.md ~ v3.5.md</span></li>
+      <li><em>기록 원본</em><span class="url">sj-lab/history/history_v1.0.md ~ v1.35.md, v2.0.md ~ v3.6.md</span></li>
     </ul>
     <p class="colophon">
       총괄 허브 <code>C:\developer\workspace\sj-lab</code> 기준 · 커밋과 push는 사용자가 요청할 때만 수행합니다 ·
