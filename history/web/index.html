@@ -113,6 +113,21 @@
 
     <div class="card">
       <div class="ver-head">
+        <span class="tag">v3.5</span>
+        <span class="ver-title">공개 API를 외부에서 부를 수 있게 열고, 전국 데이터를 통째로 못 가져가게 막았습니다<span class="ver-note">CORS 개방 · bbox 필수 · 키 기능 준비 확인</span></span>
+        <span class="date">2026-09-30</span>
+      </div>
+      <ul>
+        <li>공개 API인데 <b>남의 사이트에서 부르면 403</b>이었습니다 → <code>/open-api/**</code>만 누구나 부를 수 있게 열었습니다(GET·OPTIONS, 쿠키 없이). 다른 경로는 종전대로 차단</li>
+        <li>공공데이터 6종에 <b>화면 범위(bbox)를 필수</b>로 — 없이 부르면 전국 수십 MB(버스정류장 85MB·병원 61MB)가 나가 서비스를 흔들 수 있었습니다</li>
+        <li>키 기능은 표·코드·차트가 <b>서로 맞는 것까지 확인</b>했고, 운영에서 켜는 3단계(DDL → Secret → 차트)는 권한이 필요해 남겨 두었습니다</li>
+        <li>검증은 8101·8111에 따로 띄워 했고(8100 미사용), 문서의 옛 표기 2곳도 정정했습니다</li>
+      </ul>
+      <p><a href="../history_v3.5.md">history_v3.5.md 원문 보기</a></p>
+    </div>
+
+    <div class="card">
+      <div class="ver-head">
         <span class="tag">v3.4</span>
         <span class="ver-title">API 센터에 소개 · 저장소 문의 화면을 만들고 헤더 배치를 지도와 같게 맞췄습니다<span class="ver-note">화면 2개 신설 · 저장소 15개 · 인프라 링크 9개</span></span>
         <span class="date">2026-09-30</span>
