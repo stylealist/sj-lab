@@ -113,6 +113,37 @@
 
     <div class="card">
       <div class="ver-head">
+        <span class="tag">v3.9</span>
+        <span class="ver-title">샘플 코드를 파라미터 형태로 바꿨습니다<span class="ver-note">curl · JavaScript · Python</span></span>
+        <span class="date">2026-10-01</span>
+      </div>
+      <ul>
+        <li>긴 주소 한 줄 대신 <b>값을 따로 적는 예시</b>로 바꿨습니다 — 값을 고칠 때 주소 안에서 찾지 않아도 되고, <code>apiKey</code> 가 다른 값들과 나란히 보입니다</li>
+        <li>쉼표가 들어가는 <code>bbox</code> 같은 값은 각 언어가 알아서 인코딩합니다</li>
+        <li>주소에 키가 안 담기던 것은 <b>키 값을 저장하기 전에 만들어진 키</b>였기 때문입니다 — 화면에서 이유와 해결(새 키로 바꾸기)을 안내합니다</li>
+      </ul>
+      <p><a href="../history_v3.9.md">history_v3.9.md 원문 보기</a></p>
+    </div>
+
+    <div class="card">
+      <div class="ver-head">
+        <span class="tag">v3.8</span>
+        <span class="ver-title">키를 받아서 쓰는 것에서 그냥 있는 것으로 바꿨습니다<span class="ver-note">자동 배정 · 키 필수화 · 화면 정리</span></span>
+        <span class="date">2026-10-01</span>
+      </div>
+      <ul>
+        <li>발급 버튼을 없애고 <b>계정마다 키 1개를 자동으로 배정</b>합니다. 바꿀 때는 "키가 유출됐다면" 한 줄만</li>
+        <li>키 값을 <b>전체로 보여 주고 복사</b>할 수 있습니다 — 다른 서버에서 부를 때 키를 모르면 쓸 수 없으니 방침을 바꿨습니다(확인은 계속 지문으로만)</li>
+        <li><b>키 없는 호출을 막았습니다</b>(200 → 401). 그래서 하루 한도가 실제로 걸립니다</li>
+        <li>각 API 파라미터에 <code>apiKey</code> 가 보이고 내 키가 채워집니다. <b>필수가 위, 선택이 아래</b>로 정렬</li>
+        <li>값이 비어도 <b>버튼을 잠그지 않습니다</b> — 눌러 보면 응답에 무엇이 빠졌는지 나옵니다</li>
+        <li>운영 "Failed to fetch" 는 앞 버전의 CORS 설정이 키 경로까지 삼킨 것이었고, 키 경로를 따로·먼저 열어 해결</li>
+      </ul>
+      <p><a href="../history_v3.8.md">history_v3.8.md 원문 보기</a></p>
+    </div>
+
+    <div class="card">
+      <div class="ver-head">
         <span class="tag">v3.7</span>
         <span class="ver-title">DB 계정을 전용 최소권한으로 바꾸고, 로컬에서도 키 기능이 켜지게 했습니다<span class="ver-note">계정 분리 · 기동 스크립트 6개로</span></span>
         <span class="date">2026-09-30</span>
