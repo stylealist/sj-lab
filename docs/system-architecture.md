@@ -147,7 +147,8 @@
 2. 백엔드: `add-wfs-layer` 스킬 또는 `qfield-facility.xml` 패턴으로 Mapper·XML·Service·Controller 추가.
 3. 게이트웨이: `/map/**` 아래 경로면 변경 불필요.
 4. 프론트: `map-wfs.js`의 설정 배열에 `getApiUrl("/map/...")`로 추가하고, 인라인 HTML에서 부를 함수는 `map.js`에서 `window.*`에 등록. 레이어 패널 UI는 `docs/ui-conventions.md` 참고.
-5. 이 문서의 API 계약 표 갱신.
+5. **공개 API: 열 수 있는 조회 기능이면 `sj-lab-openapi`의 `catalog/api-catalog.json`에 항목 1개 추가**(활용 페이지는 자동 반영). 판단 기준·형식·확인 방법은 `docs/openapi-expose-checklist.md`. 쓰기·첨부 중계는 열지 않음.
+6. 이 문서의 API 계약 표 갱신.
 
 **새 마이크로서비스 / 경로 prefix**
 - 서비스는 Eureka에 등록(`spring.application.name`), 게이트웨이 `application.yml`의 `spring.cloud.gateway.routes`에 `lb://SERVICE-ID` + `Path=/prefix/**` + `CustomFilter`·`PreserveHostHeader` 추가. `FilterConfig.java`(주석 처리된 예시)는 건드리지 않음.

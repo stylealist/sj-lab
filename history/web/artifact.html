@@ -508,7 +508,8 @@
       <button type="button" class="vchip" role="tab" data-ver="3.6" aria-controls="pane-v3.6" title="API 키·사용량 기능을 운영에 켜기"><span class="pv">v3.6</span><span class="pt">API 키 켜기</span></button>
       <button type="button" class="vchip" role="tab" data-ver="3.7" aria-controls="pane-v3.7" title="DB 계정을 전용 최소권한으로, 로컬도 키 기능 켜짐"><span class="pv">v3.7</span><span class="pt">계정 분리 · 로컬 키</span></button>
       <button type="button" class="vchip" role="tab" data-ver="3.8" aria-controls="pane-v3.8" title="키는 로그인하면 이미 있고, 키 없는 호출은 막힘"><span class="pv">v3.8</span><span class="pt">키 자동 배정 · 필수화</span></button>
-      <button type="button" class="vchip" role="tab" data-ver="3.9" aria-controls="pane-v3.9" title="샘플 코드를 파라미터 형태로, 키가 안 담기던 경우 안내"><span class="pv">v3.9<span class="dot" title="최신" aria-label="최신"></span></span><span class="pt">샘플 코드 정리</span></button>
+      <button type="button" class="vchip" role="tab" data-ver="3.9" aria-controls="pane-v3.9" title="샘플 코드를 파라미터 형태로, 키가 안 담기던 경우 안내"><span class="pv">v3.9</span><span class="pt">샘플 코드 정리</span></button>
+      <button type="button" class="vchip" role="tab" data-ver="3.10" aria-controls="pane-v3.10" title="백엔드에 기능이 생기면 공개 API에도 같이 열도록 규칙 문서화"><span class="pv">v3.10<span class="dot" title="최신" aria-label="최신"></span></span><span class="pt">공개 API 동시 추가 규칙</span></button>
     </div>
   </div>
 </nav>
@@ -8014,6 +8015,94 @@ response = requests.get("https://api.sj-lab.co.kr/open-api/v1/convenience-store"
 </div>
 
 
+<!-- ===================== v3.10 ===================== -->
+<div class="vpane" data-ver="3.10" id="pane-v3.10" hidden>
+<header class="masthead">
+  <div class="wrap">
+    <div class="stamp">
+      <span class="ver">v3.10</span>
+      <span>2026-10-06</span>
+      <span>총괄 문서 · 백엔드 · 공개 API</span>
+    </div>
+    <h1>백엔드에 기능이 생기면<br>공개 API에도 같이</h1>
+    <p class="plainline">나중에 몰아서 하지 않도록, 판단 기준과 절차를 한 장으로 정리했습니다</p>
+    <p class="dek">
+      미루면 <b>백엔드에는 있는데 공개 API에는 없는</b> 상태가 쌓여, 외부에 열려 있는 범위가
+      무엇인지 아무도 모르게 됩니다.
+    </p>
+    <dl class="facts">
+      <div><dt>새 문서</dt><dd class="ok">openapi-expose-checklist.md</dd></div>
+      <div><dt>판단 기준</dt><dd>네 가지 모두 만족</dd></div>
+      <div><dt>추가 작업</dt><dd class="ok">파일 1개, 항목 1줄</dd></div>
+      <div><dt>가리키는 곳</dt><dd>규칙 문서 4곳</dd></div>
+    </dl>
+  </div>
+</header>
+
+<section class="band">
+  <div class="wrap">
+    <p class="eyebrow">하나</p>
+    <h2>열어도 되는가 — 네 가지</h2>
+    <div class="tbl">
+      <table>
+        <thead><tr><th>조건</th><th>왜</th></tr></thead>
+        <tbody>
+          <tr><td>조회(GET)다</td><td>공개 API는 조회만 엽니다</td></tr>
+          <tr><td>로그인·외부 계정이 필요 없다</td><td>공개 키 하나로 부를 수 있어야 합니다</td></tr>
+          <tr><td>응답이 과하게 크지 않다</td><td>전국 전체는 수십 MB라 시간을 넘깁니다</td></tr>
+          <tr><td>개인정보·내부 운영정보가 아니다</td><td>아무나 부를 수 있는 경로가 됩니다</td></tr>
+        </tbody>
+      </table>
+    </div>
+    <ul class="notes">
+      <li>열지 않는 것 — <b>쓰기·수정·삭제 전부, 사진 업로드, 첨부 파일 중계, 키 관리</b></li>
+      <li><b>애매하면 열지 말고 먼저 물어봅니다</b> — 한 번 열면 외부에서 쓰기 시작해 닫기가 어렵습니다</li>
+    </ul>
+  </div>
+</section>
+
+<section class="band">
+  <div class="wrap">
+    <p class="eyebrow">둘</p>
+    <h2>추가는 파일 한 개만</h2>
+    <p style="margin:0 0 1rem">
+      목록 파일에 항목 한 개를 더하면 끝입니다. 컨트롤러를 새로 만들지 않고,
+      <b>활용 페이지는 고치지 않아도 항목이 자동으로 늘어납니다.</b>
+    </p>
+    <div class="cmd">판단 → 목록 파일에 항목 1개 추가 → 버전 · API 계약 표 · 작업 로그 갱신
+     → 테스트와 실제 호출로 확인</div>
+    <div class="cmd" style="margin-top:1rem">정상 호출            200
+필수 파라미터 빼고    400
+키 빼고              401
+모르는 파라미터       400
+목록 · 활용 페이지     새 항목이 보임</div>
+  </div>
+</section>
+
+<section class="band">
+  <div class="wrap">
+    <p class="eyebrow">셋</p>
+    <h2>규칙이 눈에 띄도록 네 곳에서 가리키게</h2>
+    <div class="tbl">
+      <table>
+        <thead><tr><th>위치</th><th>내용</th></tr></thead>
+        <tbody>
+          <tr><td>총괄 규칙</td><td>공통 규칙에 한 줄 + 문서 목록에 추가</td></tr>
+          <tr><td>전체 구조 문서</td><td>"새 지도 레이어" 체크리스트에 공개 API 단계 추가</td></tr>
+          <tr><td>백엔드 규칙</td><td>새 조회 엔드포인트를 만들면 같은 작업에서 판단·추가</td></tr>
+          <tr><td>공개 API 규칙</td><td>백엔드에 기능이 생기면 여기에도 함께 열 것</td></tr>
+        </tbody>
+      </table>
+    </div>
+    <p style="margin:1.1rem 0 0">
+      자주 틀리는 것 네 가지(원천 경로 오타, DB 직접 조회 시도, 원천 경로 변경 후 미반영,
+      응답 가공)도 이유와 함께 남겼습니다.
+    </p>
+  </div>
+</section>
+</div>
+
+
 <footer>
   <div class="wrap">
     <p class="k">접속 URL</p>
@@ -8025,7 +8114,7 @@ response = requests.get("https://api.sj-lab.co.kr/open-api/v1/convenience-store"
       <li><em>운영 로그인 페이지</em><span class="url">https://api.sj-lab.co.kr/auth/login.html</span></li>
       <li><em>sj-lab-authserver</em><span class="url">https://github.com/stylealist/sj-lab-authserver</span></li>
       <li><em>API 센터</em><span class="url">https://sj-lab.co.kr/openapi/</span></li>
-      <li><em>기록 원본</em><span class="url">sj-lab/history/history_v1.0.md ~ v1.35.md, v2.0.md ~ v3.9.md</span></li>
+      <li><em>기록 원본</em><span class="url">sj-lab/history/history_v1.0.md ~ v1.35.md, v2.0.md ~ v3.10.md</span></li>
     </ul>
     <p class="colophon">
       총괄 허브 <code>C:\developer\workspace\sj-lab</code> 기준 · 커밋과 push는 사용자가 요청할 때만 수행합니다 ·

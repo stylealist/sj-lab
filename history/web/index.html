@@ -113,6 +113,22 @@
 
     <div class="card">
       <div class="ver-head">
+        <span class="tag">v3.10</span>
+        <span class="ver-title">백엔드에 기능이 생기면 공개 API에도 같이 열도록 규칙을 문서화했습니다<span class="ver-note">판단 기준 · 절차 · 확인</span></span>
+        <span class="date">2026-10-06</span>
+      </div>
+      <ul>
+        <li>미루면 <b>백엔드에는 있는데 공개 API에는 없는</b> 상태가 쌓여 외부에 열린 범위를 아무도 모르게 됩니다</li>
+        <li>열어도 되는지 <b>네 가지</b>로 판단합니다 — 조회(GET)인지 · 로그인이 필요 없는지 · 응답이 과하게 크지 않은지 · 민감정보가 아닌지</li>
+        <li>쓰기·수정·삭제, 사진 업로드, 첨부 파일 중계, 키 관리는 열지 않습니다. <b>애매하면 열지 말고 먼저 물어봅니다</b></li>
+        <li>추가는 <b>목록 파일에 항목 한 개</b>면 끝이고 활용 페이지는 자동으로 늘어납니다</li>
+        <li>규칙이 눈에 띄도록 총괄·전체 구조·백엔드·공개 API 네 곳에서 이 문서를 가리키게 했습니다</li>
+      </ul>
+      <p><a href="../history_v3.10.md">history_v3.10.md 원문 보기</a></p>
+    </div>
+
+    <div class="card">
+      <div class="ver-head">
         <span class="tag">v3.9</span>
         <span class="ver-title">샘플 코드를 파라미터 형태로 바꿨습니다<span class="ver-note">curl · JavaScript · Python</span></span>
         <span class="date">2026-10-01</span>

@@ -21,6 +21,7 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 - @docs/dev-environment.md — 로컬 저장소 경로, 포트·라우팅(8100=게이트웨이, 4000=지도, 4100=API 활용 페이지, 8761=Eureka), CORS
 - @docs/mcp.md — GitHub/DB MCP 설정과 비밀값 관리 규칙
 - `docs/k8s-secrets.md` — 운영 k8s Secret·Jenkins Credential 이름·용도·없을 때 증상. 차트의 `secretKeyRef`/`pullSecret`을 바꾸면 이 문서도 같이 고칠 것
+- `docs/openapi-expose-checklist.md` — **백엔드에 새 조회 기능을 만들면 공개 API(`sj-lab-openapi`)에도 같은 작업에서 함께 열기**. 열 수 있는지 판단하는 4가지 기준, 카탈로그 항목 형식, 함께 고칠 문서, 확인 방법
 - `docs/deploy-static-sites.md` — 허브·지도·API 활용 페이지 정적 배포(웹서버 노드에 파일 복사). **세 사이트가 한 디렉터리를 공유해 허브 배포가 하위 사이트를 지울 수 있음** — 안전한 배포 스테이지, 확인(`scripts/check-prod-sites.ps1`)·복구 방법
 - `docs/jenkins/*.groovy` — 서비스별 Jenkins 파이프라인 원본. 잡을 고치면 이 파일도 같은 작업에서 갱신할 것
 - `docs/analysis/*.md` — 개발 DB 연결·권한·스키마 점검 및 인덱스·뷰·데이터 품질 분석
@@ -33,6 +34,7 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 - 바로 commit, push하지말고 한번 물어본후에 진행할것
 - 다른 저장소(백엔드·게이트웨이·디스커버리·scheduler·fast-api-ai·authserver·openapi·프론트엔드·hub·k8s-manifests·qfieldsync·infra-manage-app) 파일을 수정하기 전에 그 저장소의 `CLAUDE.md`를 먼저 Read할 것(이 세션에 자동 로드되지 않음). git 작업은 `git -C <경로>`로 저장소별로 할 것.
 - API 경로·응답 형식을 바꾸면 백엔드와 프론트를 같은 작업에서 함께 수정하고 `docs/system-architecture.md`의 API 계약 표를 갱신할 것.
+- **백엔드에 새 조회(GET) 기능을 추가하면 공개 API(`sj-lab-openapi`)에 열 수 있는지 판단하고, 열 수 있으면 같은 작업에서 카탈로그(`api-catalog.json`)에 함께 추가할 것** — 기준·절차는 `docs/openapi-expose-checklist.md`. 애매하면 열지 말고 사용자에게 먼저 물어볼 것.
 - `.claude/hooks/guard.sh`가 `git reset --hard`, `git push --force`, 그리고 `claude` 문자열이 들어간 Bash 명령을 차단합니다. 차단되면 우회하지 말고 다른 도구(Read/Grep/PowerShell)로 해결할 것.
 
 작업 규칙:
