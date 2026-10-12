@@ -31,6 +31,8 @@
 //
 // 전제: SSH 서버(sj-lab-master)의 Jenkins 전역 "Remote Directory" 가 '/' 이다.
 // 도구 이름: Jenkins 에 등록된 NodeJS 도구는 'node-18' 이다('node18' 로 적으면 잡이 시작도 못 한다).
+// **잡에 넣을 때는 이 .groovy 파일을 그대로 붙여 넣을 것.** config.xml 안의 script 를
+//       복사해 붙이면 &amp;gt; 같은 escape 가 그대로 들어가 원격 bash 가 죽는다(아래 execCommand 주석 참고).
 
 pipeline {
   agent any
@@ -82,29 +84,43 @@ pipeline {
                     cleanRemote: true,                        // ← 스테이징만 비운다 (여기는 비워도 안전)
                     flatten: false,
 
+                    // ── 이 안에서는 꺾쇠(&gt; &lt;)·앰퍼샌드(&amp;)·$$ 를 쓰지 않는다 ─────────────────
+                    // 1) 잡을 XML(config.xml) 로 주고받으면 이 문자들은 &amp;gt; &amp;amp; 로 바뀐다.
+                    //    API 로 POST 하면 Jenkins 가 되돌려 주지만, **XML 안의 내용을 사람이 복사해
+                    //    UI 에 붙여 넣으면 &amp;gt; 가 그대로 들어가** 원격 bash 가
+                    //    `syntax error near unexpected token ';&amp;'` 로 죽는다(2026-10-12 실제 발생).
+                    // 2) Publish over SSH 는 execCommand 에 변수 치환을 하므로 **$$ 가 $ 로 줄어든다**
+                    //    (같은 로그에서 ${DST}.new.$ 로 찍혔다). 임시 이름에 $$ 를 쓰지 말 것.
+                    // 그래서 리다이렉션(&gt;/dev/null, 2&gt;&amp;1)과 &amp;&amp;·|| 대신 if 문으로만 쓴다.
                     execCommand: '''
                         set -eu
                         SRC=/respal/deploy-estate
                         DST=/home/kuber-volume/sj-lab-webserver/html/estate
 
-                        [ -f "$SRC/index.html" ] || { echo "❌ index.html 없음 - 배포 중단"; exit 1; }
+                        if [ ! -f "$SRC/index.html" ]; then
+                            echo "index.html 없음 - 배포 중단"
+                            exit 1
+                        fi
                         mkdir -p "$DST"
 
-                        if command -v rsync &gt;/dev/null 2&gt;&amp;1; then
+                        if command -v rsync; then
                             # 이 잡의 폴더만 정리한다(상위 html 은 건드리지 않는다)
                             rsync -a --delete "$SRC"/ "$DST"/
                         else
                             # rsync 가 없으면: 새 폴더에 펼친 뒤 바꿔치기(복사 중 빈 화면 방지)
-                            NEW="${DST}.new.$$"
-                            OLD="${DST}.old.$$"
-                            rm -rf "$NEW"; mkdir -p "$NEW"
+                            NEW="$DST.new"
+                            OLD="$DST.old"
+                            rm -rf "$NEW" "$OLD"
+                            mkdir -p "$NEW"
                             tar -C "$SRC" -cf - . | tar -C "$NEW" -xf -
-                            mv "$DST" "$OLD" 2&gt;/dev/null || true
+                            if [ -d "$DST" ]; then
+                                mv "$DST" "$OLD"
+                            fi
                             mv "$NEW" "$DST"
                             rm -rf "$OLD"
                         fi
 
-                        echo "✅ 부동산 실거래 화면 배포 완료: $DST"
+                        echo "부동산 실거래 화면 배포 완료: $DST"
                         ls -al "$DST"
                     '''
                   )

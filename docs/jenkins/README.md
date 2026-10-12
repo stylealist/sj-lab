@@ -68,6 +68,39 @@ python scripts/make-jenkins-job-config.py docs/jenkins/sj-lab-estate-web-pipelin
 | 이미지 잡(서비스) | `sj-lab-k8s-manifests` 의 차트, **ArgoCD Application 등록**(없으면 태그만 올라감) |
 | 공통 자격 증명 | `github_login` · `ncp-api-key` · `GitHub_token` (용도는 `docs/k8s-secrets.md`) |
 
+## 실제로 겪은 문제 (2026-10-12, 부동산 화면 첫 빌드)
+
+첫 빌드가 배포 단계에서 깨졌습니다. 두 가지가 겹친 것이고, 둘 다 **원격 명령(`execCommand`)에만**
+해당합니다.
+
+```
+bash: -c: line 9: syntax error near unexpected token ';&'
+```
+
+1. **XML 안의 script 를 사람이 복사해 UI 에 붙여 넣으면 escape 가 그대로 들어갑니다.**
+   `>` 는 `&gt;`, `&` 는 `&amp;` 로 적혀 있으므로 원격 bash 가 `2&gt;&amp;1` 를 받고 죽습니다.
+   → **잡에 넣을 때는 `*-pipeline.groovy` 를 그대로 붙여 넣으세요.** XML 은 API 로 POST 할 때만 씁니다
+   (그 경로에서는 Jenkins 가 되돌려 주므로 문제가 없습니다).
+2. **Publish over SSH 는 `execCommand` 에 변수 치환을 합니다** — `$$` 가 `$` 로 줄어듭니다
+   (로그에 `${DST}.new.$` 로 찍혔습니다). 임시 디렉터리 이름에 `$$` 를 쓰지 마세요.
+
+그래서 정적 사이트 잡의 `execCommand` 는 **꺾쇠(`>`)·앰퍼샌드(`&`)·`$$` 없이** 쓰는 것을 규칙으로
+합니다. 리다이렉션과 `&&`·`||` 대신 `if` 문을 쓰면 같은 일을 할 수 있습니다
+(`sj-lab-estate-web-pipeline.groovy` 가 그 형태입니다).
+
+### 그때 생긴 뒷정리
+
+스크립트가 `mkdir -p` 까지 실행한 뒤 죽어서 **빈 `html/estate` 디렉터리가 남았습니다.**
+그 상태에서 `/estate/` 는 404 가 아니라 **403**(디렉터리는 있는데 index 파일이 없음)이 됩니다.
+배포가 한 번 성공하면 해결되므로 따로 지울 필요는 없습니다. 증상으로 외워 두면 편합니다.
+
+| `/estate/` 응답 | 뜻 |
+|---|---|
+| 404 | 디렉터리도 없음 = 한 번도 배포 안 됨(nginx `location /estate/` 가 반영된 상태) |
+| 403 | 디렉터리는 있고 파일이 없음 = 배포가 중간에 실패 |
+| 200 + 허브 화면 | 파일이 없고 nginx `location /estate/` 도 아직 반영 전(SPA 폴백) |
+| 200 + 부동산 화면 | 정상 |
+
 ## 주의
 
 - **하위 정적 사이트를 추가하면 허브 잡의 제외 목록(`--exclude`, `find ! -name`)에 그 폴더를 넣을 것.**

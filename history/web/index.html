@@ -113,6 +113,22 @@
 
     <div class="card">
       <div class="ver-head">
+        <span class="tag">v4.7</span>
+        <span class="ver-title">첫 배포가 깨진 이유는 글자 두 개였습니다<span class="ver-note">원격 명령 재작성</span></span>
+        <span class="date">2026-10-12</span>
+      </div>
+      <ul>
+        <li>빌드는 정상, <b>웹서버에서 파일을 옮기는 마지막 단계</b>에서 문법 오류로 멈췄습니다</li>
+        <li>설정 파일(XML) 안의 특수문자 표기가 <b>사람이 복사해 붙여 넣는 과정</b>에서 그대로 들어간 것이 원인이었습니다(두 번째 원인은 플러그인의 변수 치환)</li>
+        <li><b>그 문자들을 아예 쓰지 않도록</b> 원격 명령을 다시 썼습니다 — 조건문으로 같은 일을 합니다</li>
+        <li>지금 <code>/estate/</code> 가 <b>403</b> 인 것은 빈 폴더만 남았기 때문입니다. 한 번 성공하면 해결됩니다</li>
+        <li>잡에 넣을 때 무엇을 복사해야 하는지, 응답 코드로 상태를 읽는 방법을 문서에 적었습니다</li>
+      </ul>
+      <p><a href="../history_v4.7.md">history_v4.7.md 원문 보기</a></p>
+    </div>
+
+    <div class="card">
+      <div class="ver-head">
         <span class="tag">v4.6</span>
         <span class="ver-title">부동산 화면 배포 잡을 손만 대면 되게 준비<span class="ver-note">설정 파일 + 생성 스크립트</span></span>
         <span class="date">2026-10-12</span>
