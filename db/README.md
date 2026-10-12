@@ -27,6 +27,7 @@ psql -h <호스트> -p 5432 -U <계정> -d sjlab -f map/map_facility_office_work
 | `api/openapi_api_usage.sql` | 위 키 표(FK) | 〃 |
 | `estate/estate_apt.sql` | - | **아파트 매매·전월세 수집이 실패**하고 부동산 화면이 빈 상태. 다른 기능은 영향 없음 |
 | `estate/estate_drop_legacy_apt.sql` | 위 `estate_apt.sql` | 옛 `ai.apt_*` 표가 그대로 남아 있음(기능 영향 없음) |
+| `estate/estate_apt_monthly_matview.sql` | 위 `estate_apt.sql` | 화면은 그대로 되지만 **전국 조회가 느림**(매매 8.6초·전월세 28.7초 실측). 지역을 고르면 0.04초 — 급하지 않으면 미뤄도 됨 |
 
 - **스키마를 바꾸지 말 것**: `qfield` 스키마는 `sj-qfieldsync` 워커가 관리하며, 프로젝트 이름 패턴이 아닌
   표를 "삭제된 프로젝트 표"로 보고 지웁니다(2026-09-16·09-18 실제로 두 번 삭제됨). 앱이 쓰는 표는 `map`,

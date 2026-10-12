@@ -510,7 +510,8 @@
       <button type="button" class="vchip" role="tab" data-ver="3.8" aria-controls="pane-v3.8" title="키는 로그인하면 이미 있고, 키 없는 호출은 막힘"><span class="pv">v3.8</span><span class="pt">키 자동 배정 · 필수화</span></button>
       <button type="button" class="vchip" role="tab" data-ver="3.9" aria-controls="pane-v3.9" title="샘플 코드를 파라미터 형태로, 키가 안 담기던 경우 안내"><span class="pv">v3.9</span><span class="pt">샘플 코드 정리</span></button>
       <button type="button" class="vchip" role="tab" data-ver="3.10" aria-controls="pane-v3.10" title="백엔드에 기능이 생기면 공개 API에도 같이 열도록 규칙 문서화"><span class="pv">v3.10</span><span class="pt">공개 API 동시 추가 규칙</span></button>
-      <button type="button" class="vchip" role="tab" data-ver="4.0" aria-controls="pane-v4.0" title="부동산 실거래 20년치 수집 · 신규 사이트 · 멈춰 있던 수집 복구"><span class="pv">v4.0<span class="dot" title="최신" aria-label="최신"></span></span><span class="pt">부동산 실거래 프로젝트</span></button>
+      <button type="button" class="vchip" role="tab" data-ver="4.0" aria-controls="pane-v4.0" title="부동산 실거래 20년치 수집 · 신규 사이트 · 멈춰 있던 수집 복구"><span class="pv">v4.0</span><span class="pt">부동산 실거래 프로젝트</span></button>
+      <button type="button" class="vchip" role="tab" data-ver="4.1" aria-controls="pane-v4.1" title="매물 종류 나누기(아파트만 서비스) · 지도와 같은 헤더 · 느린 조회 수정"><span class="pv">v4.1<span class="dot" title="최신" aria-label="최신"></span></span><span class="pt">매물 종류 · 헤더 통일</span></button>
     </div>
   </div>
 </nav>
@@ -8232,6 +8233,82 @@ response = requests.get("https://api.sj-lab.co.kr/open-api/v1/convenience-store"
 </div>
 
 
+<!-- ===================== v4.1 ===================== -->
+<div class="vpane" data-ver="4.1" id="pane-v4.1" hidden>
+<header class="masthead">
+  <div class="wrap">
+    <div class="stamp">
+      <span class="ver">v4.1</span>
+      <span>2026-10-12</span>
+      <span>부동산 사이트 · AI 서비스 · 총괄</span>
+    </div>
+    <h1>매물 종류를 나누고<br>헤더를 지도와 맞췄습니다</h1>
+    <p class="plainline">아파트 / 오피스텔 / 빌라·다가구로 나누고, 지금은 아파트만 서비스합니다</p>
+    <p class="dek">
+      화면을 띄워 보니 데이터가 2,100만 건으로 늘면서 <b>조회가 느려져 있었습니다</b>.
+      원인을 재서 두 곳을 고쳤습니다.
+    </p>
+    <dl class="facts">
+      <div><dt>매물 종류</dt><dd class="ok">3종(아파트만 서비스)</dd></div>
+      <div><dt>요약 카드</dt><dd class="ok">32초 → 0.1초</dd></div>
+      <div><dt>지역 순위</dt><dd class="ok">23.5초 → 1.5초</dd></div>
+      <div><dt>헤더</dt><dd class="ok">지도와 같은 모양 · 접기</dd></div>
+    </dl>
+  </div>
+</header>
+
+<section class="band">
+  <div class="wrap">
+    <p class="eyebrow">하나</p>
+    <h2>매물 종류를 나눴습니다</h2>
+    <p style="margin:0 0 1rem">
+      헤더에 세 종류 탭을 두고, 준비 중인 종류는 흐리게 + <b>"준비중"</b> 배지를 붙였습니다
+      (지도 사이트의 같은 표시 방식).
+    </p>
+    <ul class="notes">
+      <li>눌러도 막지 않고 <b>왜 아직 없는지와 무엇이 남았는지</b>를 화면에 적습니다 — 수집(종류마다 원천이 다름) · 표(컬럼이 달라 따로 필요) · 과거 데이터(20년치를 받는 데 걸리는 시간)</li>
+      <li>종류는 그대로 주소가 됩니다. 준비 중인 종류는 <b>"준비 중" 이라고 분명히 답합니다</b> — 주소가 없는 것처럼 두면 "주소가 틀렸나"로 읽혀 원인을 찾기 어렵습니다</li>
+      <li>어떤 종류를 서비스하는지는 <b>서버가 알려 줍니다</b>. 화면에만 적어 두면 서버에서 열었을 때 화면을 또 고쳐야 합니다</li>
+    </ul>
+  </div>
+</section>
+
+<section class="band">
+  <div class="wrap">
+    <p class="eyebrow">둘</p>
+    <h2>헤더를 지도 사이트와 같게</h2>
+    <ul class="notes">
+      <li>딥 네이비 그라데이션, 로고 배지 + 서비스명 + 영문 캡션, 허브 링크, 사용자 영역</li>
+      <li><b>아래 가운데의 둥근 접기 버튼</b> — 누르면 헤더가 접히고 화살표가 돌아갑니다</li>
+      <li>접는 방식만 한 가지 다릅니다 — 지도는 화면을 꽉 쓰는 캔버스라 본문을 밀어 올리며 높이를 계산하지만, 이 사이트는 스크롤 페이지라 <b>헤더 내용만 접습니다</b>(높이 계산이 없어 어긋날 일이 없습니다)</li>
+    </ul>
+  </div>
+</section>
+
+<section class="band">
+  <div class="wrap">
+    <p class="eyebrow">셋</p>
+    <h2>느린 조회를 재서 고쳤습니다</h2>
+    <div class="tbl">
+      <table>
+        <thead><tr><th>조회</th><th>전</th><th>후</th><th>원인</th></tr></thead>
+        <tbody>
+          <tr><td>요약 카드</td><td>32초</td><td class="ok">0.1초</td><td>마지막 적재 시각을 찾느라 전건을 훑었음(23.4초) — 최근 달로 범위를 좁힘</td></tr>
+          <tr><td>지역 순위</td><td>23.5초</td><td class="ok">1.5초</td><td>기간 조건을 계산식으로 써서 인덱스를 못 탔음 — 연도를 그냥 비교하도록 고침</td></tr>
+          <tr><td>지역 선택 후 추세</td><td>—</td><td class="ok">0.04초</td><td>원래 빠름</td></tr>
+        </tbody>
+      </table>
+    </div>
+    <ul class="notes">
+      <li>건수는 정확히 세는 것만으로 오래 걸려(2,100만 행) <b>추정치</b>로 바꾸고 화면에 "약"을 붙였습니다 — 요약 카드용이라 추정으로 충분하고, 추정임을 응답에 밝힙니다</li>
+      <li><b>전국 조회는 아직 느립니다</b>(매매 8.6초·전월세 28.7초). 평균·중위를 내려면 금액·면적을 실제로 읽어야 해서 78만 행을 끌어옵니다. 지역을 고르면 0.04초입니다</li>
+      <li>미리 집계해 두면 해결되는 문제라 <b>스크립트를 만들어 뒀습니다</b>. 실행하지 않아도 화면은 그대로 됩니다</li>
+    </ul>
+  </div>
+</section>
+</div>
+
+
 <footer>
   <div class="wrap">
     <p class="k">접속 URL</p>
@@ -8243,7 +8320,7 @@ response = requests.get("https://api.sj-lab.co.kr/open-api/v1/convenience-store"
       <li><em>운영 로그인 페이지</em><span class="url">https://api.sj-lab.co.kr/auth/login.html</span></li>
       <li><em>sj-lab-authserver</em><span class="url">https://github.com/stylealist/sj-lab-authserver</span></li>
       <li><em>API 센터</em><span class="url">https://sj-lab.co.kr/openapi/</span></li>
-      <li><em>기록 원본</em><span class="url">sj-lab/history/history_v1.0.md ~ v1.35.md, v2.0.md ~ v4.0.md</span></li>
+      <li><em>기록 원본</em><span class="url">sj-lab/history/history_v1.0.md ~ v1.35.md, v2.0.md ~ v4.1.md</span></li>
     </ul>
     <p class="colophon">
       총괄 허브 <code>C:\developer\workspace\sj-lab</code> 기준 · 커밋과 push는 사용자가 요청할 때만 수행합니다 ·
