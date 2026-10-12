@@ -6,6 +6,7 @@
 
 ```
 [브라우저] sj-lab-hub (첫 화면) · sj-lab-mapservice (지도) · sj-lab-openapi-web (API 활용 페이지)
+           sj-lab-estate-web (부동산 실거래)
      │  getApiUrl("/map/...")  로컬 http://localhost:8100 / 운영 https://api.sj-lab.co.kr
      ▼
 [게이트웨이] sj-lab-apigateway :8100 (Spring Cloud Gateway, CORS)
@@ -14,11 +15,13 @@
      │  /fast-api-ai/** → lb://FAST-API-AI        (모두 Eureka에서 인스턴스 조회)
      │  /auth/**       → lb://SJ-LAB-AUTHSERVER
      │  /open-api/**   → lb://SJ-LAB-OPENAPI        (공개 API — 데이터는 mapservice-rest 중계)
+     │  /estate/**     → lb://SJ-LAB-ESTATE          (부동산 실거래 조회)
      ▼                                              ▲ 등록/조회
 [백엔드] mapservice-rest   (조회, context-path /map) ─┐
 [배치]   sj-lab-scheduler  (수집, context-path /scheduler) ─┼─ [디스커버리] sj-lab-discoveryServer :8761 (Eureka)
 [AI]     fast-api-ai       (FastAPI :8000, root_path /fast-api-ai) ─┤
-[인증]   sj-lab-authserver (로그인, context-path /auth) ─────────────┘
+[인증]   sj-lab-authserver (로그인, context-path /auth) ─────────────┤
+[부동산] sj-lab-estate     (조회, context-path /estate) ────────────┘
      │ 읽기: mapservice-rest (MyBatis, GeoJSON을 DB에서 조립)
      │ 쓰기: sj-lab-scheduler (공공 API 수집 → INSERT + CREATE OR REPLACE VIEW map.v_*_geojson)
      ▼
@@ -38,7 +41,9 @@
 | 총괄 | `sj-lab` · `C:\developer\workspace\sj-lab` | 문서·설정·스크립트·history (코드 없음) | - | 이 저장소 `CLAUDE.md` |
 | 백엔드 | `mapservice-rest` · `C:\developer\workspace\mapservice-rest` | Spring Boot 3.3.2, MyBatis, PostgreSQL 드라이버 | `MAPSERVICE-REST` (`spring.application.name: mapservice-rest`) | 그 저장소 `CLAUDE.md` |
 | 공개 API | `sj-lab-openapi` · `C:\developer\workspace\sj-lab-openapi` | Spring Boot 3.3.2, 카탈로그 JSON + RestTemplate 중계 | `SJ-LAB-OPENAPI` | 그 저장소 `CLAUDE.md` |
+| 부동산 백엔드 | `sj-lab-estate` · `C:\developer\workspace\sj-lab-estate` | Spring Boot 3.3.2, MyBatis, PostgreSQL(읽기 전용) | `SJ-LAB-ESTATE` | 그 저장소 `CLAUDE.md` |
 | 활용 페이지 | `sj-lab-openapi-web` · `C:\vscode_develop\sj-lab-openapi-web` | React 18 + Webpack(허브와 같은 구성) | - | 그 저장소 `CLAUDE.md` |
+| 부동산 프론트 | `sj-lab-estate-web` · `C:\vscode_develop\sj-lab-estate-web` | React 18 + Webpack(활용 페이지와 같은 구성) | - | 그 저장소 `CLAUDE.md` |
 | 배치 | `sj-lab-scheduler` · `C:\developer\workspace\sj-lab-scheduler` | Spring Boot 3.3.2, MyBatis, `@Scheduled` | `SJ-LAB-SCHEDULER` | 그 저장소 `CLAUDE.md`(도메인별 cron 표 포함) |
 | AI | `fast-api-ai` · `C:\developer\workspace\fast-api-ai` | Python 3.12, FastAPI, py-eureka-client | `FAST-API-AI` (`APP_NAME: fast-api-ai`) | 그 저장소 `CLAUDE.md` |
 | 인증 | `sj-lab-authserver` · `C:\developer\workspace\sj-lab-authserver` | Spring Boot 3.3.2, JWT(jjwt), QFieldCloud 로그인 위임 | `SJ-LAB-AUTHSERVER` | 그 저장소 `CLAUDE.md` |
@@ -85,6 +90,13 @@
 | `GET /map/admin-area/sido` | `QfieldFacilityController` | `public.g_sido` | `map-facility.js` |
 | `GET /map/admin-area/sgg?sidoCd=` | `QfieldFacilityController` | `public.g_sgg` | `map-facility.js` |
 | `GET /map/admin-area/emd?sggCd=` | `QfieldFacilityController` | `public.g_emd` | `map-facility.js` |
+| `GET /estate/status` | `EstateController`(sj-lab-estate) | 없음(설정) | `sj-lab-estate-web` `App.js` |
+| `GET /estate/{propertyType}/meta` | 같음 | `estate.apt_trade`·`estate.apt_rent`(건수는 `reltuples` 추정) | 요약 카드 |
+| `GET /estate/{propertyType}/regions` | 같음 | `estate.apt_trade` | 지역 선택 |
+| `GET /estate/{propertyType}/trade?...` | 같음 | `estate.apt_trade` | 매매 목록 |
+| `GET /estate/{propertyType}/trade/monthly?...` | 같음 | `estate.v_apt_trade_monthly` | 매매 추세 |
+| `GET /estate/{propertyType}/rent/monthly?...` | 같음 | `estate.v_apt_rent_monthly` | 전월세 추세 |
+| `GET /estate/{propertyType}/trade/ranking?...` | 같음 | `estate.apt_trade` | 지역 순위 |
 
 **공개 API(`sj-lab-openapi`, 게이트웨이 `/open-api/**`)**: 지도·시설물 데이터를 외부에서 쓸 수 있게 여는 서비스다. `GET /open-api/catalog` 가 공개 API 목록(경로·파라미터·예시)을 내려주고, 활용 페이지는 그 JSON으로 화면을 그린다. `GET /open-api/v1/...` 는 카탈로그에 **정의된 경로·파라미터만** mapservice-rest 로 올려보내고 응답을 그대로 전달한다 (정의 밖은 404·400). **DB를 직접 읽지 않는다** — 같은 SQL이 두 저장소에 생기면 뷰가 바뀔 때 한쪽만 고쳐지기 때문이다.
 - 공개 범위는 `src/main/resources/catalog/api-catalog.json` 한 파일이 정한다(현재 12개, 모두 GET). 공공데이터 6종 · 시설물 목록/상세/아이콘 · 행정구역 3단계. **내업 쓰기·사진·첨부 중계는 열지 않는다.**
@@ -96,10 +108,23 @@
   - **계정당 1개가 자동 배정된다(2026-10-01)**: `GET /open-api/keys` 가 키가 없으면 그 자리에서 하나 만들어 돌려주므로 화면에 발급 버튼이 없다. 바꿀 때는 폐기(`DELETE`) 후 다시 조회한다.
   - **키 원문(`key_plain`)도 저장한다(2026-10-01, 종전 방침 변경)**: 다른 서버·프로그램에서 부를 때 키를 모르면 쓸 수 없어, 본인 화면에서 전체 값을 보고 복사할 수 있게 했다. **검증은 계속 `key_hash`(SHA-256)로만 하고 원문은 로그에 찍지 않는다.** 컬럼이 없는 DB 에서도 그대로 동작한다(앞자리만 표시). 스크립트 `sj-lab/db/api/openapi_api_key_plain.sql` — 그 안에 "조회 전용 계정(`mcp_readonly`)은 `pg_read_all_data` 때문에 컬럼 REVOKE 로 막을 수 없다"는 확인 내용이 함께 있다.
   - **호출자를 정하는 순서**: ① `X-API-Key`/`?apiKey=` → ② `Authorization: Bearer`(로그인한 화면용. 키 원문을 몰라도 그 계정 키로 호출되고 사용량도 그 키에 쌓인다) → ③ 둘 다 없으면 401. 단 활용 페이지의 **실행해 보기는 ②를 쓰지 않는다** — 밖에서 부르는 것과 똑같이 키로만 보내 키를 비우면 진짜 401 이 보이게 한다.
-- **활용 페이지(`sj-lab-openapi-web`, 운영 `sj-lab.co.kr/openapi/`)**: 화면을 코드에 적지 않고 `GET /open-api/catalog` 응답으로 그린다 — API가 늘면 페이지를 고치지 않아도 항목이 함께 늘어난다. 파라미터 입력 → **실행해 보기**(상태·시간·크기·본문) → curl/JS/Python 샘플 코드 복사까지 한 화면에서 한다. 로컬은 webpack dev server 프록시로 게이트웨이에 넘겨 CORS 없이 동작하고, 운영은 `sj-lab.co.kr` → `api.sj-lab.co.kr`(게이트웨이가 이미 허용한 오리진)로 직접 부른다. 로그인 게이트 스크립트는 hub·mapservice와 **같은 코드가 세 곳에 복제**돼 있으니 한쪽을 고치면 나머지도 고칠 것.
+- **활용 페이지(`sj-lab-openapi-web`, 운영 `sj-lab.co.kr/openapi/`)**: 화면을 코드에 적지 않고 `GET /open-api/catalog` 응답으로 그린다 — API가 늘면 페이지를 고치지 않아도 항목이 함께 늘어난다. 파라미터 입력 → **실행해 보기**(상태·시간·크기·본문) → curl/JS/Python 샘플 코드 복사까지 한 화면에서 한다. 로컬은 webpack dev server 프록시로 게이트웨이에 넘겨 CORS 없이 동작하고, 운영은 `sj-lab.co.kr` → `api.sj-lab.co.kr`(게이트웨이가 이미 허용한 오리진)로 직접 부른다. 로그인 게이트 스크립트는 hub·mapservice·부동산 프론트와 **같은 코드가 네 곳에 복제**돼 있으니 한쪽을 고치면 나머지도 고칠 것.
   - **파라미터 입력 규칙(2026-10-01)**: API 마다 `apiKey` 를 필수 파라미터로 함께 보여 주고 내 키를 자동으로 채운다(화면 맨 위 "내 API 키"에서 받아 온다). 목록은 **필수 → 선택** 순서로 정렬한다. 값이 비어도 **버튼을 잠그지 않는다** — 눌러서 응답에 "무엇이 없는지"가 나오는 쪽이 배우기 쉽기 때문이다. 다만 경로 값(`{totalId}`)을 비운 채 보내면 Tomcat 이 중괄호를 먼저 거부해 **본문 없는 400** 만 돌아오므로, 그 경우는 화면이 응답 칸에 `MISSING_PATH_PARAMETER` 메시지를 직접 적어 준다.
   - **샘플 코드는 주소 한 줄이 아니라 파라미터를 모은 형태**로 낸다(2026-10-01) — curl 은 `-G` + `--data-urlencode`, JS 는 `URLSearchParams`, Python 은 `params=`. `apiKey` 가 다른 값들과 나란히 보여 "이게 필요하다"가 드러나고, 쉼표가 들어가는 `bbox` 를 각 언어가 알아서 인코딩한다.
   - 키 원문을 모르는 경우(`key_plain` 컬럼이 생기기 **전에** 만들어진 키)에는 주소·샘플 코드에 키가 들어가지 않는다. 그때는 화면이 "값을 저장하기 전에 만들어진 키 — 새 키로 바꾸면 값이 보인다"고 알려 준다.
+
+**부동산 실거래(`sj-lab-estate`, 게이트웨이 `/estate/**`)**: 국토교통부 실거래 공개 API 를 scheduler 가 모아 둔 `estate` 스키마를 읽어 매매·전월세 추세와 지역 순위를 내려준다. 지도와 달리 GeoJSON 이 아니라 집계 JSON 이다.
+
+- **2026-10-12 에 `fast-api-ai` 에서 떼어낸 별도 Spring 서비스다**(`fast-api-ai` 는 AI 기능만 담는다). 응답·오류 형태를 그대로 유지해 화면은 호출 주소만 바꿨다 — 목록은 `{"items": [...]}`, 오류는 `{"detail": {"code", "message"}}`, 키는 **DB 컬럼명 그대로**다. 그래서 결과를 DTO 가 아니라 `Map` 으로 받는다(DTO 면 Jackson 이 camelCase 로 바꿔 내보낸다). 옛 파이썬 코드는 `trash/2026-10-12/fast-api-ai/` 에 있다.
+- **DB 접속 정보가 없어도 서비스는 뜬다** — `EstateDataSourceConfig` 가 DataSource 를 만들지 않아 MyBatis 자동설정이 건너뛰어지고, 조회만 503(`NOT_CONFIGURED`)·`/estate/status` 는 `ready: false` 로 답한다. 기동을 막으면 화면이 그 사실조차 알릴 수 없다. `DataSourceAutoConfiguration` 을 되살리지 말 것(켜면 접속 정보 없이 기동이 실패한다).
+
+- **매물 종류를 경로 조각으로 받는다**(`/estate/{propertyType}/...`, `apt`·`offi`·`villa`). 국토교통부가 아파트·오피스텔·연립다세대를 **서로 다른 API 로 주고 컬럼도 달라** DB 표가 종류별로 나뉘기 때문이다. 지금은 `apt` 만 서비스하고 나머지는 **503 + 이유**로 답한다(404 로 두면 "주소가 틀렸나"로 읽혀 원인을 찾기 어렵다). 모르는 종류는 400.
+- `GET /estate/status` 가 종류와 서비스 여부를 함께 돌려주고 화면이 그 값으로 탭을 그린다 — **새 종류를 열 때 서버만 바꾸면 화면이 따라온다**(화면에 하드코딩하지 말 것).
+- 건수는 `count(*)` 가 아니라 `reltuples` 추정치이고 응답에 `rows_estimated: true` 로 밝힌다(2,100만 행에서 정확히 세는 것만으로 느리다). 그래서 화면이 "약"을 붙인다.
+- **기간 조건을 `deal_year * 100 + deal_month` 같은 식으로 비교하지 말 것** — 인덱스를 못 타 지역 순위가 23.5초였다. 연도를 `between` 으로 좁힌 뒤 경계 연도에서만 월을 본다(1.5초).
+- 전국 조회는 평균·중위 때문에 아직 느리다(매매 8.6초·전월세 28.7초. 지역 한 곳은 0.04초). 미리 집계해 두는 스크립트가 `db/estate/estate_apt_monthly_matview.sql` 이며 **실행은 DB 담당자가** 한다(실행 전에도 화면은 동작하고 전국 조회만 느리다).
+- 수집·백필 절차와 함정은 `docs/backfill-workflow.md`, 표·뷰 정의는 `db/estate/estate_apt.sql`.
+- **프론트(`sj-lab-estate-web`, 로컬 4200)**: 활용 페이지와 같은 구성(React 18 + Webpack, 인라인 스타일, 차트 라이브러리 없이 SVG). 헤더와 접기 버튼은 지도 사이트와 같은 톤이고 **실거래 · 소개 · 저장소 · 문의** 세 화면이 있다. API 는 dev server 프록시(`/estate` → 8100)로 넘긴다. **authserver `login.html` 의 `ALLOWED_REDIRECT_ORIGINS` 에 주소를 넣어야** 로그인 후 되돌아온다(2026-10-12 `localhost:4200` 누락 때문에 허브 카드를 눌러도 페이지가 열리지 않았다).
 
 **로그인 및 SSO(`sj-lab-authserver`, 게이트웨이 `/auth/**`)**: 별도 회원 DB 없이 QFieldCloud 계정을 그대로 쓴다. `POST /auth/login {username,password}` → QFieldCloud `POST /api/v1/auth/login/`에 위임 검증(위 중계 흐름과 같은 계약) → 성공 시 이 서버가 서명한 sj-lab 전용 JWT 발급(`{accessToken, tokenType, expiresIn, username}`). `GET /auth/me`(`Authorization: Bearer`)로 토큰 유효성 확인.
 
@@ -183,7 +208,7 @@ git push → Jenkins(빌드 → 이미지 push: sj-lab-registry.kr.ncr.ntruss.co
 
 ## 총괄 세션에서 다른 저장소를 다룰 때
 
-- `.claude/settings.local.json`의 `permissions.additionalDirectories`에 이 저장소를 제외한 13개 저장소(백엔드·게이트웨이·디스커버리·scheduler·fast-api-ai·authserver·openapi·프론트 등)가 등록되어 있어, 이 세션에서 바로 읽고 수정할 수 있습니다(로컬 전용 설정). 폴더 신뢰 등록 위치는 `docs/dev-environment.md` 참고.
+- `.claude/settings.local.json`의 `permissions.additionalDirectories`에 이 저장소를 제외한 15개 저장소(백엔드·게이트웨이·디스커버리·scheduler·fast-api-ai·authserver·openapi·estate·프론트 등)가 등록되어 있어, 이 세션에서 바로 읽고 수정할 수 있습니다(로컬 전용 설정). 폴더 신뢰 등록 위치는 `docs/dev-environment.md` 참고.
 - 다른 저장소의 `CLAUDE.md`는 이 세션에 자동으로 로드되지 않습니다. 그 저장소 파일을 **수정하기 전에 해당 저장소의 `CLAUDE.md`(프론트는 `docs/*.md`까지)를 Read로 먼저 읽을 것.**
 - 저장소마다 git이 따로입니다. 상태 확인·커밋은 `git -C <경로> ...`로 저장소별로 하고, 한 작업이 여러 저장소에 걸치면 저장소마다 커밋합니다.
 - 다른 저장소의 훅·에이전트는 이 세션에서 동작하지 않으므로 직접 지켜야 합니다.
@@ -192,7 +217,9 @@ git push → Jenkins(빌드 → 이미지 push: sj-lab-registry.kr.ncr.ntruss.co
   - `sj-lab-k8s-manifests`: 차트 수정 전 `git pull`(Jenkins 자동 커밋이 계속 쌓임), 수정 후 `helm lint <차트>`·`helm template <차트>` 확인. `image.tag`는 Jenkins 관리 값이므로 임의 변경 금지. 네임스페이스·리소스 제한 등은 같은 차트의 기존 패턴을 따를 것.
   - `sj-qfieldsync`: QFieldCloud 메타 DB(`QFC_DB`)는 읽기 위주, 적재 대상은 PostGIS `qfield` 스키마로 서로 다른 두 DB를 다룹니다. 문법 확인은 `python -m py_compile qfield_data_sync.py`. **로컬에서 워커를 돌리면 실제 DB에 적재되므로 사용자 확인 후에** 실행할 것.
   - `infra-manage-app`: 업스트림 QField 포크라 **커스텀 변경은 최소 지점에 집중**하고 업스트림 구조를 유지할 것. 기본 브랜치가 `master`(다른 저장소는 `main`)이고, CMake+vcpkg 전체 빌드는 수 시간이 걸리므로 빌드 전에 기존 빌드 디렉터리와 대상 플랫폼을 확인할 것.
-  - `sj-lab-hub`: 기능 카드는 `src/App.js` 최상단 `features` 배열 하나가 단일 소스. 스타일은 파일 하단의 인라인 `xxxStyle` 객체 컨벤션을 유지하고, 검증은 `npm start`(3000) 또는 `npm run build`로 할 것.
+  - `sj-lab-hub`: 기능 카드는 `src/App.js` 최상단 `features` 배열 하나가 단일 소스이고, 로컬에서 다른 포트로 띄우는 사이트는 같은 파일의 `LOCAL_FEATURE_PORTS` 에도 넣어야 카드가 이동한다. 스타일은 파일 하단의 인라인 `xxxStyle` 객체 컨벤션을 유지하고, 검증은 `npm start`(3000) 또는 `npm run build`로 할 것.
+  - `sj-lab-estate`: 조회 전용이다 — 쓰기를 넣지 말 것(적재는 scheduler). 접속 정보는 환경변수로만 받고(`ESTATE_DB_*`), 응답 키·오류 형태를 바꾸면 화면이 깨진다. 기간을 식으로 비교하지 말 것(인덱스 미사용).
+  - `sj-lab-estate-web`: 활용 페이지(`sj-lab-openapi-web`)와 같은 구성이므로 CSS 파일·차트 라이브러리를 새로 들이지 말 것(인라인 스타일 + SVG). 금액은 만원 단위, 전세는 `monthly_rent = 0` 으로 구분한다. 검증은 `npm start`(4200) 또는 `npm run build`.
   - `fast-api-ai`: `.py` 수정 후 `python -m py_compile <파일>`로 문법 확인(그 저장소 훅 규칙). `core/config.py`의 `INSTANCE_IP` 고정(127.0.0.1)은 의도된 것이므로 되돌리지 않음.
   - `sj-lab-authserver`: 2026-09-22 신설. `AUTH_JWT_SECRET`은 반드시 환경변수로만 주입(저장소 public). 지금은 로그인·토큰 발급만 구현돼 있고 다른 서비스 API에 토큰 검증을 강제하지 않는다 — 강제 적용 범위를 넓히기 전에 사용자에게 먼저 확인할 것(그 저장소 `CLAUDE.md`의 "현재 범위와 남은 작업" 참고).
   - 각 저장소의 리뷰 체크리스트는 `<저장소>/.claude/agents/reviewer.md`에 있습니다. 이 세션의 `reviewer` 에이전트는 `mapservice-rest` 전용이므로, 다른 저장소 변경은 그 체크리스트 파일을 읽고 확인합니다.

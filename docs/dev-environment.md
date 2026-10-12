@@ -18,10 +18,12 @@
 | `sj-lab-k8s-manifests` | `C:\developer\workspace\sj-lab-k8s-manifests` | 쿠버네티스 배포 매니페스트(서비스별 Helm 차트). ArgoCD의 GitOps 소스 |
 | `infra-manage-app` | `C:\vscode_develop\infra-manage-app` | 현장조사 앱(QField 포크, C++/QML). 기본 브랜치 `master` |
 | `sj-lab-openapi` | `C:\developer\workspace\sj-lab-openapi` | 공개 API 서비스 — API 목록(카탈로그) 제공 + mapservice-rest 중계(2026-09-29 신설, 키 발급 전) |
+| `sj-lab-estate` | `C:\developer\workspace\sj-lab-estate` | 부동산 실거래 조회 API — estate 스키마 읽기 전용(2026-10-12 신설, fast-api-ai 에서 분리) |
 | `sj-lab-openapi-web` | `C:\vscode_develop\sj-lab-openapi-web` | API 활용 페이지(React + Webpack, 허브 4번째 카드 OpenAPI) |
+| `sj-lab-estate-web` | `C:\vscode_develop\sj-lab-estate-web` | 부동산 실거래 분석 페이지(React + Webpack, openapi-web 과 같은 구성. 2026-10-12 신설) |
 | `sj-qfieldsync` | `C:\vscode_develop\sj-qfieldsync` | QFieldCloud → PostGIS `qfield` 스키마 동기화 배치(파이썬, 30초 주기) |
 
-이 저장소를 제외한 13개 저장소는 `.claude/settings.local.json`의 `permissions.additionalDirectories`에 등록되어 총괄 세션에서 바로 읽고 수정할 수 있습니다. 경로가 바뀌면 그 목록도 함께 고칩니다.
+이 저장소를 제외한 15개 저장소는 `.claude/settings.local.json`의 `permissions.additionalDirectories`에 등록되어 총괄 세션에서 바로 읽고 수정할 수 있습니다. 경로가 바뀌면 그 목록도 함께 고칩니다.
 
 **로컬 clone이 없는 저장소 — `stylealist/sj-lab`**: 플랫폼 전체를 소개하는 README 한 장짜리 저장소라 로컬에 두지 않습니다. 고칠 일이 생기면 임시 디렉터리에 `git clone --depth 1` → 수정 → 커밋·push 하고 임시 디렉터리를 정리합니다(2026-09-29 개발 변경 로그 링크 추가 때 이 방식 사용). 이 README의 "1. 서비스 접속 및 실서비스 체험 안내" 표는 운영 주소 목록이므로, 주소가 늘거나 바뀌면 지도 프론트의 "저장소 · 문의" 탭과 함께 확인할 것.
 
@@ -30,7 +32,7 @@
 - Antigravity CLI(agy): `~/.gemini/antigravity-cli/settings.json`의 `trustedWorkspaces` (`C:\\...` 형식)
 - Gemini CLI: `~/.gemini/trustedFolders.json` (`"c:/...": "TRUST_FOLDER"`)
 
-**Orca 프로젝트 목록**: 위 13개 저장소는 Orca에 `orca repo add --path <경로>`로 등록되어 사이드바에 표시됩니다(`orca repo list --json`으로 확인). 새 저장소도 같은 방식으로 추가합니다. `sj-lab-authserver`는 이번에 신설되어 아직 Orca에 등록되지 않았을 수 있으니, 사용하기 전에 `orca repo list --json`으로 확인할 것.
+**Orca 프로젝트 목록**: 위 15개 저장소는 Orca에 `orca repo add --path <경로>`로 등록되어 사이드바에 표시됩니다(`orca repo list --json`으로 확인). 새 저장소도 같은 방식으로 추가합니다. `sj-lab-authserver`·`sj-lab-estate-web` 는 나중에 신설되어 아직 Orca에 등록되지 않았을 수 있으니, 사용하기 전에 `orca repo list --json`으로 확인할 것.
 
 그 밖의 저장소(nginx 등)는 GitHub `stylealist/*`에 있으며, 로컬 경로는 확인되는 대로 이 표와 `additionalDirectories`에 추가합니다.
 
@@ -45,11 +47,13 @@
 | `8000` | `fast-api-ai` (`python main.py`, `root_path=/fast-api-ai`) | 게이트웨이 `/fast-api-ai/**`. 로컬은 Eureka에 `127.0.0.1`로 등록 |
 | 랜덤(`server.port: 0`) | `sj-lab-authserver` (context-path `/auth`) | 게이트웨이 `/auth/**`. **hub·mapservice는 로그인 게이트가 있어 이게 없으면 접속 자체가 안 됨**(로그인 페이지 503). 로그인 페이지 `http://localhost:8100/auth/login.html` |
 | `8110` | `sj-lab-openapi` (context-path `/open-api`) | 게이트웨이 `/open-api/**`. 데이터는 mapservice-rest 를 불러 중계하므로 **mapservice-rest 가 떠 있어야** 동작합니다. **`local-stack.ps1`이 8110에 띄웁니다**(2026-09-30). `.claude\settings.local.json`의 `OPENAPI_DB_URL`/`OPENAPI_DB_USERNAME`/`OPENAPI_DB_PASSWORD`가 셋 다 있으면 **API 키·사용량 기능까지 켜서** 띄우고, 없으면 키 API만 503이고 공개 조회는 정상입니다 |
-| `3000` | `sj-lab-hub` (`npm start`) | 허브 첫 화면. OpenAPI 카드를 누르면 로컬에서는 4100 으로 간다 |
+| `8120` | `sj-lab-estate` (context-path `/estate`) | 게이트웨이 `/estate/**`. 부동산 실거래 조회. **접속 정보가 없어도 뜨고** 그때는 조회만 503(`NOT_CONFIGURED`)·`/estate/status` 는 `ready: false`. `local-stack.ps1` 이 `.claude\settings.local.json` 의 `ESTATE_DB_DSN` 을 JDBC 형식으로 바꿔 넣어 띄웁니다(2026-10-12) |
+| `3000` | `sj-lab-hub` (`npm start`) | 허브 첫 화면. 카드를 누르면 로컬에서는 지도 4000 · 부동산 4200 · OpenAPI 4100 으로 간다(`App.js` 의 `LOCAL_FEATURE_PORTS`) |
 | `4100` | `sj-lab-openapi-web` (`npm start`, webpack dev server) | API 활용 페이지. **API 호출은 dev server 프록시**(`/open-api` → `localhost:8100`)로 넘기므로 게이트웨이 CORS 목록에 4100을 넣지 않습니다. **떠 있는 게이트웨이가 `/open-api` 라우트 추가 이전 빌드면 8100이 404를 냅니다** — 그때는 `OPENAPI_PROXY_TARGET=http://localhost:8110`으로 띄워 백엔드를 직접 가리키세요(2026-09-30 실제 발생). 이 경우 화면의 "기본 주소"에 표시되는 `localhost:8100/open-api`는 안내용이라 로컬에서 그대로 부르면 404입니다 |
+| `4200` | `sj-lab-estate-web` (`npm start`, webpack dev server) | 부동산 실거래 페이지. **API 호출은 dev server 프록시**(`/estate` → `localhost:8100`)라 게이트웨이 CORS 목록에 4200을 넣지 않습니다. 대신 **authserver `login.html` 의 `ALLOWED_REDIRECT_ORIGINS` 에 `http://localhost:4200` 이 있어야** 로그인 후 이 페이지로 되돌아옵니다(2026-10-12 추가 — 빠뜨리면 허브 카드를 눌러도 로그인 화면에서 멈춥니다) |
 | `4000` | 프론트엔드 정적 서버(`node scripts/static-server.js <프론트경로> 4000`) | 게이트웨이 CORS 허용 origin. **`python -m http.server`로 띄우지 말 것** — Range 요청을 지원하지 않아 소개 영상의 재생 위치를 옮길 수 없습니다(2026-09-28 확인) |
 
-**기동 순서**: Eureka(8761) → mapservice-rest → authserver → sj-lab-openapi(8110) → 게이트웨이(8100) → 프론트(4000). 게이트웨이·백엔드는 반드시 `local` 프로파일로 띄워야 Eureka 주소(`localhost:8761`)가 잡힙니다(게이트웨이는 프로파일이 없으면 Eureka 주소가 비어 있음). 백엔드가 막 뜬 직후에는 게이트웨이의 레지스트리 캐시가 갱신될 때까지 잠시 503이 날 수 있으니, Eureka 대시보드에서 `MAPSERVICE-REST`가 UP인지 먼저 확인합니다.
+**기동 순서**: Eureka(8761) → mapservice-rest → authserver → sj-lab-openapi(8110) → sj-lab-estate(8120) → 게이트웨이(8100) → 프론트(4000). 게이트웨이·백엔드는 반드시 `local` 프로파일로 띄워야 Eureka 주소(`localhost:8761`)가 잡힙니다(게이트웨이는 프로파일이 없으면 Eureka 주소가 비어 있음). 백엔드가 막 뜬 직후에는 게이트웨이의 레지스트리 캐시가 갱신될 때까지 잠시 503이 날 수 있으니, Eureka 대시보드에서 `MAPSERVICE-REST`가 UP인지 먼저 확인합니다.
 
 **IntelliJ 없이 한 번에 기동**: `scripts\local-stack.ps1`이 Eureka → mapservice-rest → sj-lab-authserver → 게이트웨이 → 프론트 순서로 띄웁니다(JDK 17 자동 탐색, `local` 프로파일 고정).
 

@@ -113,6 +113,53 @@
 
     <div class="card">
       <div class="ver-head">
+        <span class="tag">v4.4</span>
+        <span class="ver-title">부동산 조회 서버를 따로 떼어냈습니다<span class="ver-note">전월세 보증금 버그도 발견</span></span>
+        <span class="date">2026-10-12</span>
+      </div>
+      <ul>
+        <li>AI 서비스에 얹어 두었던 부동산 조회를 <b>부동산 전용 서버</b>로 옮겼습니다(주소 <code>/estate/**</code>)</li>
+        <li><b>응답은 그대로</b> 두어 화면은 부르는 주소 한 줄만 고쳤습니다</li>
+        <li>접속 정보가 없어도 서버는 뜨고 그때는 "준비되지 않았다"로 답합니다. 연결은 <b>읽기 전용</b>입니다</li>
+        <li>옮기며 확인하다 <b>전월세 보증금이 6.4%만 저장</b>된 것을 찾았습니다 — 천 단위 쉼표 때문에 숫자 변환이 실패하면 조용히 비워 두고 넘어갔습니다. 고쳤고, <b>과거 전월세는 다시 받아야</b> 합니다</li>
+        <li>로컬에서 새 경로·게이트웨이·화면까지 모두 확인했습니다. 운영 배포는 아직 전입니다</li>
+      </ul>
+      <p><a href="../history_v4.4.md">history_v4.4.md 원문 보기</a></p>
+    </div>
+
+    <div class="card">
+      <div class="ver-head">
+        <span class="tag">v4.3</span>
+        <span class="ver-title">부동산 화면에도 소개와 저장소 · 문의를<span class="ver-note">지도 사이트와 같은 구성</span></span>
+        <span class="date">2026-10-12</span>
+      </div>
+      <ul>
+        <li>헤더에 <b>실거래 / 소개 / 저장소 · 문의</b> 탭을 넣었습니다</li>
+        <li>소개에는 데이터가 오는 길 · 되는 기능 · 사용한 기술과 함께 <b>지금 없는 것</b>까지 적었습니다(지도 표시 없음, 오피스텔·빌라 준비 중, 전국 평균은 느림, 예측 없음)</li>
+        <li>소개의 숫자는 적어 두지 않고 <b>화면이 받아 둔 값을 그대로</b> 씁니다 — 수집이 매일 돌아 늘어나기 때문입니다</li>
+        <li>지도로 만들려면 무엇이 필요한지 DB로 확인했습니다 — <b>읍면동 경계는 99.4% 이미 맞고</b>(색칠 지도는 지금 가능), 단지 핀은 <b>41,512개 단지의 좌표</b>를 한 번 구하면 됩니다</li>
+      </ul>
+      <p><a href="../history_v4.3.md">history_v4.3.md 원문 보기</a></p>
+    </div>
+
+    <div class="card">
+      <div class="ver-head">
+        <span class="tag">v4.2</span>
+        <span class="ver-title">허브에서 부동산 페이지가 열리지 않던 이유<span class="ver-note">로그인 되돌아오기 수정</span></span>
+        <span class="date">2026-10-12</span>
+      </div>
+      <ul>
+        <li>허브 카드는 멀쩡했고, <b>로그인 화면이 원래 자리로 돌려보내 주지 않았습니다</b> — 되돌아갈 수 있는 주소 목록에 새 부동산 페이지가 빠져 있었습니다</li>
+        <li>같은 일이 2026-09-29 API 활용 페이지에서도 있었으므로, 이번에는 <b>문서 네 곳에 "새 화면을 만들면 이 목록도 같이 고칠 것"</b>을 적어 뒀습니다</li>
+        <li>로그인 서버를 다시 띄운 뒤 <b>서비스 목록에 남은 죽은 옛 인스턴스를 직접 지웠습니다</b>(두면 로그인이 간헐적으로 실패합니다)</li>
+        <li>로컬 네 화면(허브 · 지도 · API 활용 · 부동산)과 부동산 API를 모두 확인했습니다</li>
+        <li>총괄 문서(개발 환경 · 시스템 구조 · 소개)에 부동산 프론트를 반영했습니다. 운영 배포는 아직 전입니다</li>
+      </ul>
+      <p><a href="../history_v4.2.md">history_v4.2.md 원문 보기</a></p>
+    </div>
+
+    <div class="card">
+      <div class="ver-head">
         <span class="tag">v4.1</span>
         <span class="ver-title">매물 종류를 나누고 헤더를 지도와 맞췄습니다<span class="ver-note">느린 조회 2곳 수정</span></span>
         <span class="date">2026-10-12</span>

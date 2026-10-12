@@ -7,7 +7,7 @@
     powershell -ExecutionPolicy Bypass -File scripts\local-stack.ps1 status
     powershell -ExecutionPolicy Bypass -File scripts\local-stack.ps1 stop
 
-  기동 순서: Eureka(8761) → mapservice-rest(랜덤 포트) → sj-lab-authserver(랜덤 포트, 로그인) → sj-lab-openapi(8110) → API Gateway(8100) → 프론트 정적 서버(4000)
+  기동 순서: Eureka(8761) → mapservice-rest(랜덤 포트) → sj-lab-authserver(랜덤 포트, 로그인) → sj-lab-openapi(8110) → sj-lab-estate(8120, 부동산) → API Gateway(8100) → 프론트 정적 서버(4000)
   - hub·mapservice 는 로그인 게이트가 있어 authserver 없이는 접속 자체가 안 된다(로그인 페이지 503).
   - 체험용 계정(AUTH_DEMO_*)·첨부 중계 계정(QFIELD_*)·공개 API DB 계정(OPENAPI_DB_*)은
     .claude\settings.local.json 의 env 에서 읽는다.
@@ -132,6 +132,28 @@ function loadDemoCredentials {
   }
 }
 
+function loadEstateDbCredentials {
+  # 부동산 조회 서비스(sj-lab-estate)용 DB 접속. 로컬 비밀값에는 파이썬 시절 쓰던
+  # ESTATE_DB_DSN(postgresql://계정:비밀번호@호스트:포트/DB)이 들어 있어, JDBC 형식으로 바꿔 넣는다.
+  # 값이 없으면 조회 API 만 503 이고 /estate/status 는 정상이므로 기동은 그대로 한다.
+  loadLocalSecrets @('ESTATE_DB_URL', 'ESTATE_DB_USERNAME', 'ESTATE_DB_PASSWORD', 'ESTATE_DB_DSN')
+  if (-not $env:ESTATE_DB_URL -and $env:ESTATE_DB_DSN) {
+    if ($env:ESTATE_DB_DSN -match '^postgres(ql)?://([^:]+):([^@]+)@([^:/]+):(\d+)/([^?]+)') {
+      $env:ESTATE_DB_USERNAME = [System.Uri]::UnescapeDataString($Matches[2])
+      $env:ESTATE_DB_PASSWORD = [System.Uri]::UnescapeDataString($Matches[3])
+      $env:ESTATE_DB_URL = "jdbc:postgresql://$($Matches[4]):$($Matches[5])/$($Matches[6])"
+    } else {
+      Write-Host '  주의: ESTATE_DB_DSN 형식을 알 수 없어 부동산 DB 접속을 건너뜁니다.'
+    }
+  }
+  if ($env:ESTATE_DB_URL) {
+    Write-Host '  부동산 DB 접속 적용 (조회 가능)'
+  } else {
+    Write-Host '  주의: 부동산 DB 접속 정보가 없어 조회 API 는 503 입니다(/estate/status 는 정상).'
+    Write-Host '        .claude\settings.local.json 의 env 에 ESTATE_DB_DSN 또는 ESTATE_DB_URL 등을 넣으세요.'
+  }
+}
+
 function loadOpenapiDbCredentials {
   # 공개 API 의 키·사용량 기능용 DB 계정. api 스키마 두 표에 SELECT·INSERT·UPDATE 권한만 있는
   # 전용 계정(openapi_svc)을 쓴다 — 개인/superuser 계정을 넣지 말 것.
@@ -164,6 +186,7 @@ function startStack {
   $gatewayDir = Join-Path $workspaceRoot 'sj-lab-apigateway'
   $authserverDir = Join-Path $workspaceRoot 'sj-lab-authserver'
   $openapiDir = Join-Path $workspaceRoot 'sj-lab-openapi'
+  $estateDir = Join-Path $workspaceRoot 'sj-lab-estate'
   $discoverySrc = Join-Path $workspaceRoot 'sj-lab-discoveryServer'
   $discoveryBuild = Join-Path $stateDir 'build\sj-lab-discoveryServer'
 
@@ -171,6 +194,7 @@ function startStack {
   $needGateway = -not (testPort 8100)
   $needFrontend = -not (testPort 4000)
   $needOpenapi = -not (testPort 8110)
+  $needEstate = -not (testPort 8120)
   $running = readPids
   $backendAlive = $running -and $running.'mapservice-rest' -and (Get-Process -Id $running.'mapservice-rest' -ErrorAction SilentlyContinue)
   $needBackend = -not $backendAlive
@@ -191,6 +215,7 @@ function startStack {
     if ($needBackend) { invokeMavenPackage $backendRoot $jdkHome }
     if ($needAuthserver) { invokeMavenPackage $authserverDir $jdkHome }
     if ($needOpenapi) { invokeMavenPackage $openapiDir $jdkHome }
+    if ($needEstate) { invokeMavenPackage $estateDir $jdkHome }
     if ($needGateway) { invokeMavenPackage $gatewayDir $jdkHome }
   }
 
@@ -217,6 +242,12 @@ function startStack {
     startJava 'openapi' (Join-Path $openapiDir 'target\sj-lab-openapi.jar') $jdkHome @('--server.port=8110') | Out-Null
     waitUntil { Select-String -Path (Join-Path $stateDir 'openapi.log') -Pattern 'Started SjLabOpenApiApplication' -Quiet } 180 'sj-lab-openapi(8110)'
   } else { Write-Host '  건너뜀: 8110 이미 사용 중' }
+
+  if ($needEstate) {
+    loadEstateDbCredentials
+    startJava 'estate' (Join-Path $estateDir 'target\sj-lab-estate.jar') $jdkHome @('--server.port=8120') | Out-Null
+    waitUntil { Select-String -Path (Join-Path $stateDir 'estate.log') -Pattern 'Started EstateApplication' -Quiet } 180 'sj-lab-estate(8120)'
+  } else { Write-Host '  건너뜀: 8120 이미 사용 중' }
 
   if ($needGateway) {
     startJava 'apigateway' (Join-Path $gatewayDir 'target\sj-lab-apigateway.jar') $jdkHome @() | Out-Null
@@ -268,7 +299,7 @@ function stopStack {
 
 function showStatus {
   $pids = readPids
-  foreach ($name in 'eureka', 'mapservice-rest', 'authserver', 'openapi', 'apigateway', 'frontend') {
+  foreach ($name in 'eureka', 'mapservice-rest', 'authserver', 'openapi', 'estate', 'apigateway', 'frontend') {
     $processId = if ($pids) { $pids.$name } else { $null }
     $alive = $processId -and (Get-Process -Id $processId -ErrorAction SilentlyContinue)
     $state = if ($alive) { "실행 중 (pid $processId)" } elseif ($processId) { '종료됨' } else { '이 스크립트로 띄우지 않음' }
