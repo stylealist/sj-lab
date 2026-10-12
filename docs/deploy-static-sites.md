@@ -8,9 +8,11 @@
 /home/kuber-volume/sj-lab-webserver/html/          ← 허브(sj-lab-hub)   → https://sj-lab.co.kr/
 /home/kuber-volume/sj-lab-webserver/html/map/      ← 지도(sj-lab-mapservice) → https://sj-lab.co.kr/map/
 /home/kuber-volume/sj-lab-webserver/html/openapi/  ← API 활용 페이지(sj-lab-openapi-web) → https://sj-lab.co.kr/openapi/
+/home/kuber-volume/sj-lab-webserver/html/estate/   ← 부동산 실거래(sj-lab-estate-web) → https://sj-lab.co.kr/estate/
 ```
 
-- 지도는 **허브 디렉터리의 하위 폴더**입니다. 별도 볼륨이 아닙니다.
+- 지도·활용 페이지·부동산은 모두 **허브 디렉터리의 하위 폴더**입니다. 별도 볼륨이 아닙니다.
+- **하위 사이트를 추가하면 허브 잡의 제외 목록(`--exclude`)과 `find ! -name` 에 그 폴더를 넣어야** 합니다. 빠뜨리면 허브 배포가 그 사이트를 지웁니다(2026-10-12 `estate/` 추가).
 - nginx 설정(`sj-lab-k8s-manifests/sj-lab-webserver/files/nginx-set.conf`)은 `root /home/www`(= 위 html)에 `try_files $uri $uri/ /index.html`을 씁니다.
 
 ## 왜 지도가 "지워진" 것처럼 보이나
@@ -38,6 +40,8 @@
 | 지도 | `docs/jenkins/sj-lab-mapservice-pipeline.groovy` | 원자적 교체(새 폴더 → `mv`), 저장소 문서 제외, 배포 후 확인 |
 | (백업) 허브 원본 | `docs/jenkins/sj-lab-hub-pipeline-original.groovy` | 수정 전 원본 — **롤백용**. 되돌리면 삭제 문제도 함께 돌아옴 |
 | (백업) 지도 원본 | `docs/jenkins/sj-lab-mapservice-pipeline-original.groovy` | 수정 전 원본 — 롤백용 |
+| 활용 페이지 | `docs/jenkins/sj-lab-openapi-web-pipeline.groovy` | 자기 폴더(`html/openapi`)만 동기화 |
+| 부동산 | `docs/jenkins/sj-lab-estate-web-pipeline.groovy` | 자기 폴더(`html/estate`)만 동기화. 스테이징은 `/respal/deploy-estate` |
 
 두 잡 모두 마지막에 `Verify` 단계가 있어, 다른 잡이 상대 사이트를 지웠다면 **그 잡이 실패로 드러납니다**. 아래는 그 안에서 핵심이 되는 부분만 따로 설명한 것입니다.
 
@@ -56,8 +60,8 @@ DST=/home/kuber-volume/sj-lab-webserver/html
 
 [ -f "$SRC/index.html" ] || { echo "index.html 없음 - 배포 중단"; exit 1; }
 
-# --delete 로 옛 파일은 정리하되, 지도 폴더와 인증서 challenge 는 건드리지 않는다
-rsync -a --delete --exclude 'map/' --exclude '.well-known/' "$SRC"/ "$DST"/
+# --delete 로 옛 파일은 정리하되, 하위 사이트와 인증서 challenge 는 건드리지 않는다
+rsync -a --delete --exclude 'map/' --exclude 'openapi/' --exclude 'estate/' --exclude '.well-known/' "$SRC"/ "$DST"/
 echo "허브 배포 완료"
 ```
 
@@ -70,8 +74,8 @@ DST=/home/kuber-volume/sj-lab-webserver/html
 
 [ -f "$SRC/index.html" ] || { echo "index.html 없음 - 배포 중단"; exit 1; }
 
-# map 과 .well-known 만 남기고 지운다 (rm -rf $DST/* 를 쓰지 말 것)
-find "$DST" -mindepth 1 -maxdepth 1 ! -name 'map' ! -name '.well-known' -exec rm -rf {} +
+# 하위 사이트와 .well-known 만 남기고 지운다 (rm -rf $DST/* 를 쓰지 말 것)
+find "$DST" -mindepth 1 -maxdepth 1 ! -name 'map' ! -name 'openapi' ! -name 'estate' ! -name '.well-known' -exec rm -rf {} +
 cp -r "$SRC"/. "$DST"/
 echo "허브 배포 완료"
 ```

@@ -81,11 +81,11 @@ pipeline {
                         mkdir -p "$DST"
 
                         if command -v rsync >/dev/null 2>&1; then
-                            # 옛 파일은 정리하되 하위 사이트(map/, openapi/)와 인증서 challenge 는 건드리지 않는다
-                            rsync -a --delete --exclude 'map/' --exclude 'openapi/' --exclude '.well-known/' "$SRC"/ "$DST"/
+                            # 옛 파일은 정리하되 하위 사이트(map/, openapi/, estate/)와 인증서 challenge 는 건드리지 않는다
+                            rsync -a --delete --exclude 'map/' --exclude 'openapi/' --exclude 'estate/' --exclude '.well-known/' "$SRC"/ "$DST"/
                         else
-                            # rsync 가 없으면: map, openapi, .well-known 만 남기고 지운다
-                            find "$DST" -mindepth 1 -maxdepth 1 ! -name 'map' ! -name 'openapi' ! -name '.well-known' -exec rm -rf {} +
+                            # rsync 가 없으면: map, openapi, estate, .well-known 만 남기고 지운다
+                            find "$DST" -mindepth 1 -maxdepth 1 ! -name 'map' ! -name 'openapi' ! -name 'estate' ! -name '.well-known' -exec rm -rf {} +
                             cp -r "$SRC"/. "$DST"/
                         fi
 
@@ -113,7 +113,15 @@ pipeline {
                 || { echo "❌ 지도가 허브 폴백으로 응답 - html/map 확인 필요"; exit 1; }
             curl -fsS https://sj-lab.co.kr/openapi/ | grep -q 'SJ-LAB OpenAPI' \
                 || { echo "❌ API 활용 페이지가 지워졌거나 폴백으로 응답 - html/openapi 확인 필요"; exit 1; }
-            echo "✅ 허브·지도·활용 페이지 모두 정상"
+            # 부동산 화면은 배포 전일 수 있다. 404 면 통과(아직 없음), 200 인데 내용이 다르면 실패로 본다.
+            ESTATE=$(curl -s -o /tmp/estate.html -w '%{http_code}' https://sj-lab.co.kr/estate/ || true)
+            if [ "$ESTATE" = "200" ]; then
+                grep -q 'SJ 부동산 실거래' /tmp/estate.html \
+                    || { echo "❌ 부동산 화면이 지워졌거나 폴백으로 응답 - html/estate 확인 필요"; exit 1; }
+                echo "✅ 허브·지도·활용 페이지·부동산 모두 정상"
+            else
+                echo "✅ 허브·지도·활용 페이지 정상 (부동산은 아직 배포 전: HTTP $ESTATE)"
+            fi
         '''
       }
     }

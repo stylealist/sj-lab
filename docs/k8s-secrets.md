@@ -11,6 +11,7 @@
 | `auth-jwt-secret` | `secret` | sj-lab-authserver → `AUTH_JWT_SECRET` | **필수**(optional 아님) | 파드가 `CreateContainerConfigError`로 뜨지 않음(의도된 동작 — 공개 기본값으로 서명하지 않기 위함) |
 | `auth-demo-credentials` | `username`, `password` | sj-lab-authserver → `AUTH_DEMO_USERNAME`, `AUTH_DEMO_PASSWORD` | 선택(`optional: true`) | 파드는 정상, 로그인 페이지의 "체험용 계정으로 로그인" 버튼만 503 |
 | `openapi-db-credentials` | `url`, `username`, `password` | sj-lab-openapi → `OPENAPI_DB_URL`, `OPENAPI_DB_USERNAME`, `OPENAPI_DB_PASSWORD` | **키 기능을 켠 경우 필수**(차트 `apiKey.enabled: true`, 2026-09-30 켜짐) | 파드가 뜨지 않음 — 접속 주소가 비면 `ApiKeyStoreConfig`가 기동을 막는다(의도된 동작). 차트를 `false`로 되돌리면 Secret 없이도 뜨고 키 API만 503 |
+| `estate-db-credentials` | `url`, `username`, `password` | sj-lab-estate → `ESTATE_DB_URL`, `ESTATE_DB_USERNAME`, `ESTATE_DB_PASSWORD` | 선택(`optional: true`) | 파드는 정상, 부동산 조회 API만 503(`NOT_CONFIGURED`)이고 `GET /estate/status`가 `ready:false`로 답한다(의도된 동작 — 화면이 "준비되지 않았다"를 보여 줄 수 있게) |
 
 **`openapi-db-credentials`의 계정은 `openapi_svc`입니다**(2026-09-30 분리). `api` 스키마 두 표에만 권한이 있는 전용 계정이며, superuser가 아닙니다. 다른 서비스나 사람 계정으로 되돌리지 마세요 — 이 서비스가 필요한 건 아래가 전부이고, 실제로 이 권한만으로 발급·사용량 기록·폐기가 모두 동작하는 것을 확인했습니다.
 
@@ -22,6 +23,18 @@
 | 시퀀스 2개 | `USAGE`, `SELECT` | `key_id` · `usage_id` 생성 |
 
 `DELETE`는 필요 없습니다(폐기는 행 삭제가 아니라 `use_yn='n'` 갱신). 로컬도 같은 계정을 `.claude\settings.local.json`의 `env`에 두고 `local-stack.ps1`이 읽어 넣습니다.
+
+**`estate-db-credentials`에는 조회 전용 계정만 넣습니다**(2026-10-12 신설). `sj-lab-estate`는 `estate` 스키마를 읽기만 하고 커넥션도 `readOnly`로 엽니다 — 적재는 `sj-lab-scheduler`가 합니다. 필요한 권한은 아래가 전부입니다.
+
+| 대상 | 권한 | 쓰이는 곳 |
+|---|---|---|
+| 스키마 `estate` | `USAGE` | 접속 |
+| `estate.apt_trade`, `estate.apt_rent` | `SELECT` | 모든 조회 |
+| 뷰 `estate.v_apt_trade_monthly`, `v_apt_rent_monthly` | `SELECT` | 지역 선택 시 월별 추세 |
+| 스키마 `public` + `public.g_sgg` | `USAGE`, `SELECT` | 시군구 이름 표시 |
+| `pg_class` | (기본 권한) | 건수 추정치(`reltuples`) |
+
+`INSERT`/`UPDATE`/`DELETE`는 필요 없습니다. 운영 Secret 을 만들기 전에 `estate` 스키마 표가 있어야 하며(스크립트 `db/estate/estate_apt.sql`, DB 담당자 실행), 표가 없으면 조회가 502(`QUERY_FAILED`)로 떨어집니다.
 
 그 밖에 `kubernetes-dashboard` 네임스페이스의 `kubernetes-dashboard-certs` 등은 dashboard 차트가 직접 만드는 Secret이라 따로 관리하지 않습니다. `sj-qfieldsync`는 k8s Secret을 쓰지 않습니다.
 
@@ -42,6 +55,7 @@ k8s Secret이 없으므로 다음처럼 대신합니다(값은 git 제외 파일
 | `qfield-credentials` | `QFIELD_USERNAME`/`QFIELD_PASSWORD` → `scripts\local-stack.ps1`이 mapservice-rest 기동 시 주입 |
 | `ncp-registry-secret` | 필요 없음(로컬은 jar 직접 실행) |
 | `openapi-db-credentials` | 기본은 필요 없음 — `OPENAPI_API_KEY_ENABLED`가 꺼져 있으면 키 API만 503이고 공개 조회는 정상. 로컬에서 키 기능을 써 보려면 `OPENAPI_DB_URL`/`OPENAPI_DB_USERNAME`/`OPENAPI_DB_PASSWORD`와 `OPENAPI_API_KEY_ENABLED=true`를 넣어 띄운다(`api` 스키마 두 표에 SELECT·INSERT·UPDATE 권한 필요) |
+| `estate-db-credentials` | `ESTATE_DB_DSN`(또는 `ESTATE_DB_URL`/`ESTATE_DB_USERNAME`/`ESTATE_DB_PASSWORD`) → `scripts\local-stack.ps1`이 sj-lab-estate 기동 시 JDBC 형식으로 바꿔 주입. 없으면 조회만 503이고 `/estate/status`는 정상 |
 
 ## Jenkins Credentials
 

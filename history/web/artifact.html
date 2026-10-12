@@ -514,7 +514,8 @@
       <button type="button" class="vchip" role="tab" data-ver="4.1" aria-controls="pane-v4.1" title="매물 종류 나누기(아파트만 서비스) · 지도와 같은 헤더 · 느린 조회 수정"><span class="pv">v4.1</span><span class="pt">매물 종류 · 헤더 통일</span></button>
       <button type="button" class="vchip" role="tab" data-ver="4.2" aria-controls="pane-v4.2" title="허브 카드에서 부동산 페이지로 들어가기 · 로그인 되돌아오기 수정 · 문서 반영"><span class="pv">v4.2</span><span class="pt">허브에서 부동산 열기</span></button>
       <button type="button" class="vchip" role="tab" data-ver="4.3" aria-controls="pane-v4.3" title="부동산 화면에 소개 · 저장소 문의 탭 추가 · 지도로 가려면 필요한 데이터 확인"><span class="pv">v4.3</span><span class="pt">소개 · 저장소 문의</span></button>
-      <button type="button" class="vchip" role="tab" data-ver="4.4" aria-controls="pane-v4.4" title="부동산 조회 서버를 Spring 으로 분리 · 전월세 보증금 적재 버그 발견"><span class="pv">v4.4<span class="dot" title="최신" aria-label="최신"></span></span><span class="pt">부동산 서버 분리</span></button>
+      <button type="button" class="vchip" role="tab" data-ver="4.4" aria-controls="pane-v4.4" title="부동산 조회 서버를 Spring 으로 분리 · 전월세 보증금 적재 버그 발견"><span class="pv">v4.4</span><span class="pt">부동산 서버 분리</span></button>
+      <button type="button" class="vchip" role="tab" data-ver="4.5" aria-controls="pane-v4.5" title="부동산 운영 배포 준비(차트 · Jenkins · nginx) · 점검 스크립트 표식 버그 수정"><span class="pv">v4.5<span class="dot" title="최신" aria-label="최신"></span></span><span class="pt">배포 준비 · 점검 수정</span></button>
     </div>
   </div>
 </nav>
@@ -8545,6 +8546,88 @@ response = requests.get("https://api.sj-lab.co.kr/open-api/v1/convenience-store"
 </section>
 </div>
 
+<!-- ===================== v4.5 ===================== -->
+<div class="vpane" data-ver="4.5" id="pane-v4.5" hidden>
+<header class="masthead">
+  <div class="wrap">
+    <div class="stamp">
+      <span class="ver">v4.5</span>
+      <span>2026-10-12</span>
+      <span>배포 설정 · 총괄</span>
+    </div>
+    <h1>부동산을 운영에 올릴<br>준비를 끝냈습니다</h1>
+    <p class="plainline">차트 · 빌드 잡 · 웹서버 설정 세 가지를 만들어 뒀습니다(아직 올리지는 않았습니다)</p>
+    <p class="dek">
+      점검 스크립트를 손보다가 <b>정상인 사이트를 "지워졌다"고 잘못 알리던 버그</b>도 찾아 고쳤습니다.
+    </p>
+    <dl class="facts">
+      <div><dt>배포 준비</dt><dd class="ok">차트 · 잡 2개 · nginx</dd></div>
+      <div><dt>옆 사이트 보호</dt><dd class="ok">허브 잡 제외 목록 추가</dd></div>
+      <div><dt>점검 스크립트</dt><dd class="ok">네 사이트 + 표식 수정</dd></div>
+      <div><dt>Orca 목록</dt><dd class="ok">18개 저장소</dd></div>
+    </dl>
+  </div>
+</header>
+
+<section class="band">
+  <div class="wrap">
+    <p class="eyebrow">하나</p>
+    <h2>운영에 올리려면 세 가지가 필요합니다</h2>
+    <div class="tbl">
+      <table>
+        <thead><tr><th>필요한 것</th><th>만든 것</th></tr></thead>
+        <tbody>
+          <tr><td>클러스터 배포 설정</td><td class="ok">조회 서버 차트(기존 서비스와 같은 구성)</td></tr>
+          <tr><td>빌드·배포 자동화</td><td class="ok">조회 서버 잡 · 화면 잡</td></tr>
+          <tr><td>주소 연결</td><td class="ok">웹서버의 /estate/ 경로(파일이 없으면 404)</td></tr>
+        </tbody>
+      </table>
+    </div>
+    <ul class="notes">
+      <li><b>DB 접속 정보가 없어도 배포는 성공</b>하게 두었습니다 — 그때는 화면이 "준비되지 않았다"고 안내합니다. 배포와 데이터 준비를 따로 진행할 수 있어야 하기 때문입니다</li>
+      <li><b>허브 배포가 부동산 화면을 지우지 않도록</b> 허브 잡의 보호 목록에 넣었습니다. 네 사이트가 한 폴더를 공유해서, 이 목록을 빠뜨리면 허브를 배포할 때마다 옆 사이트가 사라집니다(지도에서 실제로 반복된 사고)</li>
+      <li>사람이 해야 할 일 — <b>배포 도구에 새 서비스 등록 · 빌드 잡 2개 생성 · 운영 DB 준비</b></li>
+    </ul>
+  </div>
+</section>
+
+<section class="band">
+  <div class="wrap">
+    <p class="eyebrow">둘</p>
+    <h2>점검 스크립트가 거짓말을 하고 있었습니다</h2>
+    <p style="margin:0 0 1rem">
+      운영 사이트 점검에 부동산·API 활용 페이지를 추가하다가 발견했습니다.
+      <b>허브를 가려내는 표식이 다른 사이트에도 들어 있는 문자열</b>이었습니다.
+    </p>
+    <ul class="notes">
+      <li>세 화면이 모두 같은 방식(webpack)으로 만들어져 그 표식을 공유합니다 — 그대로 두면 <b>정상인 사이트를 "지워졌다"고 알립니다</b>(실제로 그렇게 나왔습니다)</li>
+      <li>허브에만 있는 제목으로 바꿨습니다</li>
+      <li><b>배포 전인 사이트는 실패로 세지 않습니다</b> — "미배포"로 따로 표시합니다</li>
+    </ul>
+    <div class="tbl">
+      <table>
+        <thead><tr><th>지금 상태</th><th>결과</th></tr></thead>
+        <tbody>
+          <tr><td>허브 · 지도 · API 활용 페이지</td><td class="ok">정상</td></tr>
+          <tr><td>부동산</td><td>미배포(예정)</td></tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+</section>
+
+<section class="band">
+  <div class="wrap">
+    <p class="eyebrow">셋</p>
+    <h2>작업 환경 정리</h2>
+    <ul class="notes">
+      <li>새로 만든 두 저장소를 작업 도구 목록에 추가했습니다 — 이제 <b>18개</b>가 보입니다</li>
+      <li>함께 쓰는 다른 AI 도구의 <b>폴더 신뢰 목록</b>도 채웠습니다. 빠져 있으면 작업을 맡길 때 "이 폴더를 믿습니까?"에서 멈춥니다(빠져 있던 4곳 추가)</li>
+    </ul>
+  </div>
+</section>
+</div>
+
 <footer>
   <div class="wrap">
     <p class="k">접속 URL</p>
@@ -8556,7 +8639,7 @@ response = requests.get("https://api.sj-lab.co.kr/open-api/v1/convenience-store"
       <li><em>운영 로그인 페이지</em><span class="url">https://api.sj-lab.co.kr/auth/login.html</span></li>
       <li><em>sj-lab-authserver</em><span class="url">https://github.com/stylealist/sj-lab-authserver</span></li>
       <li><em>API 센터</em><span class="url">https://sj-lab.co.kr/openapi/</span></li>
-      <li><em>기록 원본</em><span class="url">sj-lab/history/history_v1.0.md ~ v1.35.md, v2.0.md ~ v4.4.md</span></li>
+      <li><em>기록 원본</em><span class="url">sj-lab/history/history_v1.0.md ~ v1.35.md, v2.0.md ~ v4.5.md</span></li>
     </ul>
     <p class="colophon">
       총괄 허브 <code>C:\developer\workspace\sj-lab</code> 기준 · 커밋과 push는 사용자가 요청할 때만 수행합니다 ·

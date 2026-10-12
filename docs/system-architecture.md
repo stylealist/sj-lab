@@ -200,11 +200,12 @@ git push → Jenkins(빌드 → 이미지 push: sj-lab-registry.kr.ncr.ntruss.co
 ```
 
 - **`image.tag`는 Jenkins가 관리하는 값**입니다. 요청 없이 임의로 낮추거나 되돌리지 마세요.
+- **새 서비스는 차트·Jenkins 잡·ArgoCD Application 세 가지가 모두 있어야 배포됩니다.** 차트만 넣고 ArgoCD에 등록하지 않으면 `image.tag`만 올라가고 클러스터에는 아무 일도 일어나지 않습니다. 파이프라인 원본은 `docs/jenkins/<서비스>-pipeline.groovy`입니다.
 - 매니페스트 단계는 clone → sed → push 구조라 **여러 저장소를 동시에 push하면 한 잡이 `cannot lock ref`로 실패**할 수 있습니다(2026-09-16 실제 발생). 실패하면 이미지는 레지스트리에 올라가 있고 태그 커밋만 빠진 상태이므로, 해당 잡을 재실행하면 됩니다.
 - 롤아웃 중에는 게이트웨이가 잠시 **503**을 반환합니다(옛 파드 종료 ~ 새 파드의 Eureka 등록 사이). 배포 직후 503은 몇 초 뒤 다시 확인해 보세요.
 - 차트를 고쳤다면 해당 차트 디렉터리에서 `helm lint`와 `helm template`을 돌려 렌더링을 확인합니다. 로컬 저장소가 Jenkins 자동 커밋보다 뒤처져 있을 수 있으니 **수정 전 `git pull`** 하세요.
 
-**정적 프론트(허브·지도)는 이 경로가 아닙니다** — 이미지·ArgoCD를 거치지 않고 Jenkins가 웹서버 노드의 디렉터리에 **파일을 그대로 복사**합니다. 허브는 `/home/kuber-volume/sj-lab-webserver/html`, 지도는 그 **하위 폴더** `html/map`이라 **허브 배포가 상위 디렉터리를 비우면 지도가 함께 지워집니다**(반복 발생). nginx SPA 폴백 때문에 그때 `/map/`은 404가 아니라 **허브 화면을 200으로** 돌려주므로 증상이 헷갈립니다. 원인·안전한 배포 스테이지·확인/복구 방법은 `docs/deploy-static-sites.md`, 상태 확인은 `scripts/check-prod-sites.ps1`.
+**정적 프론트(허브·지도·API 활용 페이지·부동산)는 이 경로가 아닙니다** — 이미지·ArgoCD를 거치지 않고 Jenkins가 웹서버 노드의 디렉터리에 **파일을 그대로 복사**합니다. 허브는 `/home/kuber-volume/sj-lab-webserver/html`, 나머지는 그 **하위 폴더**(`html/map`·`html/openapi`·`html/estate`)라 **허브 배포가 상위 디렉터리를 비우면 하위 사이트가 함께 지워집니다**(반복 발생). 그래서 허브 잡의 동기화에서 그 폴더들을 **제외 목록에 넣어 둡니다 — 하위 사이트를 추가하면 그 목록도 함께 고칠 것**. nginx SPA 폴백 때문에 그때 `/map/`은 404가 아니라 **허브 화면을 200으로** 돌려주므로 증상이 헷갈립니다. 원인·안전한 배포 스테이지·확인/복구 방법은 `docs/deploy-static-sites.md`, 상태 확인은 `scripts/check-prod-sites.ps1`.
 
 ## 총괄 세션에서 다른 저장소를 다룰 때
 
