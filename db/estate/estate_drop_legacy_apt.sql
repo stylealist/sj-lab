@@ -1,0 +1,86 @@
+-- ============================================================================
+-- 옛 아파트 표 삭제 — ai.apt_trades · ai.apt_rents (2026-10-06)
+--
+-- 왜 지우나
+--   아파트 데이터를 estate 스키마로 옮기고, `ai` 스키마는 앞으로 AI/RAG 관련 표만
+--   두기로 했다(2026-10-06 결정). 그래서 ai 쪽 아파트 표를 비운다.
+--
+-- ⚠ 되돌릴 수 없다. 지우면 사라지는 것:
+--
+--     ai.apt_trades   10,752,977 행   2006 ~ 2025   251개 시군구
+--     ai.apt_rents    12,527,256 행   2011 ~ 2025   251개 시군구
+--
+--   새 estate 표는 "2026-01 부터 새로 받기"로 정했으므로, 이 스크립트를 돌리면
+--   플랫폼에서 2025년까지의 과거 거래 20년치가 없어진다. 장기 추세 분석은 못 하게 된다.
+--   공공데이터 API 로 다시 받을 수는 있지만 (연도 × 12개월 × 251 시군구) 호출이라
+--   일일 트래픽 한도 때문에 여러 날이 걸린다.
+--
+-- 그래서 ❶❷ 를 먼저 하고 ❸ 을 돌리기를 권한다.
+--   ❶ estate_apt.sql 실행 → 새 표 생성
+--   ❷ 과거 데이터가 필요하면 estate 로 먼저 백필
+--        (scheduler 백필: /scheduler/apis/housing/aptTrades?from=200601&to=202512 를 연 단위로 나눠)
+--   ❸ 이 스크립트 실행
+--
+-- 과거 데이터를 버리지 않고 옮기고 싶다면, DROP 대신 아래 "이관" 절을 쓸 것.
+--
+-- 실행은 에이전트가 하지 않는다(프로젝트 규칙). DB 권한이 있는 담당자가 돌린다.
+-- ============================================================================
+
+-- ----------------------------------------------------------------------------
+-- (권장) 지우기 전에 지금 상태를 한 번 확인
+-- ----------------------------------------------------------------------------
+-- SELECT 'apt_trades' AS t, count(*), min(deal_year), max(deal_year) FROM ai.apt_trades
+-- UNION ALL
+-- SELECT 'apt_rents',       count(*), min(deal_year), max(deal_year) FROM ai.apt_rents;
+
+-- ----------------------------------------------------------------------------
+-- 선택 A — 버리지 않고 estate 로 이관 (DROP 하기 전에 이걸 먼저 돌릴 수 있다)
+--   유니크 인덱스가 중복을 걸러내므로 ON CONFLICT DO NOTHING 으로 안전하게 들어간다.
+--   2,300만 행이라 한 번에 돌리면 오래 걸린다 — 연도별로 나눠 돌릴 것.
+-- ----------------------------------------------------------------------------
+-- INSERT INTO estate.apt_trade (
+--     sgg_cd, umd_cd, land_cd, bonbun, bubun, jibun, umd_nm,
+--     road_nm, road_nm_sgg_cd, road_nm_cd, road_nm_seq, road_nmb_cd, road_nm_bonbun, road_nm_bubun,
+--     apt_nm, apt_dong, apt_seq, build_year, exclu_use_ar, floor,
+--     deal_year, deal_month, deal_day, deal_amount,
+--     dealing_gbn, cdeal_type, cdeal_day, estate_agent_sgg_nm,
+--     sler_gbn, buyer_gbn, rgst_date, land_leasehold_gbn, created_at)
+-- SELECT
+--     sgg_cd, umd_cd, land_cd, bonbun, bubun, jibun, umd_nm,
+--     road_nm, road_nm_sgg_cd, road_nm_cd, road_nm_seq, road_nmb_cd, road_nm_bonbun, road_nm_bubun,
+--     apt_nm, apt_dong, apt_seq, build_year, exclu_use_ar, floor,
+--     deal_year, deal_month, deal_day, deal_amount,
+--     dealing_gbn, cdeal_type, cdeal_day, estate_agent_sgg_nm,
+--     sler_gbn, buyer_gbn, rgst_date, land_leasehold_gbn, created_at
+-- FROM ai.apt_trades
+-- WHERE deal_year = 2025            -- ← 연도를 바꿔 가며 나눠 실행
+-- ON CONFLICT DO NOTHING;
+--
+-- INSERT INTO estate.apt_rent (
+--     sgg_cd, umd_nm, jibun, apt_nm, apt_seq, build_year, exclu_use_ar, floor,
+--     deal_year, deal_month, deal_day,
+--     deposit, monthly_rent, contract_term, contract_type, use_rr_right,
+--     pre_deposit, pre_monthly_rent,
+--     road_nm, road_nm_sgg_cd, road_nm_cd, road_nm_seq, road_nmb_cd, road_nm_bonbun, road_nm_bubun,
+--     created_at)
+-- SELECT
+--     sgg_cd, umd_nm, jibun, apt_nm, apt_seq, build_year, exclu_use_ar, floor,
+--     deal_year, deal_month, deal_day,
+--     deposit, monthly_rent, contract_term, contract_type, use_rr_right,
+--     pre_deposit, pre_monthly_rent,
+--     road_nm, road_nm_sgg_cd, road_nm_cd, road_nm_seq, road_nmb_cd, road_nm_bonbun, road_nm_bubun,
+--     created_at
+-- FROM ai.apt_rents
+-- WHERE deal_year = 2025            -- ← 연도를 바꿔 가며 나눠 실행
+-- ON CONFLICT DO NOTHING;
+
+-- ----------------------------------------------------------------------------
+-- 선택 B — 삭제
+--   주석을 풀어서 실행할 것. 일부러 주석으로 둔 것이다(실수로 돌아가지 않게).
+--   시퀀스도 표와 함께 사라진다.
+-- ----------------------------------------------------------------------------
+-- DROP TABLE IF EXISTS ai.apt_trades;
+-- DROP TABLE IF EXISTS ai.apt_rents;
+
+-- 삭제 후 확인 — ai 스키마에 AI 관련 표만 남아야 한다
+-- SELECT table_name FROM information_schema.tables WHERE table_schema = 'ai' ORDER BY table_name;

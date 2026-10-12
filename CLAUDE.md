@@ -22,6 +22,7 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 - @docs/mcp.md — GitHub/DB MCP 설정과 비밀값 관리 규칙
 - `docs/k8s-secrets.md` — 운영 k8s Secret·Jenkins Credential 이름·용도·없을 때 증상. 차트의 `secretKeyRef`/`pullSecret`을 바꾸면 이 문서도 같이 고칠 것
 - `docs/openapi-expose-checklist.md` — **백엔드에 새 조회 기능을 만들면 공개 API(`sj-lab-openapi`)에도 같은 작업에서 함께 열기**. 열 수 있는지 판단하는 4가지 기준, 카탈로그 항목 형식, 함께 고칠 문서, 확인 방법
+- `docs/backfill-workflow.md` — **공공데이터 과거 기간을 대량으로 받는 작업(backfill)의 절차와 함정**. 띄우는 순서(스케줄러 → 드라이버 → 완료 감시기), 중단·재개, 실제로 부딪힌 함정 7가지(적재 코드의 기간 필터·키 이중 인코딩·타임아웃 없음·429를 빈 결과로 넘기기·키×엔드포인트별 한도·로그 오류로 사망·클라이언트 타임아웃 시 커서 전진), 속도 측정 결과. **새 백필을 시작하기 전에 읽을 것**
 - `docs/deploy-static-sites.md` — 허브·지도·API 활용 페이지 정적 배포(웹서버 노드에 파일 복사). **세 사이트가 한 디렉터리를 공유해 허브 배포가 하위 사이트를 지울 수 있음** — 안전한 배포 스테이지, 확인(`scripts/check-prod-sites.ps1`)·복구 방법
 - `docs/jenkins/*.groovy` — 서비스별 Jenkins 파이프라인 원본. 잡을 고치면 이 파일도 같은 작업에서 갱신할 것
 - `docs/analysis/*.md` — 개발 DB 연결·권한·스키마 점검 및 인덱스·뷰·데이터 품질 분석

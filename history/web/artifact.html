@@ -509,7 +509,8 @@
       <button type="button" class="vchip" role="tab" data-ver="3.7" aria-controls="pane-v3.7" title="DB 계정을 전용 최소권한으로, 로컬도 키 기능 켜짐"><span class="pv">v3.7</span><span class="pt">계정 분리 · 로컬 키</span></button>
       <button type="button" class="vchip" role="tab" data-ver="3.8" aria-controls="pane-v3.8" title="키는 로그인하면 이미 있고, 키 없는 호출은 막힘"><span class="pv">v3.8</span><span class="pt">키 자동 배정 · 필수화</span></button>
       <button type="button" class="vchip" role="tab" data-ver="3.9" aria-controls="pane-v3.9" title="샘플 코드를 파라미터 형태로, 키가 안 담기던 경우 안내"><span class="pv">v3.9</span><span class="pt">샘플 코드 정리</span></button>
-      <button type="button" class="vchip" role="tab" data-ver="3.10" aria-controls="pane-v3.10" title="백엔드에 기능이 생기면 공개 API에도 같이 열도록 규칙 문서화"><span class="pv">v3.10<span class="dot" title="최신" aria-label="최신"></span></span><span class="pt">공개 API 동시 추가 규칙</span></button>
+      <button type="button" class="vchip" role="tab" data-ver="3.10" aria-controls="pane-v3.10" title="백엔드에 기능이 생기면 공개 API에도 같이 열도록 규칙 문서화"><span class="pv">v3.10</span><span class="pt">공개 API 동시 추가 규칙</span></button>
+      <button type="button" class="vchip" role="tab" data-ver="4.0" aria-controls="pane-v4.0" title="부동산 실거래 20년치 수집 · 신규 사이트 · 멈춰 있던 수집 복구"><span class="pv">v4.0<span class="dot" title="최신" aria-label="최신"></span></span><span class="pt">부동산 실거래 프로젝트</span></button>
     </div>
   </div>
 </nav>
@@ -8103,6 +8104,134 @@ response = requests.get("https://api.sj-lab.co.kr/open-api/v1/convenience-store"
 </div>
 
 
+<!-- ===================== v4.0 ===================== -->
+<div class="vpane" data-ver="4.0" id="pane-v4.0" hidden>
+<header class="masthead">
+  <div class="wrap">
+    <div class="stamp">
+      <span class="ver">v4.0</span>
+      <span>2026-10-06 ~ 10-12</span>
+      <span>배치 · AI 서비스 · 신규 사이트 · 허브 · 총괄</span>
+    </div>
+    <h1>부동산 실거래 20년치와<br>네 번째 사이트</h1>
+    <p class="plainline">10개월 멈춰 있던 수집을 되살리고, 아파트 거래 2,100만 건으로 새 사이트를 만들었습니다</p>
+    <p class="dek">
+      "시설물·API 말고 하나 더"에서 시작해, 플랫폼에 <b>쌓여만 있던 데이터</b>를 찾아
+      분석 화면까지 이었습니다.
+    </p>
+    <dl class="facts">
+      <div><dt>아파트 매매</dt><dd class="ok">9,911,036건 · 250개월</dd></div>
+      <div><dt>아파트 전월세</dt><dd class="ok">11,494,802건</dd></div>
+      <div><dt>되살린 수집</dt><dd class="ok">4종(약국·병원·매매·전월세)</dd></div>
+      <div><dt>새 사이트</dt><dd class="ok">부동산 실거래</dd></div>
+    </dl>
+  </div>
+</header>
+
+<section class="band">
+  <div class="wrap">
+    <p class="eyebrow">먼저 발견한 것</p>
+    <h2>수집이 10개월째 멈춰 있었습니다</h2>
+    <p style="margin:0 0 1rem">
+      아파트 데이터가 2025-12에서 끊긴 걸 발견했습니다. <b>키가 만료된 게 아니었습니다.</b>
+      서비스 키가 이미 변환된 형태인데 코드가 <b>한 번 더 변환</b>해서 공공데이터포털이 거부하고 있었습니다.
+    </p>
+    <div class="tbl">
+      <table>
+        <thead><tr><th>수집</th><th>마지막 적재</th><th>상태</th></tr></thead>
+        <tbody>
+          <tr><td>CCTV · 버스 노선</td><td>최근</td><td class="ok">정상(검사 있음)</td></tr>
+          <tr><td>약국 · 병원</td><td>2025-12-18</td><td>함께 멈춰 있었음</td></tr>
+          <tr><td>아파트 매매 · 전월세</td><td>2025-12-26</td><td>함께 멈춰 있었음</td></tr>
+        </tbody>
+      </table>
+    </div>
+    <ul class="notes">
+      <li>버스 노선만 이 검사를 하고 있어 <b>혼자 살아남아</b>, 증상이 "아파트만 멈춘 것"처럼 보였습니다</li>
+      <li>한 줄 수정으로 <b>네 개가 같이 복구</b>됐습니다</li>
+    </ul>
+  </div>
+</section>
+
+<section class="band">
+  <div class="wrap">
+    <p class="eyebrow">두 번째 발견</p>
+    <h2>과거 데이터를 받아 와서 버리고 있었습니다</h2>
+    <p style="margin:0 0 1rem">
+      키를 고쳐도 과거 데이터가 들어오지 않았습니다. 적재 코드가 <b>"오늘로부터 30일 안"</b>
+      거래만 골라 넣고 있었습니다.
+    </p>
+    <div class="cmd">2026-05~08   API 응답 있음(강남구 474·226·169·94건)  →  적재 0건
+수정 후       202605 → 45,226건 적재</div>
+    <p style="margin:1.1rem 0 0">
+      중복을 막으려고 넣은 장치였는데, 새 표의 <b>유니크 인덱스가 그 일을 정확히</b> 하므로 걷어냈습니다.
+      덤으로 매일 도는 수집도 정확해졌습니다 — 전에는 늦게 신고된 거래를 영구히 놓쳤습니다.
+    </p>
+  </div>
+</section>
+
+<section class="band">
+  <div class="wrap">
+    <p class="eyebrow">결과</p>
+    <h2>20년치를 빠짐없이</h2>
+    <div class="tbl">
+      <table>
+        <thead><tr><th></th><th>매매</th><th>전월세</th></tr></thead>
+        <tbody>
+          <tr><td>건수</td><td class="ok">9,911,036</td><td class="ok">11,494,802</td></tr>
+          <tr><td>기간</td><td>2006-01 ~ 2026-10 (250개월)</td><td>2011-01 ~ 2026-10 (190개월)</td></tr>
+          <tr><td>용량</td><td>4,002 MB</td><td>4,915 MB</td></tr>
+        </tbody>
+      </table>
+    </div>
+    <ul class="notes">
+      <li>연도별로 세어 <b>모든 해가 12개월 완비</b>임을 확인했습니다(2026년만 10개월 — 올해가 10월까지)</li>
+      <li>점검에서 <b>2015년만 11개월</b>인 것을 잡아내 그 달을 다시 받았습니다(50,278건)</li>
+      <li>데이터는 <code>estate</code> 스키마로 분리했습니다 — <code>ai</code> 는 앞으로 AI 관련 표만 둡니다</li>
+    </ul>
+  </div>
+</section>
+
+<section class="band">
+  <div class="wrap">
+    <p class="eyebrow">새 사이트</p>
+    <h2>허브의 네 번째 카드</h2>
+    <p style="margin:0 0 1rem">
+      <b>API 센터와 똑같은 구성</b>으로 만들어 기존 세 사이트와 이질감이 없습니다.
+      요약 카드 → 조건(지역·기간·단지명) → <b>매매 / 전월세 / 지역 순위</b> 탭.
+    </p>
+    <ul class="notes">
+      <li>차트는 <b>외부 라이브러리 없이</b> 직접 그렸습니다 — 의존성을 늘리지 않았습니다</li>
+      <li>조회 API 7개는 골격만 있던 <b>AI 서비스에 붙였습니다</b> — 추가 서버가 필요 없었습니다</li>
+      <li>데이터는 <b>읽기 전용 계정</b>으로만 읽고, 설정이 없으면 그 기능만 쉬고 나머지는 정상입니다</li>
+    </ul>
+  </div>
+</section>
+
+<section class="band">
+  <div class="wrap">
+    <p class="eyebrow">겪은 것</p>
+    <h2>3일, 네 번의 중단</h2>
+    <div class="tbl">
+      <table>
+        <thead><tr><th>중단</th><th>원인</th><th>대응</th></tr></thead>
+        <tbody>
+          <tr><td>2회</td><td>공공데이터 일일 한도</td><td>20분 대기 후 같은 구간 재시도 — 받은 지점을 전진시키지 않음</td></tr>
+          <tr><td>1회</td><td>로그 쓰기 오류로 작업이 죽음</td><td>로그 실패를 치명적으로 보지 않게 수정</td></tr>
+          <tr><td>1회</td><td>재기동 순서 실수</td><td>순서를 문서로 못박음</td></tr>
+        </tbody>
+      </table>
+    </div>
+    <p style="margin:1.1rem 0 0">
+      <b>모두 데이터 손실 없이 복구</b>했습니다. 어디까지 받았는지 파일에 남겨 두고
+      같은 구간을 다시 받아도 중복이 쌓이지 않게 해 둔 덕분입니다.
+      이 경험은 <b>다음에 쓸 절차서</b>로 정리했습니다 — 함정 7가지와 속도 측정 결과까지.
+    </p>
+  </div>
+</section>
+</div>
+
+
 <footer>
   <div class="wrap">
     <p class="k">접속 URL</p>
@@ -8114,7 +8243,7 @@ response = requests.get("https://api.sj-lab.co.kr/open-api/v1/convenience-store"
       <li><em>운영 로그인 페이지</em><span class="url">https://api.sj-lab.co.kr/auth/login.html</span></li>
       <li><em>sj-lab-authserver</em><span class="url">https://github.com/stylealist/sj-lab-authserver</span></li>
       <li><em>API 센터</em><span class="url">https://sj-lab.co.kr/openapi/</span></li>
-      <li><em>기록 원본</em><span class="url">sj-lab/history/history_v1.0.md ~ v1.35.md, v2.0.md ~ v3.10.md</span></li>
+      <li><em>기록 원본</em><span class="url">sj-lab/history/history_v1.0.md ~ v1.35.md, v2.0.md ~ v4.0.md</span></li>
     </ul>
     <p class="colophon">
       총괄 허브 <code>C:\developer\workspace\sj-lab</code> 기준 · 커밋과 push는 사용자가 요청할 때만 수행합니다 ·
