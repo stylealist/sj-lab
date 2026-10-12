@@ -520,7 +520,8 @@
       <button type="button" class="vchip" role="tab" data-ver="4.7" aria-controls="pane-v4.7" title="첫 배포가 깨진 원인(원격 명령의 꺾쇠·$$) 수정 · 403 의 의미"><span class="pv">v4.7</span><span class="pt">첫 배포 실패 수정</span></button>
       <button type="button" class="vchip" role="tab" data-ver="4.8" aria-controls="pane-v4.8" title="부동산 화면 운영 배포 완료 · 확인 표식과 한글 인코딩 두 버그 수정"><span class="pv">v4.8</span><span class="pt">부동산 화면 배포 완료</span></button>
       <button type="button" class="vchip" role="tab" data-ver="4.9" aria-controls="pane-v4.9" title="조회 서버 배포 잡 + ArgoCD 등록 정의 · 새 서비스는 세 가지가 필요하다는 규칙"><span class="pv">v4.9</span><span class="pt">서버 배포 잡</span></button>
-      <button type="button" class="vchip" role="tab" data-ver="4.10" aria-controls="pane-v4.10" title="조회 서버 배포 성공 · 개발=운영 DB 확인 · 조회 전용 계정 스크립트"><span class="pv">v4.10<span class="dot" title="최신" aria-label="최신"></span></span><span class="pt">서버 배포 성공</span></button>
+      <button type="button" class="vchip" role="tab" data-ver="4.10" aria-controls="pane-v4.10" title="조회 서버 배포 성공 · 개발=운영 DB 확인 · 조회 전용 계정 스크립트"><span class="pv">v4.10</span><span class="pt">서버 배포 성공</span></button>
+      <button type="button" class="vchip" role="tab" data-ver="4.11" aria-controls="pane-v4.11" title="기존 조회 전용 계정으로 DB 연결 · 비밀번호가 남지 않는 Secret 스크립트"><span class="pv">v4.11<span class="dot" title="최신" aria-label="최신"></span></span><span class="pt">DB 연결 준비</span></button>
     </div>
   </div>
 </nav>
@@ -9005,6 +9006,67 @@ response = requests.get("https://api.sj-lab.co.kr/open-api/v1/convenience-store"
 </section>
 </div>
 
+<!-- ===================== v4.11 ===================== -->
+<div class="vpane" data-ver="4.11" id="pane-v4.11" hidden>
+<header class="masthead">
+  <div class="wrap">
+    <div class="stamp">
+      <span class="ver">v4.11</span>
+      <span>2026-10-12</span>
+      <span>DB 연결 · 총괄</span>
+    </div>
+    <h1>새 계정을 만들지 않고<br>있는 계정으로 연결합니다</h1>
+    <p class="plainline">이미 있는 조회 전용 계정으로 충분한지 직접 읽어 확인했습니다</p>
+    <p class="dek">
+      적용은 <b>비밀번호가 화면에 남지 않는 스크립트</b>로 합니다 — 설정 파일에서 읽어 그대로
+      넘기고, 만들기 · 재시작 · 확인까지 한 번에 합니다.
+    </p>
+    <dl class="facts">
+      <div><dt>계정</dt><dd class="ok">기존 조회 전용 계정</dd></div>
+      <div><dt>쓰기 권한</dt><dd class="ok">없음(0건)</dd></div>
+      <div><dt>적용 방법</dt><dd class="ok">스크립트 한 줄</dd></div>
+      <div><dt>되돌리기</dt><dd class="ok">Secret 만 교체</dd></div>
+    </dl>
+  </div>
+</header>
+
+<section class="band">
+  <div class="wrap">
+    <p class="eyebrow">하나</p>
+    <h2>있는 계정으로 되는지 먼저 읽어 봤습니다</h2>
+    <div class="tbl">
+      <table>
+        <thead><tr><th>확인</th><th>결과</th></tr></thead>
+        <tbody>
+          <tr><td>매매 · 전월세 표</td><td class="ok">읽힘</td></tr>
+          <tr><td>월별 집계 2개</td><td class="ok">읽힘</td></tr>
+          <tr><td>시군구 이름 표 · 건수 추정값</td><td class="ok">읽힘</td></tr>
+          <tr><td>권한</td><td class="ok">관리자 아님 · 부동산 표 쓰기 권한 0건</td></tr>
+        </tbody>
+      </table>
+    </div>
+    <ul class="notes">
+      <li>알고 쓸 점 — 이 계정은 <b>DB 전체를 읽을 수 있습니다</b>(읽기 전용이지만 범위가 넓습니다)</li>
+      <li>또 하나 — <b>작업용 조회 계정과 같은 계정</b>이라, 비밀번호를 바꾸면 두 곳을 함께 고쳐야 합니다</li>
+      <li>나중에 전용 계정으로 좁히려면 <b>접속 정보만 교체</b>하면 됩니다(서비스·배포 설정은 그대로)</li>
+    </ul>
+  </div>
+</section>
+
+<section class="band">
+  <div class="wrap">
+    <p class="eyebrow">둘</p>
+    <h2>비밀번호가 남지 않는 적용 스크립트</h2>
+    <ul class="notes">
+      <li>접속 정보를 <b>설정 파일에서 읽어 바로 넘깁니다</b> — 화면·명령 기록에 비밀번호가 남지 않습니다</li>
+      <li>한 번에 <b>접속 정보 등록(있으면 갱신) → 재시작 → 상태 확인</b></li>
+      <li>접속 주소는 공인 주소가 아니라 <b>클러스터 안의 이름</b>을 씁니다(밖으로 돌아 나갈 필요가 없고, 공인 주소는 바뀔 수 있습니다). 그 이름이 실제로 있는지 먼저 확인하고, 없으면 무엇을 지정할지 알려 줍니다</li>
+      <li>미리보기 모드로 계정·DB 이름·주소가 바르게 읽히는 것까지 확인했습니다. <b>적용은 클러스터에 접근할 수 있는 자리에서</b> 해야 합니다</li>
+    </ul>
+  </div>
+</section>
+</div>
+
 <footer>
   <div class="wrap">
     <p class="k">접속 URL</p>
@@ -9016,7 +9078,7 @@ response = requests.get("https://api.sj-lab.co.kr/open-api/v1/convenience-store"
       <li><em>운영 로그인 페이지</em><span class="url">https://api.sj-lab.co.kr/auth/login.html</span></li>
       <li><em>sj-lab-authserver</em><span class="url">https://github.com/stylealist/sj-lab-authserver</span></li>
       <li><em>API 센터</em><span class="url">https://sj-lab.co.kr/openapi/</span></li>
-      <li><em>기록 원본</em><span class="url">sj-lab/history/history_v1.0.md ~ v1.35.md, v2.0.md ~ v4.10.md</span></li>
+      <li><em>기록 원본</em><span class="url">sj-lab/history/history_v1.0.md ~ v1.35.md, v2.0.md ~ v4.11.md</span></li>
     </ul>
     <p class="colophon">
       총괄 허브 <code>C:\developer\workspace\sj-lab</code> 기준 · 커밋과 push는 사용자가 요청할 때만 수행합니다 ·

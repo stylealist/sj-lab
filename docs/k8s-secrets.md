@@ -11,7 +11,7 @@
 | `auth-jwt-secret` | `secret` | sj-lab-authserver → `AUTH_JWT_SECRET` | **필수**(optional 아님) | 파드가 `CreateContainerConfigError`로 뜨지 않음(의도된 동작 — 공개 기본값으로 서명하지 않기 위함) |
 | `auth-demo-credentials` | `username`, `password` | sj-lab-authserver → `AUTH_DEMO_USERNAME`, `AUTH_DEMO_PASSWORD` | 선택(`optional: true`) | 파드는 정상, 로그인 페이지의 "체험용 계정으로 로그인" 버튼만 503 |
 | `openapi-db-credentials` | `url`, `username`, `password` | sj-lab-openapi → `OPENAPI_DB_URL`, `OPENAPI_DB_USERNAME`, `OPENAPI_DB_PASSWORD` | **키 기능을 켠 경우 필수**(차트 `apiKey.enabled: true`, 2026-09-30 켜짐) | 파드가 뜨지 않음 — 접속 주소가 비면 `ApiKeyStoreConfig`가 기동을 막는다(의도된 동작). 차트를 `false`로 되돌리면 Secret 없이도 뜨고 키 API만 503 |
-| `estate-db-credentials` | `url`, `username`, `password` | sj-lab-estate → `ESTATE_DB_URL`, `ESTATE_DB_USERNAME`, `ESTATE_DB_PASSWORD` | 선택(`optional: true`) | 파드는 정상, 부동산 조회 API만 503(`NOT_CONFIGURED`)이고 `GET /estate/status`가 `ready:false`로 답한다(의도된 동작 — 화면이 "준비되지 않았다"를 보여 줄 수 있게) |
+| `estate-db-credentials` | `url`, `username`, `password` | sj-lab-estate → `ESTATE_DB_URL`, `ESTATE_DB_USERNAME`, `ESTATE_DB_PASSWORD` (계정은 **`mcp_readonly`**, 2026-10-12 결정) | 선택(`optional: true`) | 파드는 정상, 부동산 조회 API만 503(`NOT_CONFIGURED`)이고 `GET /estate/status`가 `ready:false`로 답한다(의도된 동작 — 화면이 "준비되지 않았다"를 보여 줄 수 있게) |
 
 **`openapi-db-credentials`의 계정은 `openapi_svc`입니다**(2026-09-30 분리). `api` 스키마 두 표에만 권한이 있는 전용 계정이며, superuser가 아닙니다. 다른 서비스나 사람 계정으로 되돌리지 마세요 — 이 서비스가 필요한 건 아래가 전부이고, 실제로 이 권한만으로 발급·사용량 기록·폐기가 모두 동작하는 것을 확인했습니다.
 
@@ -36,21 +36,47 @@
 
 `INSERT`/`UPDATE`/`DELETE`는 필요 없습니다. 운영 Secret 을 만들기 전에 `estate` 스키마 표가 있어야 하며(스크립트 `db/estate/estate_apt.sql`, DB 담당자 실행), 표가 없으면 조회가 502(`QUERY_FAILED`)로 떨어집니다.
 
-계정 생성·권한 부여 스크립트는 `db/estate/estate_read_role.sql`(계정 이름 `estate_read`)이며 DB 담당자가 실행합니다.
+**지금 운영은 기존 조회 전용 계정 `mcp_readonly` 를 씁니다**(2026-10-12 결정). 새 계정을 만들지 않고
+시작하기 위한 선택이며, 그 계정으로 서비스가 쓰는 모든 것을 읽을 수 있음을 확인했습니다
+(두 표 · 월별 집계 뷰 2개 · `public.g_sgg` · `pg_class` 추정 건수). superuser 가 아니고 `estate` 쓰기 권한도 없습니다.
+
+알고 쓸 점 두 가지:
+
+- `pg_read_all_data` 를 상속하므로 **DB 전체를 읽을 수 있습니다**(`qfield`, `api.openapi_api_key` 포함).
+  서비스가 실제로 읽는 것은 estate 뿐이지만, Secret 이 새면 범위가 DB 전체입니다.
+- **MCP(에이전트 조회)와 같은 계정**입니다. 비밀번호를 바꾸면 운영 서비스와 로컬 조회가 함께 끊기므로
+  `.claude/settings.local.json` 과 이 Secret 을 같은 작업에서 고쳐야 합니다.
+
+전용 계정으로 좁히려면 `db/estate/estate_read_role.sql`(계정 `estate_read`)을 DB 담당자가 실행한 뒤
+그 계정의 접속 문자열로 Secret 만 교체하면 됩니다 — **서비스 코드·차트는 그대로**입니다.
 **개발 DB 와 운영 DB 가 같은 인스턴스이므로 한 번만 실행하면 양쪽에 적용됩니다**(2026-10-12 확인).
 
 Secret 은 클러스터 안에서 접속하므로 호스트를 **서비스 이름**으로 둡니다(공인 IP·NodePort 가 아니라).
 
-```bash
-# 서비스 이름·네임스페이스 확인
-kubectl get svc -A | grep postgres        # postgresql-sjlab : 5432 (DB 이름 sjlab)
+**스크립트로 만듭니다** — 접속 문자열을 `.claude/settings.local.json` 에서 읽어 바로 `kubectl` 로 넘기므로
+**비밀번호가 화면·명령 기록에 남지 않습니다.** Secret 생성 → 파드 재시작 → 상태 확인까지 한 번에 합니다
+(이미 있으면 갱신합니다).
 
+```powershell
+# 무엇을 할지만 보기(아무것도 만들지 않음)
+powershell -ExecutionPolicy Bypass -File scripts\create-estate-db-secret.ps1 -WhatIfOnly
+
+# 실제 적용 — 클러스터에 접근 가능한 자리에서
+powershell -ExecutionPolicy Bypass -File scripts\create-estate-db-secret.ps1
+
+# 전용 계정으로 바꿀 때(그 계정 DSN 을 settings.local.json 에 넣은 뒤)
+powershell -ExecutionPolicy Bypass -File scripts\create-estate-db-secret.ps1 -EnvKey ESTATE_DB_DSN
+```
+
+- 호스트는 설정 파일의 값(공인 IP) 대신 **클러스터 안 서비스 이름**(`postgresql-sjlab:5432`)을 씁니다.
+  다른 네임스페이스면 `-DbHost postgresql-sjlab.<네임스페이스>.svc.cluster.local` 로 지정합니다.
+- 손으로 할 때의 명령도 같은 모양입니다.
+
+```bash
+kubectl get svc -A | grep postgres        # postgresql-sjlab : 5432 (DB 이름 sjlab)
 kubectl create secret generic estate-db-credentials -n sj-lab \
   --from-literal=url='jdbc:postgresql://postgresql-sjlab:5432/sjlab' \
-  --from-literal=username='estate_read' \
-  --from-literal=password='<비밀번호>'
-
-# Secret 은 기동할 때 읽으므로 한 번 재시작해야 반영됩니다
+  --from-literal=username='<계정>' --from-literal=password='<비밀번호>'
 kubectl -n sj-lab rollout restart deploy/sj-lab-estate
 curl -s https://api.sj-lab.co.kr/estate/status      # ready:true 가 되면 끝
 ```
