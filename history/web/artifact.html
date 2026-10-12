@@ -517,7 +517,8 @@
       <button type="button" class="vchip" role="tab" data-ver="4.4" aria-controls="pane-v4.4" title="부동산 조회 서버를 Spring 으로 분리 · 전월세 보증금 적재 버그 발견"><span class="pv">v4.4</span><span class="pt">부동산 서버 분리</span></button>
       <button type="button" class="vchip" role="tab" data-ver="4.5" aria-controls="pane-v4.5" title="부동산 운영 배포 준비(차트 · Jenkins · nginx) · 점검 스크립트 표식 버그 수정"><span class="pv">v4.5</span><span class="pt">배포 준비 · 점검 수정</span></button>
       <button type="button" class="vchip" role="tab" data-ver="4.6" aria-controls="pane-v4.6" title="부동산 화면 Jenkins 잡을 가져오기용 설정으로 준비 · 잡 문서 정리"><span class="pv">v4.6</span><span class="pt">배포 잡 준비</span></button>
-      <button type="button" class="vchip" role="tab" data-ver="4.7" aria-controls="pane-v4.7" title="첫 배포가 깨진 원인(원격 명령의 꺾쇠·$$) 수정 · 403 의 의미"><span class="pv">v4.7<span class="dot" title="최신" aria-label="최신"></span></span><span class="pt">첫 배포 실패 수정</span></button>
+      <button type="button" class="vchip" role="tab" data-ver="4.7" aria-controls="pane-v4.7" title="첫 배포가 깨진 원인(원격 명령의 꺾쇠·$$) 수정 · 403 의 의미"><span class="pv">v4.7</span><span class="pt">첫 배포 실패 수정</span></button>
+      <button type="button" class="vchip" role="tab" data-ver="4.8" aria-controls="pane-v4.8" title="부동산 화면 운영 배포 완료 · 확인 표식과 한글 인코딩 두 버그 수정"><span class="pv">v4.8<span class="dot" title="최신" aria-label="최신"></span></span><span class="pt">부동산 화면 배포 완료</span></button>
     </div>
   </div>
 </nav>
@@ -8762,6 +8763,85 @@ response = requests.get("https://api.sj-lab.co.kr/open-api/v1/convenience-store"
 </section>
 </div>
 
+<!-- ===================== v4.8 ===================== -->
+<div class="vpane" data-ver="4.8" id="pane-v4.8" hidden>
+<header class="masthead">
+  <div class="wrap">
+    <div class="stamp">
+      <span class="ver">v4.8</span>
+      <span>2026-10-12</span>
+      <span>부동산 화면 · 총괄</span>
+    </div>
+    <h1>부동산 화면이<br>운영에 올라갔습니다</h1>
+    <p class="plainline">https://sj-lab.co.kr/estate/ — 허브의 "부동산 실거래" 카드로 들어갑니다</p>
+    <p class="dek">
+      두 번째 빌드에서 <b>배포는 이미 성공</b>했고, 마지막 "확인" 단계만 실패했습니다.
+      확인용으로 찾던 문구가 틀렸던 것이고, 점검 스크립트에는 <b>한글 인코딩</b> 문제가 따로 있었습니다.
+    </p>
+    <dl class="facts">
+      <div><dt>화면</dt><dd class="ok">배포 완료</dd></div>
+      <div><dt>주소 연결</dt><dd class="ok">게이트웨이 반영됨</dd></div>
+      <div><dt>조회 서버</dt><dd>아직 미배포</dd></div>
+      <div><dt>네 사이트 점검</dt><dd class="ok">모두 정상</dd></div>
+    </dl>
+  </div>
+</header>
+
+<section class="band">
+  <div class="wrap">
+    <p class="eyebrow">하나</p>
+    <h2>찾던 문구가 틀렸습니다</h2>
+    <div class="tbl">
+      <table>
+        <thead><tr><th></th><th>값</th></tr></thead>
+        <tbody>
+          <tr><td>화면 제목(첫 파일에 있는 것)</td><td class="ok">SJ-LAB 부동산 실거래</td></tr>
+          <tr><td>확인용으로 넣었던 문구</td><td>SJ 부동산 실거래 (헤더 로고 글자)</td></tr>
+        </tbody>
+      </table>
+    </div>
+    <ul class="notes">
+      <li>헤더 로고 글자는 <b>화면을 그리는 묶음 파일 안</b>에 있어 첫 파일에는 없습니다 — 정상 배포인데도 "부동산 화면이 아니다"로 떨어졌습니다</li>
+      <li>세 곳(부동산 잡 · 허브 잡 · 점검 스크립트)을 제목으로 고치고, <b>확인 문구는 첫 파일 안에서 잡는다</b>는 규칙과 사이트별 문구 표를 문서에 남겼습니다</li>
+    </ul>
+  </div>
+</section>
+
+<section class="band">
+  <div class="wrap">
+    <p class="eyebrow">둘</p>
+    <h2>점검 스크립트의 한글 문제</h2>
+    <ul class="notes">
+      <li>문구를 고쳤는데도 여전히 "없음"이 나왔습니다 — 응답에 문자 인코딩 표시가 없으면 <b>한글을 다른 방식으로 읽어</b> 비교가 영원히 틀립니다</li>
+      <li>다른 사이트의 확인 문구는 모두 영문이라 이 문제가 드러나지 않았습니다</li>
+      <li>본문을 <b>UTF-8 로 직접 읽도록</b> 고쳤고, 그 뒤 네 사이트 모두 정상으로 나옵니다</li>
+    </ul>
+  </div>
+</section>
+
+<section class="band">
+  <div class="wrap">
+    <p class="eyebrow">셋</p>
+    <h2>운영에서 지금 어디까지</h2>
+    <div class="tbl">
+      <table>
+        <thead><tr><th>조각</th><th>상태</th></tr></thead>
+        <tbody>
+          <tr><td>부동산 화면</td><td class="ok">배포 완료</td></tr>
+          <tr><td>주소 연결(게이트웨이)</td><td class="ok">반영됨</td></tr>
+          <tr><td>조회 서버</td><td>미배포 — 데이터는 아직 비어 있음</td></tr>
+          <tr><td>옛 주소</td><td class="ok">정리됨</td></tr>
+        </tbody>
+      </table>
+    </div>
+    <ul class="notes">
+      <li>조회 서버가 없을 때 <b>빨간 오류만 뜨면 "고장난 사이트"로 보이므로</b>, "준비되지 않았다"는 안내 배너를 띄우도록 화면을 고쳤습니다</li>
+      <li>다음 순서 — 조회 서버 배포(잡 생성 · 배포 도구 등록 · 운영 DB 준비)</li>
+    </ul>
+  </div>
+</section>
+</div>
+
 <footer>
   <div class="wrap">
     <p class="k">접속 URL</p>
@@ -8773,7 +8853,7 @@ response = requests.get("https://api.sj-lab.co.kr/open-api/v1/convenience-store"
       <li><em>운영 로그인 페이지</em><span class="url">https://api.sj-lab.co.kr/auth/login.html</span></li>
       <li><em>sj-lab-authserver</em><span class="url">https://github.com/stylealist/sj-lab-authserver</span></li>
       <li><em>API 센터</em><span class="url">https://sj-lab.co.kr/openapi/</span></li>
-      <li><em>기록 원본</em><span class="url">sj-lab/history/history_v1.0.md ~ v1.35.md, v2.0.md ~ v4.7.md</span></li>
+      <li><em>기록 원본</em><span class="url">sj-lab/history/history_v1.0.md ~ v1.35.md, v2.0.md ~ v4.8.md</span></li>
     </ul>
     <p class="colophon">
       총괄 허브 <code>C:\developer\workspace\sj-lab</code> 기준 · 커밋과 push는 사용자가 요청할 때만 수행합니다 ·

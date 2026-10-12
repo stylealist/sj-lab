@@ -35,7 +35,7 @@ $hubMarkers = @("bundle")                                  # webpack 번들 스�
 $hubOnlyMarkers = @("<title>SJ-LAB</title>")
 $mapMarkers = @("js/auth-gate.js", "openlayers/ol.js")     # 로그인 게이트 + OpenLayers
 $openapiMarkers = @("SJ-LAB OpenAPI")                        # 활용 페이지 제목
-$estateMarkers = @("SJ 부동산 실거래")                       # 부동산 화면 제목
+$estateMarkers = @("SJ-LAB 부동산 실거래")                   # 부동산 화면 제목(<title>)
 
 $failCount = 0
 
@@ -43,7 +43,17 @@ function Get-Page {
   param([string]$Url)
   try {
     $response = Invoke-WebRequest -UseBasicParsing -Uri $Url -TimeoutSec $TimeoutSec
-    return @{ ok = $true; status = [int]$response.StatusCode; body = [string]$response.Content }
+    # 본문을 **UTF-8로 직접 디코딩**한다. Windows PowerShell 5.1 은 Content-Type 에 charset 이
+    # 없으면 ISO-8859-1 로 읽어 한글 표식이 깨진다 — 그 상태로 비교하면 정상인 사이트를
+    # "표식 없음"으로 잘못 알린다(2026-10-12 부동산 제목에서 실제로 발생).
+    $body = ""
+    try {
+      $bytes = $response.RawContentStream.ToArray()
+      $body = [System.Text.Encoding]::UTF8.GetString($bytes)
+    } catch {
+      $body = [string]$response.Content
+    }
+    return @{ ok = $true; status = [int]$response.StatusCode; body = $body }
   } catch {
     $status = 0
     if ($_.Exception.Response) { $status = [int]$_.Exception.Response.StatusCode.value__ }

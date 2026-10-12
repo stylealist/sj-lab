@@ -88,6 +88,22 @@ bash: -c: line 9: syntax error near unexpected token ';&'
 합니다. 리다이렉션과 `&&`·`||` 대신 `if` 문을 쓰면 같은 일을 할 수 있습니다
 (`sj-lab-estate-web-pipeline.groovy` 가 그 형태입니다).
 
+### 두 번째 실패 — Verify 의 표식이 틀렸다
+
+고친 뒤 배포는 성공했는데 **Verify 에서 떨어졌습니다.** 찾던 문자열이 `index.html` 에 없었기 때문입니다.
+
+- 화면 제목은 `<title>SJ-LAB 부동산 실거래</title>` 입니다.
+- 제가 넣었던 `SJ 부동산 실거래` 는 **헤더 로고 문구**이고, 그것은 `bundle.js` 안에 있습니다.
+- 그래서 **표식은 반드시 `index.html` 안에 있는 문자열**(보통 `<title>`)로 잡습니다.
+  빌드 결과를 직접 열어 확인하는 게 가장 빠릅니다: `grep -o '<title>[^<]*' build/index.html`
+
+| 사이트 | 표식 |
+|---|---|
+| 허브 | `<title>SJ-LAB</title>` |
+| 지도 | `js/auth-gate.js` |
+| API 활용 페이지 | `SJ-LAB OpenAPI` |
+| 부동산 | `SJ-LAB 부동산 실거래` |
+
 ### 그때 생긴 뒷정리
 
 스크립트가 `mkdir -p` 까지 실행한 뒤 죽어서 **빈 `html/estate` 디렉터리가 남았습니다.**

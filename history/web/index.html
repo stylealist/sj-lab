@@ -113,6 +113,21 @@
 
     <div class="card">
       <div class="ver-head">
+        <span class="tag">v4.8</span>
+        <span class="ver-title">부동산 화면이 운영에 올라갔습니다<span class="ver-note">확인 문구 · 한글 인코딩 수정</span></span>
+        <span class="date">2026-10-12</span>
+      </div>
+      <ul>
+        <li><b>https://sj-lab.co.kr/estate/</b> — 허브의 "부동산 실거래" 카드로 들어갑니다</li>
+        <li>두 번째 빌드에서 <b>배포는 이미 성공</b>했고 마지막 확인 단계만 실패했습니다 — 찾던 문구(헤더 로고)가 첫 파일에 없는 문자열이었습니다</li>
+        <li>점검 스크립트는 <b>한글을 다른 방식으로 읽어</b> 비교가 틀렸습니다. UTF-8로 직접 읽도록 고쳤고 네 사이트 모두 정상입니다</li>
+        <li>조회 서버는 아직 미배포라 데이터가 비어 있습니다 — 그때 <b>빨간 오류 대신 안내 배너</b>가 뜨도록 화면을 고쳤습니다</li>
+      </ul>
+      <p><a href="../history_v4.8.md">history_v4.8.md 원문 보기</a></p>
+    </div>
+
+    <div class="card">
+      <div class="ver-head">
         <span class="tag">v4.7</span>
         <span class="ver-title">첫 배포가 깨진 이유는 글자 두 개였습니다<span class="ver-note">원격 명령 재작성</span></span>
         <span class="date">2026-10-12</span>
