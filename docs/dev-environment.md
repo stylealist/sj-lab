@@ -71,6 +71,15 @@ powershell -ExecutionPolicy Bypass -File scripts\local-stack.ps1 stop      # 이
 - **프론트 정적 서버는 Node로 띄웁니다**(`scripts/static-server.js`, 의존성 없음). `python -m http.server`는 `Range` 헤더를 무시하고 항상 200 + 전체 파일을 돌려주기 때문에, 브라우저가 동영상의 특정 지점을 요청할 수 없어 **재생 위치 이동(seek)이 동작하지 않습니다**(소개 영상에서 00:03 → 00:10으로 못 넘어가던 원인). 이 서버는 206 Partial Content로 응답하고 `Accept-Ranges: bytes`를 붙여 운영의 nginx와 같게 동작합니다. `node`가 없으면 스크립트가 경고를 찍고 예전처럼 python으로 띄웁니다(그 경우 seek 불가).
 - **백엔드만 재기동하면 Eureka에 죽은 인스턴스가 남아** 게이트웨이 요청의 절반이 500이 됩니다(리스 만료까지 1~3분). 기다리거나, 죽은 인스턴스를 직접 해제하세요: `Invoke-WebRequest -Method Delete "http://localhost:8761/eureka/apps/MAPSERVICE-REST/<instanceId>"` (인스턴스 목록은 `http://localhost:8761/eureka/apps/MAPSERVICE-REST`, Accept: application/json).
 
+**개발 DB = 운영 DB (2026-10-12 확인)**: `sjlab` 데이터베이스는 **개발과 운영이 같은 인스턴스**입니다.
+클러스터 안에서는 서비스 이름 `postgresql-sjlab:5432`, 밖에서는 NodePort `30017` 로 같은 DB 에 붙습니다.
+그래서 다음을 특히 조심합니다.
+
+- **로컬에서 `sj-lab-scheduler` 를 띄우면 운영 데이터에 적재됩니다**(cron 이 바로 돌기 때문). 반드시 사용자 확인 후에.
+- MCP(`sjlabDevDb`)로 보는 숫자는 **운영 숫자**입니다. 조회(SELECT)만 하고, DDL·DML 은 담당자에게 요청합니다.
+- 표를 만드는 스크립트(`db/**.sql`)는 **한 번 실행하면 양쪽에 적용**됩니다(따로 운영용으로 또 돌릴 필요 없음).
+- 운영 서비스용 계정은 조회 전용으로 따로 둡니다(`db/estate/estate_read_role.sql` 의 `estate_read` 처럼).
+
 **외부 서비스**: QFieldCloud `https://qfield.sj-lab.co.kr` — 현장조사 앱이 조사 데이터와 첨부 파일(사진·음성·영상)을 올리는 곳이고, `sj-qfieldsync`가 여기서 내려받아 DB에 적재합니다. **API는 인증이 필요**하므로(`/api/v1/` → 401) 브라우저가 첨부 파일을 직접 받을 수 없어, 백엔드 중계 엔드포인트(`/map/qfield/facilities/{totalId}/media`)를 통해 재생합니다. GeoServer는 `https://geoserver.sj-lab.co.kr`.
 
 **첨부 재생용 환경변수**: 미디어 중계는 QFieldCloud 계정이 있어야 동작합니다. 없으면 그 엔드포인트만 503(`NOT_CONFIGURED`)이고 나머지는 정상입니다.

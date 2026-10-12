@@ -113,6 +113,21 @@
 
     <div class="card">
       <div class="ver-head">
+        <span class="tag">v4.10</span>
+        <span class="ver-title">조회 서버도 운영에 올라갔습니다<span class="ver-note">남은 건 DB 접속 계정</span></span>
+        <span class="date">2026-10-12</span>
+      </div>
+      <ul>
+        <li>서버 잡 <b>빌드 #1 성공</b> — 멈춘 것처럼 보였던 건 서버가 뜨기를 기다리던 중이었습니다(최대 5분 재확인)</li>
+        <li>접속 정보가 없어도 서비스는 뜨고 조회만 막히게 만들어 둔 설계가 그대로 동작했습니다(잡도 경고만 찍고 성공)</li>
+        <li><b>개발 DB 와 운영 DB 가 같은 인스턴스</b>였습니다 — 표·데이터는 이미 있고, 대신 로컬에서 수집을 띄우면 운영에 적재됩니다(문서·규칙에 기록)</li>
+        <li>서비스에 개인 계정을 넣지 않도록 <b>읽기 전용 계정 스크립트</b>를 만들었습니다 — 계정·접속 정보만 넣으면 화면에 데이터가 채워집니다</li>
+      </ul>
+      <p><a href="../history_v4.10.md">history_v4.10.md 원문 보기</a></p>
+    </div>
+
+    <div class="card">
+      <div class="ver-head">
         <span class="tag">v4.9</span>
         <span class="ver-title">조회 서버 배포 잡까지 준비했습니다<span class="ver-note">배포 도구 등록도 파일로</span></span>
         <span class="date">2026-10-12</span>

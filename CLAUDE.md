@@ -44,7 +44,7 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 작업 규칙:
 - **작업 범위**: `docs/dev-environment.md`의 "로컬 저장소 경로" 표에 명시된 저장소 안에서만 작업할 것. 표에 없는 경로를 읽거나 고쳐야 하면 먼저 사용자에게 확인하고, 승인되면 그 표와 `additionalDirectories`에 추가할 것.
-- **DB**: 기본은 조회(SELECT)만 할 것. 사용자가 특정 스크립트를 콕 집어 "실행해줘"라고 지시한 경우에만 예외로 실행하되, ① 실행할 SQL을 먼저 저장소에 스크립트 파일로 남기고 ② 대상 DB·계정을 밝힌 뒤 ③ 실행 결과와 함께 history에 기록할 것. 그 외에는 `CREATE`/`ALTER`/`DROP`(DDL), `GRANT`/`REVOKE`(DCL), `INSERT`/`UPDATE`/`DELETE`(DML)를 임의로 실행하지 말 것 — 필요한 SQL은 실행하지 말고 사용자에게 제안만 할 것. scheduler를 로컬에서 띄우면 cron 배치가 DB에 적재하므로 이것도 사용자 확인 후에.
+- **DB**: 기본은 조회(SELECT)만 할 것. **개발 DB 와 운영 DB 는 같은 인스턴스다**(2026-10-12 확인) — MCP 로 보는 숫자가 운영 숫자이고, 로컬 scheduler 기동도 운영 적재다. 사용자가 특정 스크립트를 콕 집어 "실행해줘"라고 지시한 경우에만 예외로 실행하되, ① 실행할 SQL을 먼저 저장소에 스크립트 파일로 남기고 ② 대상 DB·계정을 밝힌 뒤 ③ 실행 결과와 함께 history에 기록할 것. 그 외에는 `CREATE`/`ALTER`/`DROP`(DDL), `GRANT`/`REVOKE`(DCL), `INSERT`/`UPDATE`/`DELETE`(DML)를 임의로 실행하지 말 것 — 필요한 SQL은 실행하지 말고 사용자에게 제안만 할 것. scheduler를 로컬에서 띄우면 cron 배치가 DB에 적재하므로 이것도 사용자 확인 후에.
 - **파일 삭제**: 파일을 지우지 말고 `trash/<YYYY-MM-DD>/` 아래에 원래 경로 구조를 유지한 채 옮길 것(예: `trash/2026-09-16/docs/old.md`). 옮긴 파일은 그 버전의 history 문서에 기록할 것.
 - **git push**: 자동으로 push하지 말 것. 사용자가 명시적으로 요청할 때만 push하며, 커밋은 저장소별로 `git -C <경로>`로 할 것.
 - **변경 기록(history)**: 파일을 실제로 변경한 작업마다 `history/history_v<major>.<minor>.md`를 새로 만들 것(조회·질문만 한 턴은 기록하지 않음). 내용은 사용자가 입력한 프롬프트 원문, 변경된 결과물(파일별 요약), 접속 URL 링크를 포함할 것. 직전 버전에서 minor를 1 올리고, 구조가 바뀌는 큰 작업이면 major를 올릴 것.

@@ -36,6 +36,27 @@
 
 `INSERT`/`UPDATE`/`DELETE`는 필요 없습니다. 운영 Secret 을 만들기 전에 `estate` 스키마 표가 있어야 하며(스크립트 `db/estate/estate_apt.sql`, DB 담당자 실행), 표가 없으면 조회가 502(`QUERY_FAILED`)로 떨어집니다.
 
+계정 생성·권한 부여 스크립트는 `db/estate/estate_read_role.sql`(계정 이름 `estate_read`)이며 DB 담당자가 실행합니다.
+**개발 DB 와 운영 DB 가 같은 인스턴스이므로 한 번만 실행하면 양쪽에 적용됩니다**(2026-10-12 확인).
+
+Secret 은 클러스터 안에서 접속하므로 호스트를 **서비스 이름**으로 둡니다(공인 IP·NodePort 가 아니라).
+
+```bash
+# 서비스 이름·네임스페이스 확인
+kubectl get svc -A | grep postgres        # postgresql-sjlab : 5432 (DB 이름 sjlab)
+
+kubectl create secret generic estate-db-credentials -n sj-lab \
+  --from-literal=url='jdbc:postgresql://postgresql-sjlab:5432/sjlab' \
+  --from-literal=username='estate_read' \
+  --from-literal=password='<비밀번호>'
+
+# Secret 은 기동할 때 읽으므로 한 번 재시작해야 반영됩니다
+kubectl -n sj-lab rollout restart deploy/sj-lab-estate
+curl -s https://api.sj-lab.co.kr/estate/status      # ready:true 가 되면 끝
+```
+
+postgres 가 다른 네임스페이스에 있으면 호스트를 `postgresql-sjlab.<그 네임스페이스>.svc.cluster.local` 로 적습니다.
+
 그 밖에 `kubernetes-dashboard` 네임스페이스의 `kubernetes-dashboard-certs` 등은 dashboard 차트가 직접 만드는 Secret이라 따로 관리하지 않습니다. `sj-qfieldsync`는 k8s Secret을 쓰지 않습니다.
 
 ### 주의

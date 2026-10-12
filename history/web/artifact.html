@@ -519,7 +519,8 @@
       <button type="button" class="vchip" role="tab" data-ver="4.6" aria-controls="pane-v4.6" title="부동산 화면 Jenkins 잡을 가져오기용 설정으로 준비 · 잡 문서 정리"><span class="pv">v4.6</span><span class="pt">배포 잡 준비</span></button>
       <button type="button" class="vchip" role="tab" data-ver="4.7" aria-controls="pane-v4.7" title="첫 배포가 깨진 원인(원격 명령의 꺾쇠·$$) 수정 · 403 의 의미"><span class="pv">v4.7</span><span class="pt">첫 배포 실패 수정</span></button>
       <button type="button" class="vchip" role="tab" data-ver="4.8" aria-controls="pane-v4.8" title="부동산 화면 운영 배포 완료 · 확인 표식과 한글 인코딩 두 버그 수정"><span class="pv">v4.8</span><span class="pt">부동산 화면 배포 완료</span></button>
-      <button type="button" class="vchip" role="tab" data-ver="4.9" aria-controls="pane-v4.9" title="조회 서버 배포 잡 + ArgoCD 등록 정의 · 새 서비스는 세 가지가 필요하다는 규칙"><span class="pv">v4.9<span class="dot" title="최신" aria-label="최신"></span></span><span class="pt">서버 배포 잡</span></button>
+      <button type="button" class="vchip" role="tab" data-ver="4.9" aria-controls="pane-v4.9" title="조회 서버 배포 잡 + ArgoCD 등록 정의 · 새 서비스는 세 가지가 필요하다는 규칙"><span class="pv">v4.9</span><span class="pt">서버 배포 잡</span></button>
+      <button type="button" class="vchip" role="tab" data-ver="4.10" aria-controls="pane-v4.10" title="조회 서버 배포 성공 · 개발=운영 DB 확인 · 조회 전용 계정 스크립트"><span class="pv">v4.10<span class="dot" title="최신" aria-label="최신"></span></span><span class="pt">서버 배포 성공</span></button>
     </div>
   </div>
 </nav>
@@ -8916,6 +8917,94 @@ response = requests.get("https://api.sj-lab.co.kr/open-api/v1/convenience-store"
 </section>
 </div>
 
+<!-- ===================== v4.10 ===================== -->
+<div class="vpane" data-ver="4.10" id="pane-v4.10" hidden>
+<header class="masthead">
+  <div class="wrap">
+    <div class="stamp">
+      <span class="ver">v4.10</span>
+      <span>2026-10-12</span>
+      <span>조회 서버 · 총괄</span>
+    </div>
+    <h1>조회 서버도<br>운영에 올라갔습니다</h1>
+    <p class="plainline">빌드 #1 성공 — 멈춘 것처럼 보였던 건 서버가 뜨기를 기다린 것이었습니다</p>
+    <p class="dek">
+      남은 것은 <b>DB 접속 계정 하나</b>입니다. 그때까지 화면은 "준비되지 않았다"고 안내하고,
+      서비스는 멀쩡히 떠 있습니다.
+    </p>
+    <dl class="facts">
+      <div><dt>빌드</dt><dd class="ok">#1 성공</dd></div>
+      <div><dt>주소</dt><dd class="ok">응답함(200)</dd></div>
+      <div><dt>DB 접속</dt><dd>계정 대기</dd></div>
+      <div><dt>표·데이터</dt><dd class="ok">이미 있음</dd></div>
+    </dl>
+  </div>
+</header>
+
+<section class="band">
+  <div class="wrap">
+    <p class="eyebrow">하나</p>
+    <h2>무한 반복이 아니었습니다</h2>
+    <p style="margin:0 0 1rem">
+      확인 단계는 <b>최대 5분까지 10초마다 다시 확인</b>합니다. 로그가 계속 쌓여 멈춘 것처럼 보였지만,
+      서버가 올라오자 통과하고 빌드가 성공으로 끝났습니다.
+    </p>
+    <div class="tbl">
+      <table>
+        <thead><tr><th>조각</th><th>상태</th></tr></thead>
+        <tbody>
+          <tr><td>이미지 빌드 · 올리기</td><td class="ok">완료</td></tr>
+          <tr><td>클러스터 배포</td><td class="ok">완료</td></tr>
+          <tr><td>주소 연결</td><td class="ok">완료</td></tr>
+          <tr><td>DB 접속</td><td>아직(계정 대기)</td></tr>
+        </tbody>
+      </table>
+    </div>
+    <ul class="notes">
+      <li>접속 정보가 없어도 <b>서비스는 뜨고</b> 조회만 막히게 만들어 두었기 때문에, 잡도 실패가 아니라 경고만 찍고 성공으로 끝났습니다 — "배포 실패"와 "DB 미준비"를 구분하려던 설계가 실제로 그렇게 동작했습니다</li>
+    </ul>
+  </div>
+</section>
+
+<section class="band">
+  <div class="wrap">
+    <p class="eyebrow">둘</p>
+    <h2>개발 DB 와 운영 DB 가 같았습니다</h2>
+    <ul class="notes">
+      <li><b>좋은 점</b> — 표와 데이터(2,100만 건)가 이미 있어서, 운영용으로 스크립트를 또 돌릴 필요가 없습니다</li>
+      <li><b>조심할 점</b> — 로컬에서 수집 배치를 띄우면 <b>운영 데이터에 적재</b>되고, 확인하며 보는 숫자도 운영 숫자입니다</li>
+      <li>이 사실을 총괄 문서와 작업 규칙에 적어 두었습니다 — 모르고 띄우는 일이 없게</li>
+    </ul>
+  </div>
+</section>
+
+<section class="band">
+  <div class="wrap">
+    <p class="eyebrow">셋</p>
+    <h2>남은 건 조회 전용 계정 하나</h2>
+    <p style="margin:0 0 1rem">
+      서비스에 <b>개인 계정을 넣지 않기 위해</b> 읽기만 가능한 전용 계정 스크립트를 만들었습니다(담당자 실행).
+    </p>
+    <div class="tbl">
+      <table>
+        <thead><tr><th>대상</th><th>권한</th></tr></thead>
+        <tbody>
+          <tr><td>부동산 스키마</td><td>접속</td></tr>
+          <tr><td>매매·전월세 표, 월별 집계 2개</td><td>읽기</td></tr>
+          <tr><td>시군구 이름 표</td><td>읽기</td></tr>
+          <tr><td>앞으로 추가될 표</td><td>자동 읽기</td></tr>
+        </tbody>
+      </table>
+    </div>
+    <ul class="notes">
+      <li>쓰기 권한은 주지 않습니다 — 적재는 수집 배치가 하고, 이 서비스는 연결 자체를 읽기 전용으로 엽니다</li>
+      <li>오피스텔·빌라 표가 나중에 생겨도 권한을 또 줄 필요가 없게 해 두었습니다</li>
+      <li>순서 — <b>계정 만들기 → 접속 정보 넣기 → 재시작</b>. 그러면 화면에 데이터가 채워집니다</li>
+    </ul>
+  </div>
+</section>
+</div>
+
 <footer>
   <div class="wrap">
     <p class="k">접속 URL</p>
@@ -8927,7 +9016,7 @@ response = requests.get("https://api.sj-lab.co.kr/open-api/v1/convenience-store"
       <li><em>운영 로그인 페이지</em><span class="url">https://api.sj-lab.co.kr/auth/login.html</span></li>
       <li><em>sj-lab-authserver</em><span class="url">https://github.com/stylealist/sj-lab-authserver</span></li>
       <li><em>API 센터</em><span class="url">https://sj-lab.co.kr/openapi/</span></li>
-      <li><em>기록 원본</em><span class="url">sj-lab/history/history_v1.0.md ~ v1.35.md, v2.0.md ~ v4.9.md</span></li>
+      <li><em>기록 원본</em><span class="url">sj-lab/history/history_v1.0.md ~ v1.35.md, v2.0.md ~ v4.10.md</span></li>
     </ul>
     <p class="colophon">
       총괄 허브 <code>C:\developer\workspace\sj-lab</code> 기준 · 커밋과 push는 사용자가 요청할 때만 수행합니다 ·
