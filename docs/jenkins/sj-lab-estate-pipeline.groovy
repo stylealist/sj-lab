@@ -116,6 +116,9 @@ pipeline {
                         ATTEMPT=$((ATTEMPT + 1))
                         if [ "$(date +%s)" -ge "$DEADLINE" ]; then
                             echo "❌ 배포 확인 실패(5분 초과): /estate/status 가 응답하지 않는다"
+                            echo "   첫 배포라면 ArgoCD 에 sj-lab-estate Application 이 등록돼 있는지 확인할 것 —"
+                            echo "   등록 전에는 이미지와 태그만 올라가고 클러스터에는 아무 일도 일어나지 않는다."
+                            echo "   (매니페스트 커밋까지는 이미 끝났으므로, 등록 후 이 잡만 다시 돌리면 된다)"
                             exit 1
                         fi
                         echo "대기 중... (${ATTEMPT}회)"

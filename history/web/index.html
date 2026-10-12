@@ -113,6 +113,21 @@
 
     <div class="card">
       <div class="ver-head">
+        <span class="tag">v4.9</span>
+        <span class="ver-title">조회 서버 배포 잡까지 준비했습니다<span class="ver-note">배포 도구 등록도 파일로</span></span>
+        <span class="date">2026-10-12</span>
+      </div>
+      <ul>
+        <li>화면 잡은 <b>#6 성공</b>으로 끝났고, 데이터를 내려주는 서버 잡을 기존 서비스와 같은 구조로 만들었습니다</li>
+        <li>확인은 데이터 조회가 아니라 <b>상태 주소</b>로 합니다 — DB 준비 전에도 서버는 뜨기 때문에 그래야 "배포 실패"와 구분됩니다</li>
+        <li>배포 도구(ArgoCD) 등록을 <b>파일 하나</b>로 남겨 명령 한 번으로 할 수 있게 했습니다</li>
+        <li>규칙으로 적었습니다 — <b>새 서비스는 차트 · 잡 · 등록 세 가지가 모두 있어야 배포된다</b></li>
+      </ul>
+      <p><a href="../history_v4.9.md">history_v4.9.md 원문 보기</a></p>
+    </div>
+
+    <div class="card">
+      <div class="ver-head">
         <span class="tag">v4.8</span>
         <span class="ver-title">부동산 화면이 운영에 올라갔습니다<span class="ver-note">확인 문구 · 한글 인코딩 수정</span></span>
         <span class="date">2026-10-12</span>

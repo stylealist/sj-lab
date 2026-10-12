@@ -11,9 +11,9 @@ Jenkins 안의 값이 진짜 동작하는 것이고, 이 폴더는 그것을 읽
 | `sj-lab-hub-pipeline.groovy` | `PROD_SJ-LAB-HUB-FRONT(REACT)` | 허브. **하위 사이트(map·openapi·estate) 제외 목록**이 여기 있음 |
 | `sj-lab-mapservice-pipeline.groovy` | `PROD-SJ-LAB-MAPSERVICE` | 지도(무빌드 정적) |
 | `sj-lab-openapi-web-pipeline.groovy` | `PROD-SJ-LAB-OPENAPI-WEB` | API 활용 페이지 |
-| `sj-lab-estate-web-pipeline.groovy` | `PROD-SJ-LAB-ESTATE-WEB`(생성 예정) | 부동산 화면 |
+| `sj-lab-estate-web-pipeline.groovy` | `PROD-SJ-LAB-ESTATE-WEB` | 부동산 화면 |
 | `sj-lab-openapi-pipeline.groovy` | `PROD-SJ-LAB-OPENAPI` | 공개 API 서비스(이미지) |
-| `sj-lab-estate-pipeline.groovy` | `PROD-SJ-LAB-ESTATE`(생성 예정) | 부동산 조회 서버(이미지) |
+| `sj-lab-estate-pipeline.groovy` | `PROD-SJ-LAB-ESTATE`(생성 예정) | 부동산 조회 서버(이미지). ArgoCD Application 등록이 선행돼야 한다 |
 | `*-original.groovy` | - | 수정 전 원본(롤백용). 되돌리면 그때의 문제도 함께 돌아옴 |
 | `*-job-config.xml` | - | 잡 설정까지 담은 가져오기용 XML(아래 참고) |
 
@@ -65,7 +65,7 @@ python scripts/make-jenkins-job-config.py docs/jenkins/sj-lab-estate-web-pipelin
 | 대상 | 준비물 |
 |---|---|
 | 정적 화면 잡(허브·지도·활용 페이지·부동산) | 웹서버 노드에 **잡 전용 스테이징 경로**(`mkdir -p /respal/deploy-estate`), nginx 의 해당 `location` |
-| 이미지 잡(서비스) | `sj-lab-k8s-manifests` 의 차트, **ArgoCD Application 등록**(없으면 태그만 올라감) |
+| 이미지 잡(서비스) | `sj-lab-k8s-manifests` 의 차트, **ArgoCD Application 등록**(없으면 태그만 올라감). 부동산은 `docs/argocd/sj-lab-estate-application.yaml` 를 `kubectl apply` 하면 된다 |
 | 공통 자격 증명 | `github_login` · `ncp-api-key` · `GitHub_token` (용도는 `docs/k8s-secrets.md`) |
 
 ## 실제로 겪은 문제 (2026-10-12, 부동산 화면 첫 빌드)

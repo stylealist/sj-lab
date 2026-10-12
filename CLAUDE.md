@@ -27,6 +27,8 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 - `docs/jenkins/` — 서비스별 Jenkins 파이프라인 원본(`*-pipeline.groovy`)과 잡 생성용 설정(`*-job-config.xml`).
   잡을 고치면 groovy 를 같은 작업에서 갱신할 것(**groovy 가 단일 소스**, XML 은 `scripts/make-jenkins-job-config.py` 로 다시 만든다).
   잡 이름 규칙·새 잡 만드는 두 가지 방법(UI·API)·만들기 전 준비물은 `docs/jenkins/README.md`
+- `docs/argocd/*.yaml` — ArgoCD Application 정의(화면에서 손으로 만들던 설정을 글로 남긴 것).
+  **이미지로 배포하는 새 서비스는 이것을 등록하지 않으면 태그만 올라가고 배포되지 않는다**
 - `docs/analysis/*.md` — 개발 DB 연결·권한·스키마 점검 및 인덱스·뷰·데이터 품질 분석
 - `db/README.md` — 표 생성 스크립트 목록, 실행 순서, 실행 전에는 어떤 기능이 막히는지
 

@@ -1,0 +1,50 @@
+# ArgoCD Application — 부동산 실거래 조회 서버(sj-lab-estate)
+#
+# 왜 필요한가: Jenkins 잡은 이미지를 올리고 매니페스트의 image.tag 를 커밋하는 데까지만 한다.
+# **이 Application 이 없으면 클러스터에는 아무 일도 일어나지 않는다**(태그만 조용히 올라간다).
+# 다른 서비스들은 ArgoCD 화면에서 손으로 만들어 왔고, 이 파일은 같은 설정을 글로 남긴 것이다.
+#
+# 적용(클러스터 접근 권한이 있는 자리에서 한 번만):
+#   kubectl apply -f docs/argocd/sj-lab-estate-application.yaml
+#
+# 화면에서 만들 때 같은 값:
+#   Application Name  sj-lab-estate
+#   Project           default
+#   Repository URL    https://github.com/stylealist/sj-lab-k8s-manifests.git
+#   Revision          main
+#   Path              sj-lab-estate
+#   Cluster           https://kubernetes.default.svc
+#   Namespace         sj-lab
+#   Sync Policy       Automatic + Prune + Self Heal
+#
+# 확인:
+#   kubectl -n argocd get applications | grep sj-lab-estate
+#   kubectl -n sj-lab get deploy,pod | grep sj-lab-estate
+#   curl -s https://api.sj-lab.co.kr/estate/status
+#
+# DB 접속 정보(estate-db-credentials Secret)가 없어도 **배포는 성공한다** — 그때는 조회만
+# 503 이고 /estate/status 가 ready:false 로 답한다(차트 values.yaml 주석 참고).
+apiVersion: argoproj.io/v1alpha1
+kind: Application
+metadata:
+  name: sj-lab-estate
+  namespace: argocd
+spec:
+  project: default
+  source:
+    repoURL: https://github.com/stylealist/sj-lab-k8s-manifests.git
+    targetRevision: main
+    path: sj-lab-estate
+    helm:
+      valueFiles:
+        - values.yaml
+  destination:
+    server: https://kubernetes.default.svc
+    namespace: sj-lab
+  syncPolicy:
+    automated:
+      selfHeal: true
+      prune: true
+    syncOptions:
+      - CreateNamespace=true
+      - AllowEmpty=true

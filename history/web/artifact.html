@@ -518,7 +518,8 @@
       <button type="button" class="vchip" role="tab" data-ver="4.5" aria-controls="pane-v4.5" title="부동산 운영 배포 준비(차트 · Jenkins · nginx) · 점검 스크립트 표식 버그 수정"><span class="pv">v4.5</span><span class="pt">배포 준비 · 점검 수정</span></button>
       <button type="button" class="vchip" role="tab" data-ver="4.6" aria-controls="pane-v4.6" title="부동산 화면 Jenkins 잡을 가져오기용 설정으로 준비 · 잡 문서 정리"><span class="pv">v4.6</span><span class="pt">배포 잡 준비</span></button>
       <button type="button" class="vchip" role="tab" data-ver="4.7" aria-controls="pane-v4.7" title="첫 배포가 깨진 원인(원격 명령의 꺾쇠·$$) 수정 · 403 의 의미"><span class="pv">v4.7</span><span class="pt">첫 배포 실패 수정</span></button>
-      <button type="button" class="vchip" role="tab" data-ver="4.8" aria-controls="pane-v4.8" title="부동산 화면 운영 배포 완료 · 확인 표식과 한글 인코딩 두 버그 수정"><span class="pv">v4.8<span class="dot" title="최신" aria-label="최신"></span></span><span class="pt">부동산 화면 배포 완료</span></button>
+      <button type="button" class="vchip" role="tab" data-ver="4.8" aria-controls="pane-v4.8" title="부동산 화면 운영 배포 완료 · 확인 표식과 한글 인코딩 두 버그 수정"><span class="pv">v4.8</span><span class="pt">부동산 화면 배포 완료</span></button>
+      <button type="button" class="vchip" role="tab" data-ver="4.9" aria-controls="pane-v4.9" title="조회 서버 배포 잡 + ArgoCD 등록 정의 · 새 서비스는 세 가지가 필요하다는 규칙"><span class="pv">v4.9<span class="dot" title="최신" aria-label="최신"></span></span><span class="pt">서버 배포 잡</span></button>
     </div>
   </div>
 </nav>
@@ -8842,6 +8843,79 @@ response = requests.get("https://api.sj-lab.co.kr/open-api/v1/convenience-store"
 </section>
 </div>
 
+<!-- ===================== v4.9 ===================== -->
+<div class="vpane" data-ver="4.9" id="pane-v4.9" hidden>
+<header class="masthead">
+  <div class="wrap">
+    <div class="stamp">
+      <span class="ver">v4.9</span>
+      <span>2026-10-12</span>
+      <span>배포 잡 · 총괄</span>
+    </div>
+    <h1>조회 서버 배포 잡까지<br>준비했습니다</h1>
+    <p class="plainline">화면 잡은 성공으로 끝났고(#6), 이제 데이터를 내려주는 서버 차례입니다</p>
+    <p class="dek">
+      배포에는 <b>세 가지</b>가 모두 있어야 합니다 — 배포 설정(차트) · 빌드 잡 · <b>배포 도구 등록</b>.
+      마지막 하나가 빠지면 <b>버전만 조용히 올라가고 아무 일도 일어나지 않습니다.</b>
+    </p>
+    <dl class="facts">
+      <div><dt>화면 잡</dt><dd class="ok">#6 성공</dd></div>
+      <div><dt>서버 잡</dt><dd class="ok">작성 완료</dd></div>
+      <div><dt>배포 도구 등록</dt><dd class="ok">파일로 남김</dd></div>
+      <div><dt>남은 것</dt><dd>등록 · 빌드 · 운영 DB</dd></div>
+    </dl>
+  </div>
+</header>
+
+<section class="band">
+  <div class="wrap">
+    <p class="eyebrow">하나</p>
+    <h2>기존 서비스 잡과 같은 구조</h2>
+    <p style="margin:0 0 1rem">
+      공개 API 서비스 잡과 도구·단계·자격 증명이 모두 같습니다. 새 방식을 만들지 않았습니다.
+    </p>
+    <div class="tbl">
+      <table>
+        <thead><tr><th>단계</th><th>하는 일</th></tr></thead>
+        <tbody>
+          <tr><td>빌드</td><td>프로그램 파일 생성</td></tr>
+          <tr><td>이미지</td><td>컨테이너 이미지로 만들어 사내 저장소에 올림</td></tr>
+          <tr><td>배포 설정 갱신</td><td>버전 번호를 배포 저장소에 커밋</td></tr>
+          <tr><td>확인</td><td>서비스 상태 주소로 응답 확인(최대 5분)</td></tr>
+        </tbody>
+      </table>
+    </div>
+    <ul class="notes">
+      <li><b>확인을 데이터 조회로 하지 않습니다</b> — 이 서버는 DB 준비가 안 돼도 뜨기 때문에, 데이터로 확인하면 "배포는 됐는데 DB 가 없는 상태"와 "배포 실패"를 구분할 수 없습니다. 상태 주소는 두 경우 모두 응답하고 그 안의 값으로 갈립니다</li>
+      <li>5분 안에 응답이 없으면 <b>"배포 도구에 등록했는지 확인하라"</b>는 안내를 찍습니다 — 첫 배포에서 가장 흔한 원인입니다</li>
+    </ul>
+  </div>
+</section>
+
+<section class="band">
+  <div class="wrap">
+    <p class="eyebrow">둘</p>
+    <h2>배포 도구 등록도 글로 남겼습니다</h2>
+    <ul class="notes">
+      <li>지금까지는 화면에서 손으로 만들어 왔습니다 — 같은 설정을 <b>파일 하나로</b> 남겨 명령 한 번으로 등록할 수 있게 했습니다(화면에서 만들 때 넣을 값도 같은 파일에 적어 두었습니다)</li>
+      <li>총괄 문서에 <b>"새 서비스는 차트 · 잡 · 등록 세 가지가 모두 있어야 배포된다"</b>를 규칙으로 적었습니다 — 이번에 한 번 헷갈렸던 지점입니다</li>
+    </ul>
+  </div>
+</section>
+
+<section class="band">
+  <div class="wrap">
+    <p class="eyebrow">셋</p>
+    <h2>남은 순서</h2>
+    <ul class="notes">
+      <li><b>배포 도구 등록</b> → <b>서버 잡 생성·빌드</b> → 주소가 응답하면 끝</li>
+      <li><b>운영 DB 준비</b>(표 생성 + 접속 정보) — 없어도 배포는 성공하고, 화면은 "준비되지 않았다"고 안내합니다</li>
+      <li>전월세 보증금 재수집(앞서 찾은 버그) — 시점만 정해 주시면 진행합니다</li>
+    </ul>
+  </div>
+</section>
+</div>
+
 <footer>
   <div class="wrap">
     <p class="k">접속 URL</p>
@@ -8853,7 +8927,7 @@ response = requests.get("https://api.sj-lab.co.kr/open-api/v1/convenience-store"
       <li><em>운영 로그인 페이지</em><span class="url">https://api.sj-lab.co.kr/auth/login.html</span></li>
       <li><em>sj-lab-authserver</em><span class="url">https://github.com/stylealist/sj-lab-authserver</span></li>
       <li><em>API 센터</em><span class="url">https://sj-lab.co.kr/openapi/</span></li>
-      <li><em>기록 원본</em><span class="url">sj-lab/history/history_v1.0.md ~ v1.35.md, v2.0.md ~ v4.8.md</span></li>
+      <li><em>기록 원본</em><span class="url">sj-lab/history/history_v1.0.md ~ v1.35.md, v2.0.md ~ v4.9.md</span></li>
     </ul>
     <p class="colophon">
       총괄 허브 <code>C:\developer\workspace\sj-lab</code> 기준 · 커밋과 push는 사용자가 요청할 때만 수행합니다 ·
