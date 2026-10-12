@@ -515,7 +515,8 @@
       <button type="button" class="vchip" role="tab" data-ver="4.2" aria-controls="pane-v4.2" title="허브 카드에서 부동산 페이지로 들어가기 · 로그인 되돌아오기 수정 · 문서 반영"><span class="pv">v4.2</span><span class="pt">허브에서 부동산 열기</span></button>
       <button type="button" class="vchip" role="tab" data-ver="4.3" aria-controls="pane-v4.3" title="부동산 화면에 소개 · 저장소 문의 탭 추가 · 지도로 가려면 필요한 데이터 확인"><span class="pv">v4.3</span><span class="pt">소개 · 저장소 문의</span></button>
       <button type="button" class="vchip" role="tab" data-ver="4.4" aria-controls="pane-v4.4" title="부동산 조회 서버를 Spring 으로 분리 · 전월세 보증금 적재 버그 발견"><span class="pv">v4.4</span><span class="pt">부동산 서버 분리</span></button>
-      <button type="button" class="vchip" role="tab" data-ver="4.5" aria-controls="pane-v4.5" title="부동산 운영 배포 준비(차트 · Jenkins · nginx) · 점검 스크립트 표식 버그 수정"><span class="pv">v4.5<span class="dot" title="최신" aria-label="최신"></span></span><span class="pt">배포 준비 · 점검 수정</span></button>
+      <button type="button" class="vchip" role="tab" data-ver="4.5" aria-controls="pane-v4.5" title="부동산 운영 배포 준비(차트 · Jenkins · nginx) · 점검 스크립트 표식 버그 수정"><span class="pv">v4.5</span><span class="pt">배포 준비 · 점검 수정</span></button>
+      <button type="button" class="vchip" role="tab" data-ver="4.6" aria-controls="pane-v4.6" title="부동산 화면 Jenkins 잡을 가져오기용 설정으로 준비 · 잡 문서 정리"><span class="pv">v4.6<span class="dot" title="최신" aria-label="최신"></span></span><span class="pt">배포 잡 준비</span></button>
     </div>
   </div>
 </nav>
@@ -8628,6 +8629,75 @@ response = requests.get("https://api.sj-lab.co.kr/open-api/v1/convenience-store"
 </section>
 </div>
 
+<!-- ===================== v4.6 ===================== -->
+<div class="vpane" data-ver="4.6" id="pane-v4.6" hidden>
+<header class="masthead">
+  <div class="wrap">
+    <div class="stamp">
+      <span class="ver">v4.6</span>
+      <span>2026-10-12</span>
+      <span>배포 잡 · 총괄</span>
+    </div>
+    <h1>부동산 화면 배포 잡을<br>손만 대면 되게 준비했습니다</h1>
+    <p class="plainline">설정 전체를 파일 하나로 만들어 두었습니다 — 화면에서 붙여넣거나 명령 한 줄로 등록합니다</p>
+    <p class="dek">
+      배포 자동화 도구의 잡은 <b>사람 계정으로만</b> 만들 수 있어 제가 직접 만들 수는 없습니다.
+      그래서 만드는 순간에 할 일을 최소로 줄여 두었습니다.
+    </p>
+    <dl class="facts">
+      <div><dt>준비물</dt><dd class="ok">설정 파일 · 생성 스크립트 · 안내</dd></div>
+      <div><dt>단일 소스</dt><dd class="ok">파이프라인 원본 1곳</dd></div>
+      <div><dt>잡 이름</dt><dd class="ok">기존 규칙에 맞춤</dd></div>
+      <div><dt>비밀값</dt><dd class="ok">토큰은 남기지 않음</dd></div>
+    </dl>
+  </div>
+</header>
+
+<section class="band">
+  <div class="wrap">
+    <p class="eyebrow">하나</p>
+    <h2>먼저 지난 작업을 올렸습니다</h2>
+    <ul class="notes">
+      <li>부동산 배포 설정(차트) · 빌드 잡 원본 2개 · 웹서버 경로 · 점검 스크립트 수정 · 문서를 두 저장소에 커밋·push</li>
+    </ul>
+  </div>
+</section>
+
+<section class="band">
+  <div class="wrap">
+    <p class="eyebrow">둘</p>
+    <h2>잡을 만드는 두 가지 방법</h2>
+    <div class="tbl">
+      <table>
+        <thead><tr><th>방법</th><th>하는 일</th></tr></thead>
+        <tbody>
+          <tr><td>웹 화면</td><td>새 Item → Pipeline → 저장소 주소·자동 실행 체크 → 파이프라인 전문 붙여넣기</td></tr>
+          <tr><td>명령 한 줄</td><td>준비해 둔 설정 파일을 그대로 올린다(개인 토큰 필요 — 사용자가 직접 실행)</td></tr>
+        </tbody>
+      </table>
+    </div>
+    <ul class="notes">
+      <li><b>파이프라인 원본이 단일 소스</b>입니다. 설정 파일은 그것을 그대로 읽어 만들기 때문에, 고칠 때는 원본만 고치고 다시 만들면 됩니다 — 두 곳을 각각 고치다 어긋나는 일을 막습니다</li>
+      <li>잡 이름은 기존 규칙(<b>PROD-서비스명</b>)에 맞췄습니다</li>
+      <li>토큰은 저장소·문서·대화에 남기지 않습니다</li>
+    </ul>
+  </div>
+</section>
+
+<section class="band">
+  <div class="wrap">
+    <p class="eyebrow">셋</p>
+    <h2>남은 순서</h2>
+    <ul class="notes">
+      <li><b>화면 잡 생성</b>(사람) → 그다음 조회 서버 잡도 같은 방법으로</li>
+      <li>웹서버에 화면 잡 전용 임시 폴더 만들기</li>
+      <li>배포 도구에 새 서비스 등록 + 운영 DB 표·접속 정보</li>
+      <li>전월세 보증금 재수집(앞서 찾은 버그) — 시점만 정해 주시면 진행합니다</li>
+    </ul>
+  </div>
+</section>
+</div>
+
 <footer>
   <div class="wrap">
     <p class="k">접속 URL</p>
@@ -8639,7 +8709,7 @@ response = requests.get("https://api.sj-lab.co.kr/open-api/v1/convenience-store"
       <li><em>운영 로그인 페이지</em><span class="url">https://api.sj-lab.co.kr/auth/login.html</span></li>
       <li><em>sj-lab-authserver</em><span class="url">https://github.com/stylealist/sj-lab-authserver</span></li>
       <li><em>API 센터</em><span class="url">https://sj-lab.co.kr/openapi/</span></li>
-      <li><em>기록 원본</em><span class="url">sj-lab/history/history_v1.0.md ~ v1.35.md, v2.0.md ~ v4.5.md</span></li>
+      <li><em>기록 원본</em><span class="url">sj-lab/history/history_v1.0.md ~ v1.35.md, v2.0.md ~ v4.6.md</span></li>
     </ul>
     <p class="colophon">
       총괄 허브 <code>C:\developer\workspace\sj-lab</code> 기준 · 커밋과 push는 사용자가 요청할 때만 수행합니다 ·
