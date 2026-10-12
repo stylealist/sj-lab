@@ -12,6 +12,8 @@
 | 부동산 실거래 (로컬) | http://localhost:4200 | 화면 |
 | 부동산 조회 API (게이트웨이) | http://localhost:8100/estate/status | 새 주소 |
 | 부동산 조회 API (직접) | http://localhost:8120/estate/apt/meta | 새 서비스 |
+| 새 저장소 (서버) | https://github.com/stylealist/sj-lab-estate | 2026-10-12 공개 |
+| 새 저장소 (화면) | https://github.com/stylealist/sj-lab-estate-web | 2026-10-12 공개 |
 
 ## 실행한 프롬프트
 
@@ -93,6 +95,7 @@ fast-api-ai는 ai쪽의 기능들을 넣을거기때문에 spring서버로 따�
 
 ## 남은 이야기
 
+- GitHub 저장소를 두 개 새로 공개했습니다(위 표) — 화면의 "저장소 · 문의" 탭에도 넣었습니다.
 - **운영 배포**: Helm 차트(`sj-lab-k8s-manifests`)와 Jenkins 잡, 운영 DB Secret 이 필요합니다(부동산 화면도 아직 배포 전).
 - **전월세 보증금 재수집** 시점 결정이 필요합니다(위 2번).
 - 전국 조회 속도는 집계 스크립트(담당자 실행)로 해결됩니다.

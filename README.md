@@ -213,8 +213,8 @@ SJ-LAB 플랫폼에 구축된 **시설물 점검 및 관리 서비스**의 현�
 | **데이터 배치** | [sj-lab-scheduler](https://github.com/stylealist/sj-lab-scheduler) | Spring Boot, PostGIS, `@Scheduled` | [시설물] 공공 API 정기 수집, 공간 투영(3857) 및 GeoJSON 뷰 생성 | `api.sj-lab.co.kr/scheduler/**`<br>(로컬 랜덤) |
 | **공개 API** | [sj-lab-openapi](https://github.com/stylealist/sj-lab-openapi) | Spring Boot 3.3.2, RestTemplate | 카탈로그(JSON) 기반 공개 API 게이트, API 키 발급·일일 사용량 제한, mapservice-rest 중계 | `api.sj-lab.co.kr/open-api/**`<br>(로컬 8110) |
 | **활용 페이지** | [sj-lab-openapi-web](https://github.com/stylealist/sj-lab-openapi-web) | React 18, Webpack 5 | 카탈로그 응답으로 화면을 그리는 API 활용 페이지(실행해 보기 · 샘플 코드) | `sj-lab.co.kr/openapi/`<br>(로컬 4100) |
-| **부동산 백엔드** | sj-lab-estate | Java 17, Spring Boot 3.3.2, MyBatis | [부동산] 실거래 2,100만 건 조회 API — 월별 추세·지역 순위, 통계 추정 건수, 읽기 전용 커넥션 | `api.sj-lab.co.kr/estate/**`<br>(로컬 8120) |
-| **부동산 프론트** | sj-lab-estate-web | React 18, Webpack 5 | [부동산] 아파트 실거래 추세·지역 순위 화면(오피스텔·빌라는 준비 중). 2026-10-12 신설, 운영 배포 준비 중 | (로컬 4200) |
+| **부동산 백엔드** | [sj-lab-estate](https://github.com/stylealist/sj-lab-estate) | Java 17, Spring Boot 3.3.2, MyBatis | [부동산] 실거래 2,100만 건 조회 API — 월별 추세·지역 순위, 통계 추정 건수, 읽기 전용 커넥션 | `api.sj-lab.co.kr/estate/**`<br>(로컬 8120) |
+| **부동산 프론트** | [sj-lab-estate-web](https://github.com/stylealist/sj-lab-estate-web) | React 18, Webpack 5 | [부동산] 아파트 실거래 추세·지역 순위 화면(오피스텔·빌라는 준비 중). 2026-10-12 신설, 운영 배포 준비 중 | (로컬 4200) |
 | **AI 마이크로서비스**| [fast-api-ai](https://github.com/stylealist/fast-api-ai) | Python 3.12, FastAPI, Uvicorn | Spring Cloud 연동 Python 마이크로서비스, 음성 STT 요약 및 AI/RAG 엔진 기반 | `api.sj-lab.co.kr/fast-api-ai/**`<br>(로컬 8000) |
 | **모바일 앱** | [infra-manage-app](https://github.com/stylealist/infra-manage-app) | C++17, Qt/QML, QGIS Core SDK, CMake | [시설물] QField 기반 커스텀 포크 현장조사 앱, 3단계 점검 폼 및 사진/음성/영상 미디어 수집 | 모바일 (Android/Windows) |
 | **동기화 워커** | [sj-qfieldsync](https://github.com/stylealist/sj-qfieldsync) | Python, GeoPandas, GDAL, psycopg2 | [시설물] QFieldCloud ↔ PostGIS 30초 주기 증분 ETL, 스키마 진화 수용, 영구 불변 ID 보장 | 단독 백그라운드 워커 |
