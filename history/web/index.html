@@ -113,6 +113,38 @@
 
     <div class="card">
       <div class="ver-head">
+        <span class="tag">v4.15</span>
+        <span class="ver-title">지역을 시도 · 시군구 · 읍면동으로 좁혀 봅니다<span class="ver-note">광주 · 전남 공백 발견</span></span>
+        <span class="date">2026-10-13</span>
+      </div>
+      <ul>
+        <li><b>시도 → 시군구 → 읍면동</b> 3단 선택. 위를 바꾸면 아래가 비워지고, 선택지마다 거래 건수가 보입니다</li>
+        <li>좁힐수록 빨라집니다 — 동 단위 조회 <b>41~72ms</b>, 지역 순위는 시도 범위로 <b>4.7초 → 0.5초</b></li>
+        <li>시도 이름을 무거운 집계에 끼워 넣었더니 5.1초가 <b>19.7초</b>가 돼 되돌렸습니다(이름은 따로 읽어 붙임)</li>
+        <li>받아 둔 값의 기한이 지나는 순간에도 <b>기다리지 않게</b> 했습니다(갱신은 뒤에서)</li>
+        <li>작업하다 <b>광주광역시·전라남도 데이터가 0건</b>인 것을 발견했습니다 — 27개 시군구만 다시 받으면 됩니다(시점 결정 필요)</li>
+      </ul>
+      <p><a href="../history_v4.15.md">history_v4.15.md 원문 보기</a></p>
+    </div>
+
+    <div class="card">
+      <div class="ver-head">
+        <span class="tag">v4.14</span>
+        <span class="ver-title">첫 화면이 멈추던 이유는 지역 목록이었습니다<span class="ver-note">0.29초로 단축 + 로딩바</span></span>
+        <span class="date">2026-10-13</span>
+      </div>
+      <ul>
+        <li>첫 화면이 부르는 것들을 재 보니 <b>지역 선택 목록만 6.4초</b>였습니다 — 990만 건을 끝까지 세는 조회였습니다</li>
+        <li>그 값은 수집이 돌 때만 바뀌므로 <b>받아 두고 다시 쓰고(6시간), 서버가 켜질 때 미리 받아</b> 둡니다 → 0.04초</li>
+        <li>기본 지역을 <b>서울 강남구</b>로 바꿨습니다(전국은 평균·중위 계산 때문에 느림 — 선택지에 그 사실을 적어 둠)</li>
+        <li>화면 맨 위에 <b>로딩바</b>를 넣었습니다(라이브러리 없이)</li>
+        <li>결과: 첫 화면 호출 전부 합계 <b>0.29초</b></li>
+      </ul>
+      <p><a href="../history_v4.14.md">history_v4.14.md 원문 보기</a></p>
+    </div>
+
+    <div class="card">
+      <div class="ver-head">
         <span class="tag">v4.13</span>
         <span class="ver-title">새로 만들지 않고 있는 접속 정보를 공유<span class="ver-note">SQL 한 번만 남음</span></span>
         <span class="date">2026-10-13</span>

@@ -523,7 +523,9 @@
       <button type="button" class="vchip" role="tab" data-ver="4.10" aria-controls="pane-v4.10" title="조회 서버 배포 성공 · 개발=운영 DB 확인 · 조회 전용 계정 스크립트"><span class="pv">v4.10</span><span class="pt">서버 배포 성공</span></button>
       <button type="button" class="vchip" role="tab" data-ver="4.11" aria-controls="pane-v4.11" title="기존 조회 전용 계정으로 DB 연결 · 비밀번호가 남지 않는 Secret 스크립트"><span class="pv">v4.11</span><span class="pt">DB 연결 준비</span></button>
       <button type="button" class="vchip" role="tab" data-ver="4.12" aria-controls="pane-v4.12" title="상태 응답이 준비되지 않은 이유를 알려 주도록 · 운영 원인 확정(접속 정보 없음)"><span class="pv">v4.12</span><span class="pt">원인을 말하는 상태</span></button>
-      <button type="button" class="vchip" role="tab" data-ver="4.13" aria-controls="pane-v4.13" title="새 접속 정보를 만들지 않고 기존 것을 공유 · 권한 없이 정상으로 보고되던 구멍 막음"><span class="pv">v4.13<span class="dot" title="최신" aria-label="최신"></span></span><span class="pt">접속 정보 공유</span></button>
+      <button type="button" class="vchip" role="tab" data-ver="4.13" aria-controls="pane-v4.13" title="새 접속 정보를 만들지 않고 기존 것을 공유 · 권한 없이 정상으로 보고되던 구멍 막음"><span class="pv">v4.13</span><span class="pt">접속 정보 공유</span></button>
+      <button type="button" class="vchip" role="tab" data-ver="4.14" aria-controls="pane-v4.14" title="첫 화면 렉 제거(지역 목록 6.4초 → 0.04초) · 기본 지역 강남구 · 로딩바"><span class="pv">v4.14</span><span class="pt">첫 화면 렉 제거</span></button>
+      <button type="button" class="vchip" role="tab" data-ver="4.15" aria-controls="pane-v4.15" title="지역을 시도 → 시군구 → 읍면동 3단으로 · 광주·전남 데이터 공백 발견"><span class="pv">v4.15<span class="dot" title="최신" aria-label="최신"></span></span><span class="pt">지역 3단 선택</span></button>
     </div>
   </div>
 </nav>
@@ -9234,6 +9236,169 @@ response = requests.get("https://api.sj-lab.co.kr/open-api/v1/convenience-store"
 </section>
 </div>
 
+<!-- ===================== v4.14 ===================== -->
+<div class="vpane" data-ver="4.14" id="pane-v4.14" hidden>
+<header class="masthead">
+  <div class="wrap">
+    <div class="stamp">
+      <span class="ver">v4.14</span>
+      <span>2026-10-13</span>
+      <span>부동산 화면 · 조회 서버</span>
+    </div>
+    <h1>첫 화면이 멈추던 이유는<br>지역 목록이었습니다</h1>
+    <p class="plainline">첫 화면 전체가 0.29초로 — 지역 목록만 6.4초였습니다</p>
+    <p class="dek">
+      기본 지역을 강남구로 바꾸고 로딩바를 넣으면서 <b>부르는 것들을 하나씩 재 봤더니</b>,
+      진짜 범인은 "어느 지역에 몇 건 있나"를 세는 조회였습니다.
+    </p>
+    <dl class="facts">
+      <div><dt>지역 목록</dt><dd class="ok">6.4초 → 0.04초</dd></div>
+      <div><dt>첫 화면 합계</dt><dd class="ok">0.29초</dd></div>
+      <div><dt>기본 지역</dt><dd class="ok">서울 강남구</dd></div>
+      <div><dt>로딩바</dt><dd class="ok">추가</dd></div>
+    </dl>
+  </div>
+</header>
+
+<section class="band">
+  <div class="wrap">
+    <p class="eyebrow">하나</p>
+    <h2>재 보니 범인이 달랐습니다</h2>
+    <div class="tbl">
+      <table>
+        <thead><tr><th>첫 화면이 부르는 것</th><th>전</th></tr></thead>
+        <tbody>
+          <tr><td><b>지역 선택 목록</b></td><td><b>6.4초</b> ← 여기</td></tr>
+          <tr><td>전국 추세(기본값이었음)</td><td>수 초</td></tr>
+          <tr><td>나머지(상태·범위·목록)</td><td>0.1초 안쪽</td></tr>
+        </tbody>
+      </table>
+    </div>
+    <ul class="notes">
+      <li>지역 목록은 "어느 지역에 거래가 몇 건 있나"를 세는 조회라 <b>990만 건을 끝까지 읽어야</b> 나옵니다</li>
+      <li>그런데 그 답은 <b>수집이 돌 때만</b>(하루 한 번) 바뀝니다 — 매번 다시 세는 게 낭비였습니다</li>
+    </ul>
+  </div>
+</section>
+
+<section class="band">
+  <div class="wrap">
+    <p class="eyebrow">둘</p>
+    <h2>고친 것 세 가지</h2>
+    <ul class="notes">
+      <li><b>지역 목록을 받아 두고 다시 씁니다</b>(6시간). 게다가 <b>서버가 켜질 때 미리 받아 둡니다</b> — 기다리는 쪽이 사람이 아니라 서버가 되게 했습니다. 새로 받지 못하면 조금 오래된 값이라도 보여 줍니다(목록이 비면 화면이 먹통이 되니까)</li>
+      <li><b>첫 화면 기본 지역을 서울 강남구로</b> 바꿨습니다. 전국도 고를 수 있고, 선택지에 "조회가 몇 초 걸립니다"라고 적어 두었습니다</li>
+      <li><b>로딩바</b>를 화면 맨 위에 넣었습니다. 끝을 모르는 작업이라 처음 빠르게 늘고 끝에서 느려지다가, 끝나면 채우고 사라집니다(라이브러리 없이 그렸습니다)</li>
+    </ul>
+  </div>
+</section>
+
+<section class="band">
+  <div class="wrap">
+    <p class="eyebrow">셋</p>
+    <h2>결과</h2>
+    <div class="tbl">
+      <table>
+        <thead><tr><th></th><th>전</th><th>후</th></tr></thead>
+        <tbody>
+          <tr><td>지역 목록</td><td>6.4초</td><td class="ok">0.04초</td></tr>
+          <tr><td>첫 화면 호출 전부</td><td>수 초</td><td class="ok">0.29초</td></tr>
+          <tr><td>서버 켤 때 미리 받기</td><td>—</td><td class="ok">4.2초(서버가 혼자 기다림)</td></tr>
+        </tbody>
+      </table>
+    </div>
+    <ul class="notes">
+      <li>운영 화면에 데이터가 나오려면 아직 <b>읽기 권한 SQL 한 번</b>이 남아 있습니다(앞 버전 참고)</li>
+    </ul>
+  </div>
+</section>
+</div>
+
+<!-- ===================== v4.15 ===================== -->
+<div class="vpane" data-ver="4.15" id="pane-v4.15" hidden>
+<header class="masthead">
+  <div class="wrap">
+    <div class="stamp">
+      <span class="ver">v4.15</span>
+      <span>2026-10-13</span>
+      <span>부동산 화면 · 조회 서버</span>
+    </div>
+    <h1>지역을 시도 · 시군구 ·<br>읍면동으로 좁혀 봅니다</h1>
+    <p class="plainline">위를 고르면 아래가 채워집니다 — 첫 화면은 그대로 서울 강남구</p>
+    <p class="dek">
+      좁힐수록 빨라집니다(동 단위는 수십 ms). 재면서 느려지는 지점 두 곳도 함께 고쳤고,
+      그 과정에서 <b>데이터가 비어 있는 두 지역</b>을 발견했습니다.
+    </p>
+    <dl class="facts">
+      <div><dt>선택 단계</dt><dd class="ok">시도 · 시군구 · 읍면동</dd></div>
+      <div><dt>동 단위 조회</dt><dd class="ok">41~72ms</dd></div>
+      <div><dt>지역 순위</dt><dd class="ok">4.7초 → 0.5초</dd></div>
+      <div><dt>발견</dt><dd>광주 · 전남 0건</dd></div>
+    </dl>
+  </div>
+</header>
+
+<section class="band">
+  <div class="wrap">
+    <p class="eyebrow">하나</p>
+    <h2>고르는 방식</h2>
+    <ul class="notes">
+      <li><b>시 · 도 → 시 · 군 · 구 → 읍 · 면 · 동</b> 순서로 좁힙니다. 위를 바꾸면 아래는 비워집니다</li>
+      <li>선택지마다 <b>거래 건수</b>가 함께 보여 어디에 자료가 많은지 바로 알 수 있습니다</li>
+      <li>시도 목록은 <b>시군구 목록에서 묶어</b> 만듭니다 — 서버 호출을 늘리지 않았습니다</li>
+      <li><b>지역 순위도 고른 시도 안에서</b> 냅니다(전국 4.7초 → 시도 0.5초). 전국도 고를 수 있고, 느린 선택지에는 "몇 초 걸립니다"를 적어 두었습니다</li>
+    </ul>
+  </div>
+</section>
+
+<section class="band">
+  <div class="wrap">
+    <p class="eyebrow">둘</p>
+    <h2>재면서 고친 두 가지</h2>
+    <ul class="notes">
+      <li><b>이름을 무거운 집계에 끼워 넣었다가 되돌렸습니다</b> — 시도 이름을 지역 목록 계산에 함께 묶었더니 5.1초가 <b>19.7초</b>가 됐습니다. 이름은 17줄짜리 표에서 따로 읽어 붙입니다(비용 거의 0)</li>
+      <li><b>받아 둔 값의 기한이 지나는 순간에도 기다리지 않게</b> 했습니다 — 가진 값을 바로 주고 갱신은 뒤에서 합니다</li>
+    </ul>
+    <div class="tbl">
+      <table>
+        <thead><tr><th>조회(화면 → 서버 전 구간)</th><th>시간</th></tr></thead>
+        <tbody>
+          <tr><td>시군구 + 시도 목록</td><td class="ok">98ms</td></tr>
+          <tr><td>읍면동 목록(강남구)</td><td class="ok">72ms</td></tr>
+          <tr><td>동 매매 추세(대치동)</td><td class="ok">41ms</td></tr>
+          <tr><td>동 거래 목록(대치동)</td><td class="ok">62ms</td></tr>
+          <tr><td>서울 시군구 순위</td><td class="ok">499ms</td></tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+</section>
+
+<section class="band">
+  <div class="wrap">
+    <p class="eyebrow">셋</p>
+    <h2>작업하다 발견 — 광주 · 전남 데이터가 없습니다</h2>
+    <p style="margin:0 0 1rem">
+      시도 목록을 만들어 보니 <b>17개 중 15개</b>만 나왔습니다.
+    </p>
+    <div class="tbl">
+      <table>
+        <thead><tr><th>시도</th><th>거래가 있는 시군구</th></tr></thead>
+        <tbody>
+          <tr><td>광주광역시</td><td><b>0개</b> (행정구역 표에는 5개)</td></tr>
+          <tr><td>전라남도</td><td><b>0개</b> (행정구역 표에는 22개)</td></tr>
+        </tbody>
+      </table>
+    </div>
+    <ul class="notes">
+      <li>수집기는 행정구역 표를 그대로 순회하므로 <b>빠뜨릴 구조가 아닙니다</b> — 과거 데이터를 대량으로 받던 중 호출 한도에 막힌 구간이 조용히 넘어간 것으로 보입니다(그 함정은 이미 기록돼 있고 뒤늦게 감지 기능을 넣었습니다)</li>
+      <li>다시 받으면 해결됩니다 — <b>전체가 아니라 27개 시군구만</b>(전체의 약 11%)</li>
+      <li>DB에 쓰는 작업이라 <b>시점을 정해 주시면</b> 진행합니다</li>
+    </ul>
+  </div>
+</section>
+</div>
+
 <footer>
   <div class="wrap">
     <p class="k">접속 URL</p>
@@ -9245,7 +9410,7 @@ response = requests.get("https://api.sj-lab.co.kr/open-api/v1/convenience-store"
       <li><em>운영 로그인 페이지</em><span class="url">https://api.sj-lab.co.kr/auth/login.html</span></li>
       <li><em>sj-lab-authserver</em><span class="url">https://github.com/stylealist/sj-lab-authserver</span></li>
       <li><em>API 센터</em><span class="url">https://sj-lab.co.kr/openapi/</span></li>
-      <li><em>기록 원본</em><span class="url">sj-lab/history/history_v1.0.md ~ v1.35.md, v2.0.md ~ v4.13.md</span></li>
+      <li><em>기록 원본</em><span class="url">sj-lab/history/history_v1.0.md ~ v1.35.md, v2.0.md ~ v4.15.md</span></li>
     </ul>
     <p class="colophon">
       총괄 허브 <code>C:\developer\workspace\sj-lab</code> 기준 · 커밋과 push는 사용자가 요청할 때만 수행합니다 ·

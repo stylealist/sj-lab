@@ -36,9 +36,11 @@ GRANT SELECT ON estate.apt_rent            TO openapi_svc;  -- 전월세
 GRANT SELECT ON estate.v_apt_trade_monthly TO openapi_svc;  -- 지역 선택 시 매매 추세
 GRANT SELECT ON estate.v_apt_rent_monthly  TO openapi_svc;  -- 지역 선택 시 전월세 추세
 
--- 시군구 이름 표시용(행정구역 경계 표)
+-- 지역 이름 표시용(행정구역 경계 표). 시도는 2026-10-13 지역 3단 선택 때 추가됐다 —
+-- 없으면 시도 이름 대신 코드가 보인다(서비스가 그렇게 버티도록 만들어 뒀다).
 GRANT USAGE  ON SCHEMA public TO openapi_svc;
 GRANT SELECT ON public.g_sgg  TO openapi_svc;
+GRANT SELECT ON public.g_sido TO openapi_svc;
 
 -- 앞으로 estate 스키마에 표/뷰가 추가돼도(오피스텔·빌라) 따로 GRANT 하지 않도록
 ALTER DEFAULT PRIVILEGES IN SCHEMA estate GRANT SELECT ON TABLES TO openapi_svc;
@@ -49,7 +51,8 @@ ALTER DEFAULT PRIVILEGES IN SCHEMA estate GRANT SELECT ON TABLES TO openapi_svc;
 SELECT has_schema_privilege('openapi_svc', 'estate', 'usage')                    AS 스키마_접속,
        has_table_privilege ('openapi_svc', 'estate.apt_trade', 'select')         AS 매매_읽기,
        has_table_privilege ('openapi_svc', 'estate.v_apt_trade_monthly','select') AS 매매뷰_읽기,
-       has_table_privilege ('openapi_svc', 'public.g_sgg', 'select')             AS 시군구_읽기;
+       has_table_privilege ('openapi_svc', 'public.g_sgg', 'select')             AS 시군구_읽기,
+       has_table_privilege ('openapi_svc', 'public.g_sido', 'select')            AS 시도_읽기;
 
 -- 쓰기가 막혀 있는지도 함께 확인(세 값 모두 false 여야 한다)
 SELECT has_table_privilege('openapi_svc', 'estate.apt_trade', 'insert') AS 매매_쓰기,

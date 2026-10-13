@@ -92,11 +92,12 @@
 | `GET /map/admin-area/emd?sggCd=` | `QfieldFacilityController` | `public.g_emd` | `map-facility.js` |
 | `GET /estate/status` | `EstateController`(sj-lab-estate) | 없음(설정) | `sj-lab-estate-web` `App.js` |
 | `GET /estate/{propertyType}/meta` | 같음 | `estate.apt_trade`·`estate.apt_rent`(건수는 `reltuples` 추정) | 요약 카드 |
-| `GET /estate/{propertyType}/regions` | 같음 | `estate.apt_trade` | 지역 선택 |
-| `GET /estate/{propertyType}/trade?...` | 같음 | `estate.apt_trade` | 매매 목록 |
+| `GET /estate/{propertyType}/regions` | 같음 | `estate.apt_trade` + `public.g_sgg`·`g_sido` | 시도·시군구 선택(한 응답으로 둘 다) |
+| `GET /estate/{propertyType}/regions/emd?sggCd=` | 같음 | `estate.apt_trade`(자연키 인덱스) | 읍면동 선택 |
+| `GET /estate/{propertyType}/trade?sggCd=&umdNm=&aptNm=...` | 같음 | `estate.apt_trade` | 매매 목록 |
 | `GET /estate/{propertyType}/trade/monthly?...` | 같음 | `estate.v_apt_trade_monthly` | 매매 추세 |
 | `GET /estate/{propertyType}/rent/monthly?...` | 같음 | `estate.v_apt_rent_monthly` | 전월세 추세 |
-| `GET /estate/{propertyType}/trade/ranking?...` | 같음 | `estate.apt_trade` | 지역 순위 |
+| `GET /estate/{propertyType}/trade/ranking?sidoCd=...` | 같음 | `estate.apt_trade` | 지역 순위(시도 범위) |
 
 **공개 API(`sj-lab-openapi`, 게이트웨이 `/open-api/**`)**: 지도·시설물 데이터를 외부에서 쓸 수 있게 여는 서비스다. `GET /open-api/catalog` 가 공개 API 목록(경로·파라미터·예시)을 내려주고, 활용 페이지는 그 JSON으로 화면을 그린다. `GET /open-api/v1/...` 는 카탈로그에 **정의된 경로·파라미터만** mapservice-rest 로 올려보내고 응답을 그대로 전달한다 (정의 밖은 404·400). **DB를 직접 읽지 않는다** — 같은 SQL이 두 저장소에 생기면 뷰가 바뀔 때 한쪽만 고쳐지기 때문이다.
 - 공개 범위는 `src/main/resources/catalog/api-catalog.json` 한 파일이 정한다(현재 12개, 모두 GET). 공공데이터 6종 · 시설물 목록/상세/아이콘 · 행정구역 3단계. **내업 쓰기·사진·첨부 중계는 열지 않는다.**
@@ -124,6 +125,13 @@
 - `GET /estate/status` 가 종류와 서비스 여부를 함께 돌려주고 화면이 그 값으로 탭을 그린다 — **새 종류를 열 때 서버만 바꾸면 화면이 따라온다**(화면에 하드코딩하지 말 것).
 - 건수는 `count(*)` 가 아니라 `reltuples` 추정치이고 응답에 `rows_estimated: true` 로 밝힌다(2,100만 행에서 정확히 세는 것만으로 느리다). 그래서 화면이 "약"을 붙인다.
 - **기간 조건을 `deal_year * 100 + deal_month` 같은 식으로 비교하지 말 것** — 인덱스를 못 타 지역 순위가 23.5초였다. 연도를 `between` 으로 좁힌 뒤 경계 연도에서만 월을 본다(1.5초).
+- **지역 목록(`/regions`)은 서비스가 6시간 캐시하고 기동 직후 예열한다**(2026-10-13). `group by sgg_cd` + `count(*)` 가 인덱스를 타도 990만 건을 끝까지 읽어 5.1초였고, 이것이 **첫 화면 렉의 주원인**이었다(6.4초 → 40ms). 수집이 돌 때만 바뀌는 값이라 캐시가 맞다.
+- **지역은 시도 → 시군구 → 읍면동 3단계로 고른다**(2026-10-13). 시도는 시군구 코드 앞 2자리이고, 시군구 목록 응답에 시도 코드·이름이 함께 담겨 화면이 호출을 늘리지 않는다. **읍면동은 코드가 아니라 이름(`umd_nm`)** 으로 가린다 — 전월세 표에 `umd_cd` 가 없어 두 표에 공통인 키가 이름뿐이다. 읍면동까지 좁힌 추세는 집계 뷰(시군구 단위)를 쓸 수 없어 원본에서 계산하지만 자연키 인덱스를 타 수십 ms 다.
+- **이름 조인을 무거운 집계에 더 넣지 말 것** — 시도 이름까지 `group by` 에 넣었더니 지역 목록이 5.1초 → 19.7초가 됐다(2026-10-13 실측). 이름은 17행짜리 표에서 따로 읽어 서비스가 붙인다.
+- **순위는 `sidoCd` 로 좁힐 수 있다**(전국 4.7초 → 시도 0.6초 실측). 화면은 고른 시도를 그대로 넘긴다.
+- 지역 목록 캐시는 **기한이 지나도 사용자를 기다리게 하지 않는다** — 가진 값을 바로 주고 갱신은 뒤에서 한다.
+- **광주광역시·전라남도는 실거래 데이터가 0건이다**(2026-10-13 확인). `public.g_sgg` 에는 27개 시군구가 있고 수집기도 그 표를 순회하므로, 백필 도중 조용히 빠진 것으로 보인다(`docs/backfill-workflow.md` 의 "429를 빈 결과로 넘기기" 함정). 그 두 시도는 화면에 목록이 비어 보인다 — 다시 받아야 한다.
+- **화면 첫 기본 지역은 서울 강남구(`11680`)다**(2026-10-13). 전국을 기본으로 두면 첫 화면이 몇 초 멈춘다. 이 두 가지로 첫 화면 호출 합계가 **290ms** 가 됐다(실측).
 - 전국 조회는 평균·중위 때문에 아직 느리다(매매 8.6초·전월세 28.7초. 지역 한 곳은 0.04초). 미리 집계해 두는 스크립트가 `db/estate/estate_apt_monthly_matview.sql` 이며 **실행은 DB 담당자가** 한다(실행 전에도 화면은 동작하고 전국 조회만 느리다).
 - 수집·백필 절차와 함정은 `docs/backfill-workflow.md`, 표·뷰 정의는 `db/estate/estate_apt.sql`.
 - **프론트(`sj-lab-estate-web`, 로컬 4200)**: 활용 페이지와 같은 구성(React 18 + Webpack, 인라인 스타일, 차트 라이브러리 없이 SVG). 헤더와 접기 버튼은 지도 사이트와 같은 톤이고 **실거래 · 소개 · 저장소 · 문의** 세 화면이 있다. API 는 dev server 프록시(`/estate` → 8100)로 넘긴다. **authserver `login.html` 의 `ALLOWED_REDIRECT_ORIGINS` 에 주소를 넣어야** 로그인 후 되돌아온다(2026-10-12 `localhost:4200` 누락 때문에 허브 카드를 눌러도 페이지가 열리지 않았다).
