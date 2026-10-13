@@ -522,7 +522,8 @@
       <button type="button" class="vchip" role="tab" data-ver="4.9" aria-controls="pane-v4.9" title="조회 서버 배포 잡 + ArgoCD 등록 정의 · 새 서비스는 세 가지가 필요하다는 규칙"><span class="pv">v4.9</span><span class="pt">서버 배포 잡</span></button>
       <button type="button" class="vchip" role="tab" data-ver="4.10" aria-controls="pane-v4.10" title="조회 서버 배포 성공 · 개발=운영 DB 확인 · 조회 전용 계정 스크립트"><span class="pv">v4.10</span><span class="pt">서버 배포 성공</span></button>
       <button type="button" class="vchip" role="tab" data-ver="4.11" aria-controls="pane-v4.11" title="기존 조회 전용 계정으로 DB 연결 · 비밀번호가 남지 않는 Secret 스크립트"><span class="pv">v4.11</span><span class="pt">DB 연결 준비</span></button>
-      <button type="button" class="vchip" role="tab" data-ver="4.12" aria-controls="pane-v4.12" title="상태 응답이 준비되지 않은 이유를 알려 주도록 · 운영 원인 확정(접속 정보 없음)"><span class="pv">v4.12<span class="dot" title="최신" aria-label="최신"></span></span><span class="pt">원인을 말하는 상태</span></button>
+      <button type="button" class="vchip" role="tab" data-ver="4.12" aria-controls="pane-v4.12" title="상태 응답이 준비되지 않은 이유를 알려 주도록 · 운영 원인 확정(접속 정보 없음)"><span class="pv">v4.12</span><span class="pt">원인을 말하는 상태</span></button>
+      <button type="button" class="vchip" role="tab" data-ver="4.13" aria-controls="pane-v4.13" title="새 접속 정보를 만들지 않고 기존 것을 공유 · 권한 없이 정상으로 보고되던 구멍 막음"><span class="pv">v4.13<span class="dot" title="최신" aria-label="최신"></span></span><span class="pt">접속 정보 공유</span></button>
     </div>
   </div>
 </nav>
@@ -9146,6 +9147,93 @@ response = requests.get("https://api.sj-lab.co.kr/open-api/v1/convenience-store"
 </section>
 </div>
 
+<!-- ===================== v4.13 ===================== -->
+<div class="vpane" data-ver="4.13" id="pane-v4.13" hidden>
+<header class="masthead">
+  <div class="wrap">
+    <div class="stamp">
+      <span class="ver">v4.13</span>
+      <span>2026-10-13</span>
+      <span>배포 설정 · 조회 서버 · 총괄</span>
+    </div>
+    <h1>새로 만들지 않고<br>있는 것을 같이 쓰기로</h1>
+    <p class="plainline">공개 API 가 쓰던 접속 정보를 그대로 공유합니다 — 설정 한 줄 변경</p>
+    <p class="dek">
+      덕분에 <b>클러스터를 직접 만질 일이 없어졌습니다.</b> 대신 그 계정에 부동산 데이터
+      <b>읽기 권한을 주는 SQL 한 번</b>이 남았습니다.
+    </p>
+    <dl class="facts">
+      <div><dt>변경</dt><dd class="ok">설정 한 줄</dd></div>
+      <div><dt>필요한 권한</dt><dd class="ok">읽기만</dd></div>
+      <div><dt>남은 일</dt><dd>SQL 한 번</dd></div>
+      <div><dt>덤</dt><dd class="ok">헷갈리는 상태 하나 제거</dd></div>
+    </dl>
+  </div>
+</header>
+
+<section class="band">
+  <div class="wrap">
+    <p class="eyebrow">하나</p>
+    <h2>조건은 권한 하나였습니다</h2>
+    <p style="margin:0 0 1rem">
+      기존 접속 정보는 같은 DB 를 가리키고 항목 이름도 같아 그대로 쓸 수 있었습니다. 다만 그 계정은
+      <b>공개 API 용으로 만들어져 부동산 데이터를 읽을 권한이 없었습니다.</b>
+    </p>
+    <div class="tbl">
+      <table>
+        <thead><tr><th>확인</th><th>결과</th></tr></thead>
+        <tbody>
+          <tr><td>부동산 스키마 접속</td><td>없음</td></tr>
+          <tr><td>매매 표 읽기</td><td>없음</td></tr>
+          <tr><td>공개 API 표 읽기</td><td class="ok">있음(원래 용도)</td></tr>
+        </tbody>
+      </table>
+    </div>
+    <ul class="notes">
+      <li>그래서 <b>읽기 권한만 주는 스크립트</b>를 만들었습니다 — 쓰기 권한은 주지 않고, 확인 쿼리와 되돌리는 방법도 같은 파일에 있습니다</li>
+      <li>알고 둘 점 — 두 서비스가 <b>계정을 공유</b>하므로 나중에 비밀번호를 바꾸면 둘 다 영향을 받습니다. 나누고 싶어지면 전용 계정 스크립트가 이미 준비돼 있고, 설정 한 줄만 되돌리면 됩니다</li>
+    </ul>
+  </div>
+</section>
+
+<section class="band">
+  <div class="wrap">
+    <p class="eyebrow">둘</p>
+    <h2>"권한 없는데 정상"이 될 수 있던 구멍</h2>
+    <p style="margin:0 0 1rem">
+      계정을 바꾸다 발견했습니다. 종전 준비 확인은 <b>통계 정보</b>만 읽었는데, 그 통계는
+      <b>권한이 없는 계정도 읽을 수 있습니다.</b>
+    </p>
+    <ul class="notes">
+      <li>그대로 두면 화면은 "정상"인데 <b>조회만 전부 실패</b>하는, 가장 헷갈리는 상태가 됩니다</li>
+      <li>확인 방식을 <b>실제 표에서 한 행 읽기</b>로 바꿨습니다 — 권한이 없으면 바로 그렇게 보고합니다</li>
+    </ul>
+    <div class="tbl">
+      <table>
+        <thead><tr><th>상태</th><th>뜻</th></tr></thead>
+        <tbody>
+          <tr><td>접속 정보 없음</td><td>설정이 아직 안 들어감</td></tr>
+          <tr><td>조회 실패</td><td>설정은 있는데 권한·주소 문제 — SQL 실행 전이면 여기</td></tr>
+          <tr><td class="ok">정상</td><td>조회 가능</td></tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+</section>
+
+<section class="band">
+  <div class="wrap">
+    <p class="eyebrow">셋</p>
+    <h2>남은 한 가지</h2>
+    <ul class="notes">
+      <li>DB 담당자가 <b>읽기 권한 스크립트를 한 번 실행</b>하면 상태가 "정상"이 되고 화면에 데이터가 채워집니다</li>
+      <li>배포 설정은 검사 도구로, 서비스는 로컬에서 동작을 확인했습니다</li>
+      <li>전월세 보증금 재수집(앞서 찾은 버그)은 여전히 대기 중입니다 — 시점만 정해 주시면 진행합니다</li>
+    </ul>
+  </div>
+</section>
+</div>
+
 <footer>
   <div class="wrap">
     <p class="k">접속 URL</p>
@@ -9157,7 +9245,7 @@ response = requests.get("https://api.sj-lab.co.kr/open-api/v1/convenience-store"
       <li><em>운영 로그인 페이지</em><span class="url">https://api.sj-lab.co.kr/auth/login.html</span></li>
       <li><em>sj-lab-authserver</em><span class="url">https://github.com/stylealist/sj-lab-authserver</span></li>
       <li><em>API 센터</em><span class="url">https://sj-lab.co.kr/openapi/</span></li>
-      <li><em>기록 원본</em><span class="url">sj-lab/history/history_v1.0.md ~ v1.35.md, v2.0.md ~ v4.12.md</span></li>
+      <li><em>기록 원본</em><span class="url">sj-lab/history/history_v1.0.md ~ v1.35.md, v2.0.md ~ v4.13.md</span></li>
     </ul>
     <p class="colophon">
       총괄 허브 <code>C:\developer\workspace\sj-lab</code> 기준 · 커밋과 push는 사용자가 요청할 때만 수행합니다 ·

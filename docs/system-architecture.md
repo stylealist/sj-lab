@@ -116,6 +116,8 @@
 **부동산 실거래(`sj-lab-estate`, 게이트웨이 `/estate/**`)**: 국토교통부 실거래 공개 API 를 scheduler 가 모아 둔 `estate` 스키마를 읽어 매매·전월세 추세와 지역 순위를 내려준다. 지도와 달리 GeoJSON 이 아니라 집계 JSON 이다.
 
 - **2026-10-12 에 `fast-api-ai` 에서 떼어낸 별도 Spring 서비스다**(`fast-api-ai` 는 AI 기능만 담는다). 응답·오류 형태를 그대로 유지해 화면은 호출 주소만 바꿨다 — 목록은 `{"items": [...]}`, 오류는 `{"detail": {"code", "message"}}`, 키는 **DB 컬럼명 그대로**다. 그래서 결과를 DTO 가 아니라 `Map` 으로 받는다(DTO 면 Jackson 이 camelCase 로 바꿔 내보낸다). 옛 파이썬 코드는 `trash/2026-10-12/fast-api-ai/` 에 있다.
+- **운영 DB 접속은 `openapi-db-credentials` Secret 을 공개 API 와 공유한다**(2026-10-13). 새 Secret 을 만들지 않으려고 차트의 `db.secretName` 만 바꿨고, 그 계정(`openapi_svc`)에 estate 읽기 권한을 주는 스크립트 `db/estate/estate_grant_openapi_svc.sql` 를 DB 담당자가 실행해야 한다. 계정을 공유하므로 **비밀번호를 바꾸면 두 서비스가 함께 영향**을 받는다.
+- **준비 확인(probe)은 통계가 아니라 실제 표를 한 행 읽는다** — `pg_class` 는 권한 없는 계정도 읽을 수 있어, 통계로만 확인하면 권한이 없는데 `ready: true` 로 보고된다(2026-10-13 계정을 바꾸며 확인). `status` 응답의 `reason` 은 `NOT_CONFIGURED`(설정 없음) / `CONNECT_FAILED`(권한·주소 문제) / `READY` 세 가지다.
 - **DB 접속 정보가 없어도 서비스는 뜬다** — `EstateDataSourceConfig` 가 DataSource 를 만들지 않아 MyBatis 자동설정이 건너뛰어지고, 조회만 503(`NOT_CONFIGURED`)·`/estate/status` 는 `ready: false` 로 답한다. 기동을 막으면 화면이 그 사실조차 알릴 수 없다. `DataSourceAutoConfiguration` 을 되살리지 말 것(켜면 접속 정보 없이 기동이 실패한다).
 
 - **매물 종류를 경로 조각으로 받는다**(`/estate/{propertyType}/...`, `apt`·`offi`·`villa`). 국토교통부가 아파트·오피스텔·연립다세대를 **서로 다른 API 로 주고 컬럼도 달라** DB 표가 종류별로 나뉘기 때문이다. 지금은 `apt` 만 서비스하고 나머지는 **503 + 이유**로 답한다(404 로 두면 "주소가 틀렸나"로 읽혀 원인을 찾기 어렵다). 모르는 종류는 400.

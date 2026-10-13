@@ -113,6 +113,21 @@
 
     <div class="card">
       <div class="ver-head">
+        <span class="tag">v4.13</span>
+        <span class="ver-title">새로 만들지 않고 있는 접속 정보를 공유<span class="ver-note">SQL 한 번만 남음</span></span>
+        <span class="date">2026-10-13</span>
+      </div>
+      <ul>
+        <li>공개 API 가 쓰던 접속 정보를 <b>그대로 공유</b>하도록 설정 한 줄을 바꿨습니다 — 클러스터를 직접 만질 일이 없어졌습니다</li>
+        <li>그 계정에 부동산 <b>읽기 권한만 주는 SQL</b>이 한 번 필요합니다(쓰기 권한은 주지 않음)</li>
+        <li>계정을 바꾸다 <b>"권한 없는데 정상"으로 보고될 수 있던 구멍</b>을 발견해 막았습니다 — 준비 확인을 실제 표 읽기로 변경</li>
+        <li>두 서비스가 계정을 공유하므로 비밀번호 변경 시 둘 다 영향을 받습니다(나누는 방법도 준비돼 있음)</li>
+      </ul>
+      <p><a href="../history_v4.13.md">history_v4.13.md 원문 보기</a></p>
+    </div>
+
+    <div class="card">
+      <div class="ver-head">
         <span class="tag">v4.12</span>
         <span class="ver-title">"왜 준비되지 않았는지"를 서버가 말하게<span class="ver-note">운영 원인 확정</span></span>
         <span class="date">2026-10-13</span>

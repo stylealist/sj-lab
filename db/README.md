@@ -29,6 +29,7 @@ psql -h <호스트> -p 5432 -U <계정> -d sjlab -f map/map_facility_office_work
 | `estate/estate_drop_legacy_apt.sql` | 위 `estate_apt.sql` | 옛 `ai.apt_*` 표가 그대로 남아 있음(기능 영향 없음) |
 | `estate/estate_apt_monthly_matview.sql` | 위 `estate_apt.sql` | 화면은 그대로 되지만 **전국 조회가 느림**(매매 8.6초·전월세 28.7초 실측). 지역을 고르면 0.04초 — 급하지 않으면 미뤄도 됨 |
 | `estate/estate_read_role.sql` | 위 `estate_apt.sql` | **부동산 조회 서비스가 DB에 붙지 못함** — `GET /estate/status` 가 `ready:false`, 조회는 503. 서비스·화면은 뜨고 "준비되지 않았다"고 안내함(2026-10-12 추가) |
+| `estate/estate_grant_openapi_svc.sql` | 위 `estate_apt.sql` | **운영 부동산 조회가 막힘** — `GET /estate/status` 가 `reason: CONNECT_FAILED`. 운영이 `openapi-db-credentials`(계정 `openapi_svc`)를 공유하는데 그 계정에 estate 읽기 권한이 없기 때문(2026-10-13 추가, **지금 필요한 스크립트**) |
 
 - **스키마를 바꾸지 말 것**: `qfield` 스키마는 `sj-qfieldsync` 워커가 관리하며, 프로젝트 이름 패턴이 아닌
   표를 "삭제된 프로젝트 표"로 보고 지웁니다(2026-09-16·09-18 실제로 두 번 삭제됨). 앱이 쓰는 표는 `map`,
