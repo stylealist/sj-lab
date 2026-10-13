@@ -27,7 +27,8 @@
 -- 이미 있으면 비밀번호만 바꿀 때:
 -- ALTER ROLE estate_read WITH PASSWORD '여기에-강한-비밀번호';
 
-COMMENT ON ROLE estate_read IS 'sj-lab-estate 서비스용 조회 전용 계정 (estate 스키마 SELECT)';
+-- 계정을 만든 뒤 함께 실행할 것(위 CREATE ROLE 과 같이 주석을 푼다)
+-- COMMENT ON ROLE estate_read IS 'sj-lab-estate 서비스용 조회 전용 계정 (estate 스키마 SELECT)';
 
 -- ----------------------------------------------------------------------------
 -- 2) 접속 권한
