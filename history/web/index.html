@@ -113,6 +113,22 @@
 
     <div class="card">
       <div class="ver-head">
+        <span class="tag">v4.12</span>
+        <span class="ver-title">"왜 준비되지 않았는지"를 서버가 말하게<span class="ver-note">운영 원인 확정</span></span>
+        <span class="date">2026-10-13</span>
+      </div>
+      <ul>
+        <li>로컬은 데이터가 나오고 <b>운영만 비어 있었습니다</b> — 코드가 아니라 접속 정보를 넣는 단계가 남은 것이었습니다</li>
+        <li>상태 응답이 원인을 <b>세 가지로 구분</b>합니다: 접속 정보 없음 / 붙지 못함 / 정상</li>
+        <li>"된다"의 판정을 <b>실제 조회가 되는지</b>로 바꿨습니다(설정만 있고 못 붙는 상태를 정상으로 보던 빈틈 제거)</li>
+        <li>접속 주소·계정·비밀번호는 응답에 담지 않습니다. 화면 배너는 서버가 준 설명을 그대로 보여 줍니다</li>
+        <li>푸시만으로 <b>빌드 두 개가 자동 실행·성공</b>했고, 운영 응답이 바뀐 것까지 확인했습니다</li>
+      </ul>
+      <p><a href="../history_v4.12.md">history_v4.12.md 원문 보기</a></p>
+    </div>
+
+    <div class="card">
+      <div class="ver-head">
         <span class="tag">v4.11</span>
         <span class="ver-title">새 계정을 만들지 않고 있는 계정으로 연결<span class="ver-note">비밀번호 비노출 스크립트</span></span>
         <span class="date">2026-10-12</span>

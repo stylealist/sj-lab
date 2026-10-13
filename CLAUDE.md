@@ -41,6 +41,7 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 - API 경로·응답 형식을 바꾸면 백엔드와 프론트를 같은 작업에서 함께 수정하고 `docs/system-architecture.md`의 API 계약 표를 갱신할 것.
 - **백엔드에 새 조회(GET) 기능을 추가하면 공개 API(`sj-lab-openapi`)에 열 수 있는지 판단하고, 열 수 있으면 같은 작업에서 카탈로그(`api-catalog.json`)에 함께 추가할 것** — 기준·절차는 `docs/openapi-expose-checklist.md`. 애매하면 열지 말고 사용자에게 먼저 물어볼 것.
 - `.claude/hooks/guard.sh`가 `git reset --hard`, `git push --force`, 그리고 `claude` 문자열이 들어간 Bash 명령을 차단합니다. 차단되면 우회하지 말고 다른 도구(Read/Grep/PowerShell)로 해결할 것.
+- 현재는 개발DB와 운영DB를 동일하게 사용 중
 
 작업 규칙:
 - **작업 범위**: `docs/dev-environment.md`의 "로컬 저장소 경로" 표에 명시된 저장소 안에서만 작업할 것. 표에 없는 경로를 읽거나 고쳐야 하면 먼저 사용자에게 확인하고, 승인되면 그 표와 `additionalDirectories`에 추가할 것.

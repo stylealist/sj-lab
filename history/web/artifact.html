@@ -521,7 +521,8 @@
       <button type="button" class="vchip" role="tab" data-ver="4.8" aria-controls="pane-v4.8" title="부동산 화면 운영 배포 완료 · 확인 표식과 한글 인코딩 두 버그 수정"><span class="pv">v4.8</span><span class="pt">부동산 화면 배포 완료</span></button>
       <button type="button" class="vchip" role="tab" data-ver="4.9" aria-controls="pane-v4.9" title="조회 서버 배포 잡 + ArgoCD 등록 정의 · 새 서비스는 세 가지가 필요하다는 규칙"><span class="pv">v4.9</span><span class="pt">서버 배포 잡</span></button>
       <button type="button" class="vchip" role="tab" data-ver="4.10" aria-controls="pane-v4.10" title="조회 서버 배포 성공 · 개발=운영 DB 확인 · 조회 전용 계정 스크립트"><span class="pv">v4.10</span><span class="pt">서버 배포 성공</span></button>
-      <button type="button" class="vchip" role="tab" data-ver="4.11" aria-controls="pane-v4.11" title="기존 조회 전용 계정으로 DB 연결 · 비밀번호가 남지 않는 Secret 스크립트"><span class="pv">v4.11<span class="dot" title="최신" aria-label="최신"></span></span><span class="pt">DB 연결 준비</span></button>
+      <button type="button" class="vchip" role="tab" data-ver="4.11" aria-controls="pane-v4.11" title="기존 조회 전용 계정으로 DB 연결 · 비밀번호가 남지 않는 Secret 스크립트"><span class="pv">v4.11</span><span class="pt">DB 연결 준비</span></button>
+      <button type="button" class="vchip" role="tab" data-ver="4.12" aria-controls="pane-v4.12" title="상태 응답이 준비되지 않은 이유를 알려 주도록 · 운영 원인 확정(접속 정보 없음)"><span class="pv">v4.12<span class="dot" title="최신" aria-label="최신"></span></span><span class="pt">원인을 말하는 상태</span></button>
     </div>
   </div>
 </nav>
@@ -9067,6 +9068,84 @@ response = requests.get("https://api.sj-lab.co.kr/open-api/v1/convenience-store"
 </section>
 </div>
 
+<!-- ===================== v4.12 ===================== -->
+<div class="vpane" data-ver="4.12" id="pane-v4.12" hidden>
+<header class="masthead">
+  <div class="wrap">
+    <div class="stamp">
+      <span class="ver">v4.12</span>
+      <span>2026-10-13</span>
+      <span>조회 서버 · 화면 · 총괄</span>
+    </div>
+    <h1>"왜 준비되지 않았는지"를<br>서버가 말하게 했습니다</h1>
+    <p class="plainline">로컬은 데이터가 나오고 운영만 비어 있었습니다 — 원인은 접속 정보 한 가지</p>
+    <p class="dek">
+      종전에는 "준비되지 않았습니다"만 떠서 <b>설정이 없는 것인지, 있는데 못 붙는 것인지</b>
+      구분할 수 없었습니다. 이제 상태 응답이 원인을 함께 알려 줍니다.
+    </p>
+    <dl class="facts">
+      <div><dt>로컬</dt><dd class="ok">데이터 나옴</dd></div>
+      <div><dt>운영 원인</dt><dd>접속 정보 없음(확정)</dd></div>
+      <div><dt>배포</dt><dd class="ok">푸시로 자동 · 둘 다 성공</dd></div>
+      <div><dt>남은 일</dt><dd>명령 한 줄</dd></div>
+    </dl>
+  </div>
+</header>
+
+<section class="band">
+  <div class="wrap">
+    <p class="eyebrow">하나</p>
+    <h2>먼저 양쪽을 비교했습니다</h2>
+    <div class="tbl">
+      <table>
+        <thead><tr><th>곳</th><th>결과</th></tr></thead>
+        <tbody>
+          <tr><td>내 컴퓨터(로컬)</td><td class="ok">데이터 나옴</td></tr>
+          <tr><td>운영</td><td>비어 있음 — 접속 정보가 아직 없음</td></tr>
+        </tbody>
+      </table>
+    </div>
+    <ul class="notes">
+      <li>코드 문제가 아니라 <b>운영에 접속 정보를 넣는 단계</b>가 남은 것이었습니다. 그 작업은 서버에 접근할 수 있는 자리에서만 할 수 있습니다</li>
+    </ul>
+  </div>
+</section>
+
+<section class="band">
+  <div class="wrap">
+    <p class="eyebrow">둘</p>
+    <h2>원인을 세 가지로 구분합니다</h2>
+    <div class="tbl">
+      <table>
+        <thead><tr><th>상태</th><th>뜻</th></tr></thead>
+        <tbody>
+          <tr><td>접속 정보 없음</td><td>아직 넣지 않음(지금 운영 상태)</td></tr>
+          <tr><td>붙지 못함</td><td>정보는 있는데 연결 실패 — 주소·계정·권한 확인</td></tr>
+          <tr><td class="ok">정상</td><td>조회 가능</td></tr>
+        </tbody>
+      </table>
+    </div>
+    <ul class="notes">
+      <li><b>"된다"의 판정도 바꿨습니다</b> — 설정이 꽂혀 있는지만 보던 것을, <b>가벼운 조회가 실제로 되는지</b> 확인하도록 했습니다. 설정만 있고 못 붙는 상태를 정상으로 보고하던 빈틈을 막았습니다</li>
+      <li><b>접속 주소·계정·비밀번호는 응답에 담지 않습니다</b> — 설정 여부와 오류 종류까지만. 자세한 내용은 서버 기록에만 남습니다</li>
+      <li>화면 배너는 서버가 준 설명을 그대로 보여 줍니다 — 보는 사람이 무엇을 기다리면 되는지 알 수 있게</li>
+    </ul>
+  </div>
+</section>
+
+<section class="band">
+  <div class="wrap">
+    <p class="eyebrow">셋</p>
+    <h2>푸시만으로 배포가 돌았습니다</h2>
+    <ul class="notes">
+      <li>저장소에 올리자 <b>빌드가 자동으로 시작되어 두 개 모두 성공</b>했습니다(화면·서버)</li>
+      <li>운영 응답이 바뀐 것도 확인했습니다 — 이제 원인이 한눈에 보입니다</li>
+      <li><b>남은 한 줄</b>: 접속 정보를 등록하는 스크립트를 서버 접근 가능한 자리에서 실행하면, 등록 → 재시작 → 확인까지 한 번에 끝나고 화면에 데이터가 채워집니다</li>
+    </ul>
+  </div>
+</section>
+</div>
+
 <footer>
   <div class="wrap">
     <p class="k">접속 URL</p>
@@ -9078,7 +9157,7 @@ response = requests.get("https://api.sj-lab.co.kr/open-api/v1/convenience-store"
       <li><em>운영 로그인 페이지</em><span class="url">https://api.sj-lab.co.kr/auth/login.html</span></li>
       <li><em>sj-lab-authserver</em><span class="url">https://github.com/stylealist/sj-lab-authserver</span></li>
       <li><em>API 센터</em><span class="url">https://sj-lab.co.kr/openapi/</span></li>
-      <li><em>기록 원본</em><span class="url">sj-lab/history/history_v1.0.md ~ v1.35.md, v2.0.md ~ v4.11.md</span></li>
+      <li><em>기록 원본</em><span class="url">sj-lab/history/history_v1.0.md ~ v1.35.md, v2.0.md ~ v4.12.md</span></li>
     </ul>
     <p class="colophon">
       총괄 허브 <code>C:\developer\workspace\sj-lab</code> 기준 · 커밋과 push는 사용자가 요청할 때만 수행합니다 ·
