@@ -98,6 +98,13 @@
 | `GET /estate/{propertyType}/trade/monthly?...` | 같음 | `estate.v_apt_trade_monthly` | 매매 추세 |
 | `GET /estate/{propertyType}/rent/monthly?...` | 같음 | `estate.v_apt_rent_monthly` | 전월세 추세 |
 | `GET /estate/{propertyType}/trade/ranking?sidoCd=...` | 같음 | `estate.apt_trade` | 지역 순위(시도 범위) |
+| `GET /estate/{propertyType}/complexes?sggCd=&umdNm=&q=` | 같음 | `estate.apt_trade` | 단지 찾기 |
+| `GET /estate/{propertyType}/complexes/{aptSeq}` | 같음 | `estate.apt_trade` | 단지 기본 + 평형별 요약 |
+| `GET /estate/{propertyType}/complexes/{aptSeq}/monthly` | 같음 | `estate.apt_trade` | 단지(평형) 매매 추세 |
+| `GET /estate/{propertyType}/complexes/{aptSeq}/rent/monthly` | 같음 | `estate.apt_rent` | 단지(평형) 전월세 추세 |
+| `GET /estate/{propertyType}/complexes/{aptSeq}/trades` | 같음 | `estate.apt_trade` | 단지(평형) 최근 거래 |
+| `GET /estate/{propertyType}/map/regions?level=sido\|sgg\|emd&sidoCd=&sggCd=&fromYm=&toYm=&stats=` | 같음 | `public.g_sido/g_sgg/g_emd` + `estate.apt_trade` | 지도 경계 색칠(`EstateMap.js`) |
+| `GET /estate/{propertyType}/map/complexes?bbox=&fromYm=&toYm=&limit=` | 같음 | `estate.apt_complex` + `estate.apt_trade` | 지도 아파트 핀(`EstateMap.js`) |
 
 **공개 API(`sj-lab-openapi`, 게이트웨이 `/open-api/**`)**: 지도·시설물 데이터를 외부에서 쓸 수 있게 여는 서비스다. `GET /open-api/catalog` 가 공개 API 목록(경로·파라미터·예시)을 내려주고, 활용 페이지는 그 JSON으로 화면을 그린다. `GET /open-api/v1/...` 는 카탈로그에 **정의된 경로·파라미터만** mapservice-rest 로 올려보내고 응답을 그대로 전달한다 (정의 밖은 404·400). **DB를 직접 읽지 않는다** — 같은 SQL이 두 저장소에 생기면 뷰가 바뀔 때 한쪽만 고쳐지기 때문이다.
 - 공개 범위는 `src/main/resources/catalog/api-catalog.json` 한 파일이 정한다(현재 12개, 모두 GET). 공공데이터 6종 · 시설물 목록/상세/아이콘 · 행정구역 3단계. **내업 쓰기·사진·첨부 중계는 열지 않는다.**
@@ -126,6 +133,7 @@
 - 건수는 `count(*)` 가 아니라 `reltuples` 추정치이고 응답에 `rows_estimated: true` 로 밝힌다(2,100만 행에서 정확히 세는 것만으로 느리다). 그래서 화면이 "약"을 붙인다.
 - **기간 조건을 `deal_year * 100 + deal_month` 같은 식으로 비교하지 말 것** — 인덱스를 못 타 지역 순위가 23.5초였다. 연도를 `between` 으로 좁힌 뒤 경계 연도에서만 월을 본다(1.5초).
 - **지역 목록(`/regions`)은 서비스가 6시간 캐시하고 기동 직후 예열한다**(2026-10-13). `group by sgg_cd` + `count(*)` 가 인덱스를 타도 990만 건을 끝까지 읽어 5.1초였고, 이것이 **첫 화면 렉의 주원인**이었다(6.4초 → 40ms). 수집이 돌 때만 바뀌는 값이라 캐시가 맞다.
+- **단지(아파트) 단위 조회가 있다**(2026-10-14, 호갱노노식 단지 패널). 단지 키 `apt_seq` 에는 **인덱스가 없어** 앞 5자리(시군구 코드)를 함께 조건으로 걸어야 한다 — 단독 조회는 990만 건 전수 훑기다. **평형은 전용면적 기준**이고(원천에 공급면적 없음) 응답에 전용 ㎡ 범위를 함께 담는다. 지도 좌표가 생기면 핀을 눌렀을 때 이 API 들을 그대로 쓰면 된다.
 - **지역은 시도 → 시군구 → 읍면동 3단계로 고른다**(2026-10-13). 시도는 시군구 코드 앞 2자리이고, 시군구 목록 응답에 시도 코드·이름이 함께 담겨 화면이 호출을 늘리지 않는다. **읍면동은 코드가 아니라 이름(`umd_nm`)** 으로 가린다 — 전월세 표에 `umd_cd` 가 없어 두 표에 공통인 키가 이름뿐이다. 읍면동까지 좁힌 추세는 집계 뷰(시군구 단위)를 쓸 수 없어 원본에서 계산하지만 자연키 인덱스를 타 수십 ms 다.
 - **이름 조인을 무거운 집계에 더 넣지 말 것** — 시도 이름까지 `group by` 에 넣었더니 지역 목록이 5.1초 → 19.7초가 됐다(2026-10-13 실측). 이름은 17행짜리 표에서 따로 읽어 서비스가 붙인다.
 - **순위는 `sidoCd` 로 좁힐 수 있다**(전국 4.7초 → 시도 0.6초 실측). 화면은 고른 시도를 그대로 넘긴다.
@@ -134,6 +142,16 @@
 - **화면 첫 기본 지역은 서울 강남구(`11680`)다**(2026-10-13). 전국을 기본으로 두면 첫 화면이 몇 초 멈춘다. 이 두 가지로 첫 화면 호출 합계가 **290ms** 가 됐다(실측).
 - 전국 조회는 평균·중위 때문에 아직 느리다(매매 8.6초·전월세 28.7초. 지역 한 곳은 0.04초). 미리 집계해 두는 스크립트가 `db/estate/estate_apt_monthly_matview.sql` 이며 **실행은 DB 담당자가** 한다(실행 전에도 화면은 동작하고 전국 조회만 느리다).
 - 수집·백필 절차와 함정은 `docs/backfill-workflow.md`, 표·뷰 정의는 `db/estate/estate_apt.sql`.
+- **화면 본문이 지도다**(2026-10-15, 호갱노노 형태). 헤더만 남기고 아래 전부를 지도가 쓰고, 목록·추세·순위는 지도 위 왼쪽 패널(`MapSidePanel.js`)로 들어갔다. **줌이 단계를 정한다** — 9.2 미만 시도 / 11.6 미만 시군구 / 그 이상 읍면동이고, **지도 중심이 어느 지역 안인지로 대상 코드를 정한다**(서버에 역지오코딩을 묻지 않는다). 그래서 지도는 보이지 않는 시도 경계도 들고 있다.
+  - **지도용 경계 API 는 집계와 경계를 나눠 캐시한다**: 경계는 기간과 무관해 한 번만 깎고(전국 시군구 원본 37MB), 기간이 걸린 집계만 그때그때 읽는다. 실측 서울 시군구 0.7초 · 강남구 읍면동 0.9초.
+  - **전국(시도) 평균은 990만 건을 모두 읽어 28초다**(2026-10-15 실측). 그래서 ① 기동 시 **화면 기본 기간(최근 12개월)으로 미리 계산**하고 ② 캐시에 없으면 **경계만 먼저 보내고(`stats_pending:true`) 뒤에서 계산**한다(화면이 6초 뒤 한 번 더 묻는다) ③ 지도가 "지금 어느 시도인가"만 알려고 부를 때는 **`stats=0`**(경계만)으로 불러 무거운 집계를 깨우지 않는다. **이 세 가지를 지울 경우 첫 화면이 수십 초 멈춘다.**
+  - **단지 시세는 지도 위 팝업으로 뜬다**(2026-10-15, `ComplexPopup.js`). 핀이나 목록에서 단지를
+    고르면 **평형별 · 월 단위 매매와 전월세**를 한 창에서 본다(새 API 는 없다 — 이미 있는
+    `/complexes/{aptSeq}` 계열 4개를 쓴다). 좌표가 있는 단지는 그 핀에 붙고, 좌표가 없으면 지도 위에
+    떠 있는 카드로 뜬다. **전월세 보증금은 지금 약 4%만 저장돼 있어**(수집기 버그, 재수집 대기)
+    금액 대신 건수와 "보증금 없음"을 적는다 — 빈 칸으로 두면 "거래 없는 달"로 읽힌다.
+  - **아파트 핀(`/map/complexes`)은 `estate.apt_complex` 가 있어야 나온다.** 표가 없으면 오류가 아니라 **빈 목록 + `coordinates_ready:false` + 사유**로 답하고, 화면이 "좌표 받은 단지 N / 44,581개"를 띄운다. 핀 쿼리는 **bbox 로 단지를 먼저 고르고 그 단지들의 시군구에서만 거래를 묶는다** — 단지별로 하나씩 조회하면 300개 × 100ms 가 된다(`apt_seq` 에는 인덱스가 없다).
+- **지도용 좌표는 따로 받는다**(2026-10-14 준비 완료, 키 발급 대기). 실거래 API 가 좌표를 주지 않아 단지 4.5만 개를 지오코딩해 `estate.apt_complex` 에 넣는다 — scheduler 의 `/scheduler/estate/complex/*` 와 `scripts/estate-geocode.ps1`. 절차·함정은 `docs/estate-geocode-workflow.md`, 왜 그 API 인지는 `docs/estate-map-plan.md`.
 - **프론트(`sj-lab-estate-web`, 로컬 4200)**: 활용 페이지와 같은 구성(React 18 + Webpack, 인라인 스타일, 차트 라이브러리 없이 SVG). 헤더와 접기 버튼은 지도 사이트와 같은 톤이고 **실거래 · 소개 · 저장소 · 문의** 세 화면이 있다. API 는 dev server 프록시(`/estate` → 8100)로 넘긴다. **authserver `login.html` 의 `ALLOWED_REDIRECT_ORIGINS` 에 주소를 넣어야** 로그인 후 되돌아온다(2026-10-12 `localhost:4200` 누락 때문에 허브 카드를 눌러도 페이지가 열리지 않았다).
 
 **로그인 및 SSO(`sj-lab-authserver`, 게이트웨이 `/auth/**`)**: 별도 회원 DB 없이 QFieldCloud 계정을 그대로 쓴다. `POST /auth/login {username,password}` → QFieldCloud `POST /api/v1/auth/login/`에 위임 검증(위 중계 흐름과 같은 계약) → 성공 시 이 서버가 서명한 sj-lab 전용 JWT 발급(`{accessToken, tokenType, expiresIn, username}`). `GET /auth/me`(`Authorization: Bearer`)로 토큰 유효성 확인.

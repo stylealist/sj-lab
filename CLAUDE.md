@@ -29,6 +29,7 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
   잡 이름 규칙·새 잡 만드는 두 가지 방법(UI·API)·만들기 전 준비물은 `docs/jenkins/README.md`
 - `docs/argocd/*.yaml` — ArgoCD Application 정의(화면에서 손으로 만들던 설정을 글로 남긴 것).
   **이미지로 배포하는 새 서비스는 이것을 등록하지 않으면 태그만 올라가고 배포되지 않는다**
+- `docs/estate-geocode-workflow.md` — **아파트 단지 좌표 받기(지오코딩) 절차**. 준비물(표·키), 단지 긁어오기 → 좌표 채우기 명령, 두 가지 API 와 좌표계 차이, **미리 막아 둔 함정 6가지**, 확인 쿼리
 - `docs/estate-map-plan.md` — **부동산을 지도 기반(호갱노노 형태)으로 가는 길**. 원천에 좌표가 없다는 사실, 두 표의 키로 좌표를 얻는 API 2가지와 파라미터 조립식, 좌표가 필요한 단지 수(44,581), 좌표 없이 지금 가능한 읍면동 색칠 지도, 단계별 순서와 미리 조심할 것
 - `docs/analysis/*.md` — 개발 DB 연결·권한·스키마 점검 및 인덱스·뷰·데이터 품질 분석
 - `db/README.md` — 표 생성 스크립트 목록, 실행 순서, 실행 전에는 어떤 기능이 막히는지
