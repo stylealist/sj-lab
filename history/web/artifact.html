@@ -529,7 +529,8 @@
       <button type="button" class="vchip" role="tab" data-ver="4.16" aria-controls="pane-v4.16" title="호갱노노식 단지 패널(평형별 시세·추세·거래) · 지도 전 단계"><span class="pv">v4.16</span><span class="pt">단지 패널</span></button>
       <button type="button" class="vchip" role="tab" data-ver="4.17" aria-controls="pane-v4.17" title="핀 지도용 단지 좌표 받기 준비(표·배치·드라이버·문서) · 키 발급만 남음"><span class="pv">v4.17</span><span class="pt">좌표 받기 준비</span></button>
       <button type="button" class="vchip" role="tab" data-ver="4.18" aria-controls="pane-v4.18" title="부동산 화면을 호갱노노 형태로 — 본문 전체가 지도, 경계 3단 색칠 + 아파트 핀"><span class="pv">v4.18</span><span class="pt">지도 사이트</span></button>
-      <button type="button" class="vchip" role="tab" data-ver="4.19" aria-controls="pane-v4.19" title="아파트를 누르면 월별 매매·전월세를 보는 단지 팝업 — 좌표가 오면 핀에 붙는다"><span class="pv">v4.19<span class="dot" title="최신" aria-label="최신"></span></span><span class="pt">단지 팝업</span></button>
+      <button type="button" class="vchip" role="tab" data-ver="4.19" aria-controls="pane-v4.19" title="아파트를 누르면 월별 매매·전월세를 보는 단지 팝업 — 좌표가 오면 핀에 붙는다"><span class="pv">v4.19</span><span class="pt">단지 팝업</span></button>
+      <button type="button" class="vchip" role="tab" data-ver="4.20" aria-controls="pane-v4.20" title="네 저장소 커밋·푸시 · 아파트 핀까지 남은 두 가지 확정(표 1개 · 키 1개, 키는 즉시 발급)"><span class="pv">v4.20<span class="dot" title="최신" aria-label="최신"></span></span><span class="pt">올리고 핀 준비 확정</span></button>
     </div>
   </div>
 </nav>
@@ -9774,6 +9775,96 @@ response = requests.get("https://api.sj-lab.co.kr/open-api/v1/convenience-store"
 </section>
 </div>
 
+<!-- ===================== v4.20 ===================== -->
+<div class="vpane" data-ver="4.20" id="pane-v4.20" hidden>
+<header class="masthead">
+  <div class="wrap">
+    <div class="stamp">
+      <span class="ver">v4.20</span>
+      <span>2026-10-15</span>
+      <span>저장소 4곳 · 핀 준비</span>
+    </div>
+    <h1>올렸습니다,<br>핀까지 두 가지 남았습니다</h1>
+    <p class="plainline">이틀치 작업을 네 저장소에 올렸습니다</p>
+    <p class="dek">
+      지도·팝업·좌표 배치가 로컬에만 있었습니다. 저장소별로 나눠 올렸고(운영 배포가 함께
+      시작됩니다), 아파트 핀까지 <b>사람이 할 일이 둘</b>만 남은 것을 확인했습니다.
+    </p>
+    <dl class="facts">
+      <div><dt>올린 저장소</dt><dd class="ok">4곳</dd></div>
+      <div><dt>핀 코드</dt><dd class="ok">완료</dd></div>
+      <div><dt>남은 일</dt><dd>표 1개 · 키 1개</dd></div>
+      <div><dt>키 발급</dt><dd class="ok">즉시</dd></div>
+    </dl>
+  </div>
+</header>
+
+<section class="band">
+  <div class="wrap">
+    <p class="eyebrow">하나</p>
+    <h2>네 저장소를 올렸습니다</h2>
+    <div class="tbl">
+      <table>
+        <thead><tr><th>저장소</th><th>내용</th></tr></thead>
+        <tbody>
+          <tr><td>부동산 조회 서버</td><td>지도 경계 · 아파트 핀 조회 API</td></tr>
+          <tr><td>부동산 화면</td><td>본문 전체 지도 + 단지 월별 시세 팝업</td></tr>
+          <tr><td>수집 배치</td><td>단지 좌표 수집(키가 없으면 아무것도 하지 않음)</td></tr>
+          <tr><td>총괄 저장소</td><td>기록 4개 · 좌표 표 스크립트 · 절차 문서</td></tr>
+        </tbody>
+      </table>
+    </div>
+    <ul class="notes">
+      <li>올리면 <b>운영 배포가 자동으로 시작됩니다</b> — 화면은 파일 복사, 서버는 이미지로 배포</li>
+      <li>올리기 전에 수집 배치가 <b>빌드되는지 먼저 확인</b>했습니다</li>
+    </ul>
+  </div>
+</section>
+
+<section class="band">
+  <div class="wrap">
+    <p class="eyebrow">둘</p>
+    <h2>아파트 핀 — 코드는 끝났습니다</h2>
+    <div class="tbl">
+      <table>
+        <thead><tr><th>확인한 것</th><th>결과</th></tr></thead>
+        <tbody>
+          <tr><td>좌표를 담을 표</td><td>아직 없음</td></tr>
+          <tr><td>표를 채우는 배치</td><td class="ok">있음</td></tr>
+          <tr><td>좌표를 지도로 올리는 API</td><td class="ok">있음</td></tr>
+          <tr><td>핀 · 가격 라벨 · 팝업</td><td class="ok">있음</td></tr>
+          <tr><td><b>표의 컬럼과 양쪽 코드가 맞는지</b></td><td class="ok"><b>전부 일치</b></td></tr>
+        </tbody>
+      </table>
+    </div>
+    <ul class="notes">
+      <li>마지막 줄이 중요합니다 — <b>이게 어긋나면 표를 만든 뒤에 터집니다</b></li>
+      <li>사람이 할 일은 둘 — <b>좌표 표 만들기</b>(스크립트 한 번 실행) · <b>주소 좌표 키 받기</b>(무료)</li>
+      <li>둘이 들어오면 단지 4.5만 개를 긁어 좌표를 채우는 일은 이어서 진행합니다</li>
+    </ul>
+  </div>
+</section>
+
+<section class="band">
+  <div class="wrap">
+    <p class="eyebrow">셋</p>
+    <h2>키는 기다릴 필요가 없습니다</h2>
+    <div class="tbl">
+      <table>
+        <thead><tr><th>길</th><th>상태</th></tr></thead>
+        <tbody>
+          <tr><td>주소 좌표 API 승인키</td><td class="ok"><b>심사 없이 신청 즉시 발급</b> ← 이 길</td></tr>
+          <tr><td>좌표가 담긴 파일 받기</td><td>이용목적 <b>심사 10일</b> 필요</td></tr>
+        </tbody>
+      </table>
+    </div>
+    <ul class="notes">
+      <li>처음엔 “신청 → 승인 대기”를 걱정했는데 즉시 발급이라 <b>받는 날 바로 수집을 시작</b>할 수 있습니다</li>
+    </ul>
+  </div>
+</section>
+</div>
+
 <footer>
   <div class="wrap">
     <p class="k">접속 URL</p>
@@ -9785,7 +9876,7 @@ response = requests.get("https://api.sj-lab.co.kr/open-api/v1/convenience-store"
       <li><em>운영 로그인 페이지</em><span class="url">https://api.sj-lab.co.kr/auth/login.html</span></li>
       <li><em>sj-lab-authserver</em><span class="url">https://github.com/stylealist/sj-lab-authserver</span></li>
       <li><em>API 센터</em><span class="url">https://sj-lab.co.kr/openapi/</span></li>
-      <li><em>기록 원본</em><span class="url">sj-lab/history/history_v1.0.md ~ v1.35.md, v2.0.md ~ v4.19.md</span></li>
+      <li><em>기록 원본</em><span class="url">sj-lab/history/history_v1.0.md ~ v1.35.md, v2.0.md ~ v4.20.md</span></li>
     </ul>
     <p class="colophon">
       총괄 허브 <code>C:\developer\workspace\sj-lab</code> 기준 · 커밋과 push는 사용자가 요청할 때만 수행합니다 ·
