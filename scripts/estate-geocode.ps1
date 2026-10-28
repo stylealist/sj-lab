@@ -23,6 +23,7 @@
   powershell -ExecutionPolicy Bypass -File scripts\estate-geocode.ps1 -Rounds 50
   powershell -ExecutionPolicy Bypass -File scripts\estate-geocode.ps1 -SggCd 11680 -Rounds 5
   powershell -ExecutionPolicy Bypass -File scripts\estate-geocode.ps1 -StatsOnly
+  powershell -ExecutionPolicy Bypass -File scripts\estate-geocode.ps1 -Boundary
 
 .NOTES
   준비물
@@ -42,7 +43,9 @@ param(
   # 한도에 걸렸을 때 기다리는 시간(초). 하루 한도면 길게 잡아야 한다.
   [int]$QuotaWaitSec = 1800,
   [switch]$Sync,
-  [switch]$StatsOnly
+  [switch]$StatsOnly,
+  # 테두리(연속지적도 필지)를 받는 2차 패스. 좌표를 받은 뒤에 돌린다.
+  [switch]$Boundary
 )
 
 $ErrorActionPreference = "Stop"
@@ -68,8 +71,11 @@ function Call-Scheduler([string]$path) {
 
 function Show-Stats($stats) {
   if (-not $stats) { return }
-  Write-Log ("  전체 {0} · 좌표 있음 {1} · 대기 {2} · 실패 {3} · 건너뜀 {4}" -f `
-    $stats.total, $stats.with_geom, $stats.pending, $stats.failed, $stats.skipped)
+  $line = "  전체 {0} · 좌표 있음 {1} · 대기 {2} · 실패 {3} · 건너뜀 {4}" -f `
+    $stats.total, $stats.with_geom, $stats.pending, $stats.failed, $stats.skipped
+  # 테두리 컬럼이 없는 DB 에서는 null 이 온다 — 그때는 줄에 넣지 않는다
+  if ($null -ne $stats.with_boundary) { $line += " · 테두리 {0}" -f $stats.with_boundary }
+  Write-Log $line
 }
 
 $logDir = Split-Path -Parent $logPath
@@ -94,7 +100,40 @@ if ($Sync) {
   Write-Log "동기화 완료"
 }
 
-# ── 2) 좌표 채우기 ──────────────────────────────────────────────────────────
+# ── 2) 테두리 받기(선택) ────────────────────────────────────────────────────
+# 좌표를 받은 뒤에 덧씌우는 2차 패스다. 테두리가 들어온 단지는 **핀도 단지 안쪽 중심으로**
+# 옮겨진다 — 행안부 좌표는 건물 출입구라 가장자리에 찍힌다.
+if ($Boundary) {
+  $round = 0
+  $okTotal = 0
+  while ($true) {
+    if ($Rounds -gt 0 -and $round -ge $Rounds) { Write-Log "지정한 횟수($Rounds)를 마쳤습니다."; break }
+    $round++
+
+    $res = Call-Scheduler "/scheduler/estate/complex/boundary?limit=$BatchSize"
+    if (-not $res.configured) {
+      Write-Log "중단: $($res.message)"
+      Write-Log "  scheduler 에 VWORLD_API_KEY 를 넣고 다시 띄우세요."
+      exit 1
+    }
+    $okTotal += [int]$res.ok
+    Write-Log ("[{0}회] 테두리 {1} · 못 받음 {2} (대상 {3})" -f $round, $res.ok, $res.missed, $res.picked)
+    Show-Stats $res.stats
+
+    if ($res.quotaExceeded) {
+      $quotaWaits++
+      Write-Log ("  한도에 걸렸습니다. {0}초 기다렸다가 다시 받습니다(대기 {1}회째)." -f $QuotaWaitSec, $quotaWaits)
+      Start-Sleep -Seconds $QuotaWaitSec
+      $round--
+      continue
+    }
+    if ([int]$res.picked -eq 0) { Write-Log "더 받을 단지가 없습니다 — 끝났습니다."; break }
+  }
+  Write-Log ("=== 마침: 이번 실행에서 테두리 {0}개 확보 ===" -f $okTotal)
+  exit 0
+}
+
+# ── 3) 좌표 채우기 ──────────────────────────────────────────────────────────
 $round = 0
 $okTotal = 0
 $failTotal = 0

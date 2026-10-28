@@ -530,7 +530,8 @@
       <button type="button" class="vchip" role="tab" data-ver="4.17" aria-controls="pane-v4.17" title="핀 지도용 단지 좌표 받기 준비(표·배치·드라이버·문서) · 키 발급만 남음"><span class="pv">v4.17</span><span class="pt">좌표 받기 준비</span></button>
       <button type="button" class="vchip" role="tab" data-ver="4.18" aria-controls="pane-v4.18" title="부동산 화면을 호갱노노 형태로 — 본문 전체가 지도, 경계 3단 색칠 + 아파트 핀"><span class="pv">v4.18</span><span class="pt">지도 사이트</span></button>
       <button type="button" class="vchip" role="tab" data-ver="4.19" aria-controls="pane-v4.19" title="아파트를 누르면 월별 매매·전월세를 보는 단지 팝업 — 좌표가 오면 핀에 붙는다"><span class="pv">v4.19</span><span class="pt">단지 팝업</span></button>
-      <button type="button" class="vchip" role="tab" data-ver="4.20" aria-controls="pane-v4.20" title="네 저장소 커밋·푸시 · 아파트 핀까지 남은 두 가지 확정(표 1개 · 키 1개, 키는 즉시 발급)"><span class="pv">v4.20<span class="dot" title="최신" aria-label="최신"></span></span><span class="pt">올리고 핀 준비 확정</span></button>
+      <button type="button" class="vchip" role="tab" data-ver="4.20" aria-controls="pane-v4.20" title="네 저장소 커밋·푸시 · 아파트 핀까지 남은 두 가지 확정(표 1개 · 키 1개, 키는 즉시 발급)"><span class="pv">v4.20</span><span class="pt">올리고 핀 준비 확정</span></button>
+      <button type="button" class="vchip" role="tab" data-ver="4.21" aria-controls="pane-v4.21" title="아파트 영역 전국 재수집(거대 영역 0개) · 지도 이동 3배 빠르게 · 선택상자·왼쪽 패널 새로 · 평수 정상화(84㎡=34평)"><span class="pv">v4.21<span class="dot" title="최신" aria-label="최신"></span></span><span class="pt">영역·속도·가독성</span></button>
     </div>
   </div>
 </nav>
@@ -9865,6 +9866,132 @@ response = requests.get("https://api.sj-lab.co.kr/open-api/v1/convenience-store"
 </section>
 </div>
 
+<!-- ===================== v4.21 ===================== -->
+<div class="vpane" data-ver="4.21" id="pane-v4.21" hidden>
+<header class="masthead">
+  <div class="wrap">
+    <div class="stamp">
+      <span class="ver">v4.21</span>
+      <span>2026-10-28</span>
+      <span>영역 · 속도 · 가독성</span>
+    </div>
+    <h1>아파트 영역을 제대로 그리고,<br>지도를 빠르고 읽기 쉽게</h1>
+    <p class="plainline">옆 단지 땅을 삼키던 영역을 전국 다시 받았습니다</p>
+    <p class="dek">
+      지도에서 아파트를 누르면 그 단지가 차지한 땅이 나옵니다. 그런데 <b>옆 단지 땅까지 삼켜</b>
+      엉뚱하게 넓은 경우가 많았습니다. 원인을 다섯 번에 걸쳐 찾아 고치고 전국 43,784개를 다시
+      받았습니다. 덧붙여 지도 이동 속도를 3분의 1로 줄이고, 화면 글씨와 선택 상자를 다듬었습니다.
+    </p>
+    <dl class="facts">
+      <div><dt>다시 받은 단지</dt><dd class="ok">43,784개</dd></div>
+      <div><dt>거대 영역(50만㎡+)</dt><dd class="ok">20 → 0개</dd></div>
+      <div><dt>지도 이동</dt><dd class="ok">1.9초 → 0.3초</dd></div>
+      <div><dt>평수 표기</dt><dd class="ok">84㎡ = 34평</dd></div>
+    </dl>
+  </div>
+</header>
+
+<section class="band">
+  <div class="wrap">
+    <p class="eyebrow">하나</p>
+    <h2>영역이 실제 단지와 맞게 나옵니다</h2>
+    <div class="tbl">
+      <table>
+        <thead><tr><th>무엇이 문제였나</th><th>어떻게 고쳤나</th></tr></thead>
+        <tbody>
+          <tr><td>가까운 건물을 이어 붙이다 옆 단지를 삼킴</td><td>같은 <b>번지</b>의 건물만 그 단지로 봄</td></tr>
+          <tr><td>한 번지에 단지가 여럿인 신도시에서 전부 같은 땅</td><td>번지 안에서 <b>도로명 주소</b>로 가림</td></tr>
+          <tr><td>주소가 안 맞으면 <b>번지 전체</b>를 가져감</td><td>같은 번지 <b>다른 단지 주소</b>를 함께 보고 덜어냄</td></tr>
+          <tr><td>번지가 수십만㎡ 인 신도시</td><td>우리 동에서 <b>50m 안</b> 땅만 · 건물 바닥 <b>15배</b> 상한</td></tr>
+          <tr><td>핀이 엉뚱한 곳에 찍힌 단지가 지구 전체를 모음</td><td>핀에서 <b>350m 안</b> 건물만</td></tr>
+        </tbody>
+      </table>
+    </div>
+    <div class="tbl">
+      <table>
+        <thead><tr><th>단지</th><th>전</th><th>후</th></tr></thead>
+        <tbody>
+          <tr><td>인천 서해그랑블 2개</td><td>둘 다 1,048,696㎡</td><td class="ok">8,713 / 6,535㎡</td></tr>
+          <tr><td>세종 새나루마을 4·10단지</td><td>둘 다 674,390㎡</td><td class="ok">22,258 / 28,033㎡</td></tr>
+          <tr><td>평택 e편한세상 하이센트</td><td>718,657㎡</td><td class="ok">22,192㎡</td></tr>
+          <tr><td>구로 승윤노블리안(소형)</td><td>511,341㎡</td><td class="ok">4,011㎡</td></tr>
+          <tr><td>잠실 헬리오시티 · 안양 메가트리아</td><td>346,759 / 180,041㎡</td><td class="ok">그대로(원래 정상)</td></tr>
+        </tbody>
+      </table>
+    </div>
+    <ul class="notes">
+      <li>옆 단지와 <b>절반 이상 겹친 단지 6,196개 → 4,444개</b> · 50만㎡ 넘는 영역은 <b>0개</b></li>
+      <li>아직 남은 한계 — 주소가 <b>완전히 같은</b> 단지(올림픽선수기자촌 1·2·3단지)는 원천에 나눌 근거가 없습니다</li>
+    </ul>
+  </div>
+</section>
+
+<section class="band">
+  <div class="wrap">
+    <p class="eyebrow">둘</p>
+    <h2>지도를 옮길 때 기다리는 시간을 3분의 1로</h2>
+    <div class="tbl">
+      <table>
+        <thead><tr><th>원인</th><th>고친 방법</th><th>결과</th></tr></thead>
+        <tbody>
+          <tr><td>지역 평균가를 화면 옮길 때마다 다시 계산</td><td>계산까지 끝낸 결과를 6시간 보관</td><td class="ok">1,121 → 153ms</td></tr>
+          <tr><td>미리 계산해 두는 기간이 화면과 달라 빗나감</td><td>화면 기본 기간으로 맞춤</td><td class="ok">첫 사용자도 빠름</td></tr>
+          <tr><td>핀 목록을 서버가 한 줄씩 옮겨 담음</td><td>데이터베이스가 바로 만들어 보냄</td><td class="ok">586 → 385ms</td></tr>
+          <tr><td>핀마다 단지 4.4만 개를 다시 셈</td><td>그 숫자도 1분 보관</td><td class="ok">55ms 절약</td></tr>
+          <tr><td>같은 자리로 되돌아와도 다시 조회</td><td>화면 영역별로 10분 보관</td><td class="ok">재방문 100ms 대</td></tr>
+        </tbody>
+      </table>
+    </div>
+    <ul class="notes">
+      <li>지도 이동 한 번 — <b>1.4~1.9초 → 0.2~0.57초</b>(왔던 곳은 0.1초대)</li>
+      <li>느린 곳을 <b>재서</b> 찾았습니다 — 데이터베이스는 62ms 였고 <b>나머지가 400ms</b> 였습니다</li>
+    </ul>
+  </div>
+</section>
+
+<section class="band">
+  <div class="wrap">
+    <p class="eyebrow">셋</p>
+    <h2>화면을 읽기 쉽게 다듬었습니다</h2>
+    <div class="tbl">
+      <table>
+        <thead><tr><th>무엇을</th><th>어떻게</th></tr></thead>
+        <tbody>
+          <tr><td>읍면동 경계선</td><td>지웠습니다 — 선과 평균가 라벨이 아파트 영역·핀과 겹쳤습니다</td></tr>
+          <tr><td>헤더의 매물 종류</td><td>화면 전환 탭과 똑같이 생겨 헷갈렸습니다 → <b>선택 상자 하나</b>로</td></tr>
+          <tr><td>선택 상자 6개</td><td>펼친 목록을 윈도우가 그려 어울리지 않았습니다 → <b>직접 그렸습니다</b></td></tr>
+          <tr><td>왼쪽 패널</td><td>떠 있어 화면이 조각나 보였습니다 → <b>지도 왼쪽에 붙임</b> · 머리말은 헤더와 같은 남색</td></tr>
+          <tr><td>접고 펴기</td><td>툭 사라졌다 나타났습니다 → <b>슬라이드</b>(지도 서비스의 왼쪽 탭과 같은 방식)</td></tr>
+          <tr><td>글씨·간격</td><td>목록은 금액을 오른쪽에 모아 비교하기 쉽게 · 표 숫자는 자리폭 고정 · 흐린 회색은 진하게</td></tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+</section>
+
+<section class="band">
+  <div class="wrap">
+    <p class="eyebrow">넷</p>
+    <h2>평수를 시장에서 부르는 이름으로</h2>
+    <div class="tbl">
+      <table>
+        <thead><tr><th>전용면적</th><th>전</th><th>후</th></tr></thead>
+        <tbody>
+          <tr><td>59㎡</td><td>18평</td><td class="ok">24평</td></tr>
+          <tr><td>74㎡</td><td>22평</td><td class="ok">30평</td></tr>
+          <tr><td>84㎡</td><td>25평</td><td class="ok"><b>34평</b></td></tr>
+          <tr><td>114㎡</td><td>34평</td><td class="ok">46평</td></tr>
+        </tbody>
+      </table>
+    </div>
+    <ul class="notes">
+      <li>실거래 자료에는 <b>전용면적만</b> 있어 공급면적을 통상 전용률(75%)로 되짚어 환산했습니다</li>
+      <li>추정이므로 <b>"전용 OO㎡"는 함께 적습니다</b> · 단지 대지 면적은 땅이라 환산하지 않습니다</li>
+    </ul>
+  </div>
+</section>
+</div>
+
 <footer>
   <div class="wrap">
     <p class="k">접속 URL</p>
@@ -9876,7 +10003,7 @@ response = requests.get("https://api.sj-lab.co.kr/open-api/v1/convenience-store"
       <li><em>운영 로그인 페이지</em><span class="url">https://api.sj-lab.co.kr/auth/login.html</span></li>
       <li><em>sj-lab-authserver</em><span class="url">https://github.com/stylealist/sj-lab-authserver</span></li>
       <li><em>API 센터</em><span class="url">https://sj-lab.co.kr/openapi/</span></li>
-      <li><em>기록 원본</em><span class="url">sj-lab/history/history_v1.0.md ~ v1.35.md, v2.0.md ~ v4.20.md</span></li>
+      <li><em>기록 원본</em><span class="url">sj-lab/history/history_v1.0.md ~ v1.35.md, v2.0.md ~ v4.21.md</span></li>
     </ul>
     <p class="colophon">
       총괄 허브 <code>C:\developer\workspace\sj-lab</code> 기준 · 커밋과 push는 사용자가 요청할 때만 수행합니다 ·
