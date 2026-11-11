@@ -38,9 +38,17 @@ GRANT SELECT ON estate.v_apt_rent_monthly  TO openapi_svc;  -- 지역 선택 시
 
 -- 지역 이름 표시용(행정구역 경계 표). 시도는 2026-10-13 지역 3단 선택 때 추가됐다 —
 -- 없으면 시도 이름 대신 코드가 보인다(서비스가 그렇게 버티도록 만들어 뒀다).
+--
+-- **지도 경계 조회는 세 표가 모두 필요하다**(2026-10-29 운영 장애). 지도용 경계 API
+-- (`/estate/apt/map/regions?level=sido|sgg|emd`)가 이 표들을 직접 읽는데, 운영 계정에
+-- `g_sido`·`g_emd` 권한이 없어 **시도·읍면동 단계에서만 502** 가 났다
+-- (화면에는 "부동산 데이터를 조회하지 못했습니다: BadSqlGrammarException").
+-- PostgreSQL 의 "permission denied for table"(42501)은 42 클래스라 Spring 이
+-- BadSqlGrammarException 으로 옮겨 적는다 — **문법 오류처럼 보이지만 권한 문제다.**
 GRANT USAGE  ON SCHEMA public TO openapi_svc;
-GRANT SELECT ON public.g_sgg  TO openapi_svc;
-GRANT SELECT ON public.g_sido TO openapi_svc;
+GRANT SELECT ON public.g_sgg  TO openapi_svc;  -- 시군구 경계 · 지역 이름
+GRANT SELECT ON public.g_sido TO openapi_svc;  -- 시도 경계(지도 줌아웃)
+GRANT SELECT ON public.g_emd  TO openapi_svc;  -- 읍면동 경계(지도 줌인)
 
 -- 앞으로 estate 스키마에 표/뷰가 추가돼도(오피스텔·빌라) 따로 GRANT 하지 않도록
 ALTER DEFAULT PRIVILEGES IN SCHEMA estate GRANT SELECT ON TABLES TO openapi_svc;
@@ -52,7 +60,8 @@ SELECT has_schema_privilege('openapi_svc', 'estate', 'usage')                   
        has_table_privilege ('openapi_svc', 'estate.apt_trade', 'select')         AS 매매_읽기,
        has_table_privilege ('openapi_svc', 'estate.v_apt_trade_monthly','select') AS 매매뷰_읽기,
        has_table_privilege ('openapi_svc', 'public.g_sgg', 'select')             AS 시군구_읽기,
-       has_table_privilege ('openapi_svc', 'public.g_sido', 'select')            AS 시도_읽기;
+       has_table_privilege ('openapi_svc', 'public.g_sido', 'select')            AS 시도_읽기,
+       has_table_privilege ('openapi_svc', 'public.g_emd', 'select')             AS 읍면동_읽기;
 
 -- 쓰기가 막혀 있는지도 함께 확인(세 값 모두 false 여야 한다)
 SELECT has_table_privilege('openapi_svc', 'estate.apt_trade', 'insert') AS 매매_쓰기,
@@ -66,4 +75,4 @@ SELECT has_table_privilege('openapi_svc', 'estate.apt_trade', 'insert') AS 매�
 -- REVOKE SELECT ON estate.apt_trade, estate.apt_rent,
 --                  estate.v_apt_trade_monthly, estate.v_apt_rent_monthly FROM openapi_svc;
 -- REVOKE USAGE ON SCHEMA estate FROM openapi_svc;
--- (public.g_sgg 는 공개 API 쪽에서도 쓸 수 있으니 확인 후 결정할 것)
+-- (public.g_sgg · g_sido · g_emd 는 공개 API 쪽에서도 쓸 수 있으니 확인 후 결정할 것)

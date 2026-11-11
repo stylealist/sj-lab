@@ -531,7 +531,8 @@
       <button type="button" class="vchip" role="tab" data-ver="4.18" aria-controls="pane-v4.18" title="부동산 화면을 호갱노노 형태로 — 본문 전체가 지도, 경계 3단 색칠 + 아파트 핀"><span class="pv">v4.18</span><span class="pt">지도 사이트</span></button>
       <button type="button" class="vchip" role="tab" data-ver="4.19" aria-controls="pane-v4.19" title="아파트를 누르면 월별 매매·전월세를 보는 단지 팝업 — 좌표가 오면 핀에 붙는다"><span class="pv">v4.19</span><span class="pt">단지 팝업</span></button>
       <button type="button" class="vchip" role="tab" data-ver="4.20" aria-controls="pane-v4.20" title="네 저장소 커밋·푸시 · 아파트 핀까지 남은 두 가지 확정(표 1개 · 키 1개, 키는 즉시 발급)"><span class="pv">v4.20</span><span class="pt">올리고 핀 준비 확정</span></button>
-      <button type="button" class="vchip" role="tab" data-ver="4.21" aria-controls="pane-v4.21" title="아파트 영역 전국 재수집(거대 영역 0개) · 지도 이동 3배 빠르게 · 선택상자·왼쪽 패널 새로 · 평수 정상화(84㎡=34평)"><span class="pv">v4.21<span class="dot" title="최신" aria-label="최신"></span></span><span class="pt">영역·속도·가독성</span></button>
+      <button type="button" class="vchip" role="tab" data-ver="4.21" aria-controls="pane-v4.21" title="아파트 영역 전국 재수집(거대 영역 0개) · 지도 이동 3배 빠르게 · 선택상자·왼쪽 패널 새로 · 평수 정상화(84㎡=34평)"><span class="pv">v4.21</span><span class="pt">영역·속도·가독성</span></button>
+      <button type="button" class="vchip" role="tab" data-ver="4.22" aria-controls="pane-v4.22" title="운영 지도 오류의 진짜 원인은 권한 부족 · 지역 경계 세 단계 숨김 · 목록에서 누르면 지도 이동·확대 · 패널 머리말 밝게"><span class="pv">v4.22<span class="dot" title="최신" aria-label="최신"></span></span><span class="pt">권한·경계·이동</span></button>
     </div>
   </div>
 </nav>
@@ -9992,6 +9993,104 @@ response = requests.get("https://api.sj-lab.co.kr/open-api/v1/convenience-store"
 </section>
 </div>
 
+<!-- ===================== v4.22 ===================== -->
+<div class="vpane" data-ver="4.22" id="pane-v4.22" hidden>
+<header class="masthead">
+  <div class="wrap">
+    <div class="stamp">
+      <span class="ver">v4.22</span>
+      <span>2026-10-29</span>
+      <span>권한 · 경계 · 이동</span>
+    </div>
+    <h1>"문법 오류"의 진짜 원인은 권한,<br>그리고 지도를 아파트 중심으로</h1>
+    <p class="plainline">같은 코드가 로컬에서만 멀쩡했던 이유를 찾았습니다</p>
+    <p class="dek">
+      운영 화면에 <b>"BadSqlGrammarException"</b>(문법 오류) 이 떴지만, 실제로는 운영 계정이
+      경계 표를 <b>읽을 권한이 없던 것</b>이었습니다. 데이터베이스가 "권한 없음"에 쓰는 오류 번호가
+      문법 오류와 같은 묶음이라 그렇게 번역돼 올라왔습니다. 함께 지도도 아파트 중심으로 정리했습니다.
+    </p>
+    <dl class="facts">
+      <div><dt>502 나던 단계</dt><dd>시도 · 읍면동</dd></div>
+      <div><dt>진짜 원인</dt><dd class="ok">경계 표 읽기 권한</dd></div>
+      <div><dt>지역 경계선</dt><dd class="ok">세 단계 모두 숨김</dd></div>
+      <div><dt>목록에서 누르면</dt><dd class="ok">지도 이동 + 확대</dd></div>
+    </dl>
+  </div>
+</header>
+
+<section class="band">
+  <div class="wrap">
+    <p class="eyebrow">하나</p>
+    <h2>문법 오류가 아니라 권한 부족이었습니다</h2>
+    <p>어디서 나는지 하나씩 불러 좁혔습니다. 세 단계가 <b>읽는 표만 다릅니다.</b></p>
+    <div class="tbl">
+      <table>
+        <thead><tr><th>지도 경계 단계</th><th>운영 응답</th><th>읽는 표</th><th>읽기 권한</th></tr></thead>
+        <tbody>
+          <tr><td>시군구</td><td class="ok">정상</td><td>g_sgg</td><td class="ok">있음</td></tr>
+          <tr><td>시도</td><td><b>502 오류</b></td><td>g_sido</td><td><b>없음</b></td></tr>
+          <tr><td>읍면동</td><td><b>502 오류</b></td><td>g_emd</td><td><b>없음</b></td></tr>
+        </tbody>
+      </table>
+    </div>
+    <ul class="notes">
+      <li><b>왜 문법 오류로 보였나</b> — 데이터베이스가 "권한 없음"에 쓰는 오류 번호가 문법 오류와
+        <b>같은 묶음(42번대)</b> 입니다. 서버가 묶음만 보고 "문법 오류"로 번역해 화면까지 올라왔습니다</li>
+      <li>권한 스크립트에 <b>읍면동 한 줄이 아예 빠져</b> 있었습니다 · 시도는 적혀 있었지만 실행 전이었습니다</li>
+      <li>확인 쿼리에 "읍면동_읽기"를 더하고, 왜 문법 오류처럼 보이는지를 주석으로 남겼습니다</li>
+      <li>권한은 <b>재기동 없이 바로 적용</b>됩니다 · 확인 쿼리의 세 값이 모두 <code>true</code> 면 끝입니다</li>
+      <li><b>함께 발견</b>: 10-28 변경이 운영에 배포되지 않은 상태였습니다(배포 잡 확인 필요)</li>
+    </ul>
+  </div>
+</section>
+
+<section class="band">
+  <div class="wrap">
+    <p class="eyebrow">둘</p>
+    <h2>지도는 아파트만, 지역 시세는 왼쪽 패널에서</h2>
+    <div class="tbl">
+      <table>
+        <thead><tr><th>무엇을</th><th>어떻게</th></tr></thead>
+        <tbody>
+          <tr><td>시군구 · 시도 경계선</td><td>읍면동에 이어 <b>지웠습니다</b> — 선과 평균가 라벨이 아파트 영역·핀과 겹쳤습니다</td></tr>
+          <tr><td>"지역 색칠 켬/끔" 버튼 · 색 범례</td><td>칠하는 것이 없어져 <b>함께 없앴습니다</b></td></tr>
+          <tr><td>경계 자료</td><td><b>계속 받아 둡니다</b> — 지도 중심이 어느 지역인지 판단하고, 패널에서 고른 지역으로 옮기는 데 씁니다</td></tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+</section>
+
+<section class="band">
+  <div class="wrap">
+    <p class="eyebrow">셋</p>
+    <h2>목록에서 누르면 지도가 그 자리로 갑니다</h2>
+    <p>종전에는 상세만 열리고 지도는 그대로여서 <b>어디 있는 단지인지 알 수 없었습니다.</b></p>
+    <ul class="notes">
+      <li>누르면 <b>그 단지로 이동하고 핀이 보이는 배율까지 당깁니다</b> — 배율이 낮으면 그 자리에
+        가도 핀이 없어 아무 일도 안 일어난 것처럼 보입니다</li>
+      <li>이미 더 당겨 보고 있으면 <b>그 배율을 유지</b>합니다(멀어지지 않습니다)</li>
+      <li><b>핀을 눌러 고른 경우에는 움직이지 않습니다</b> — 이미 보고 있는 자리라 움직이면 눈이 따라가야 합니다</li>
+      <li>좌표는 목록 응답에 함께 담습니다 · 서버는 <b>집계를 끝낸 뒤</b>(최대 200개) 붙입니다 —
+        거래 기록에 바로 붙이면 한 단지의 수백 건마다 같은 일을 반복합니다</li>
+    </ul>
+  </div>
+</section>
+
+<section class="band">
+  <div class="wrap">
+    <p class="eyebrow">넷</p>
+    <h2>왼쪽 패널 머리말을 밝게 되돌렸습니다</h2>
+    <p>
+      머리말을 헤더와 같은 남색으로 맞췄더니 <b>검은 띠가 두 층</b>으로 보이고 그 경계가 오히려
+      두드러졌습니다. 흰 배경 + 얇은 아래 테두리로 바꿨습니다 — 지도 서비스의 왼쪽 탭과 같은
+      방식이고, 어두운 헤더와 밝은 패널이 <b>대비로</b> 자연스럽게 나뉩니다. 단지 상세 머리말만
+      한 톤 눌러 구분합니다.
+    </p>
+  </div>
+</section>
+</div>
+
 <footer>
   <div class="wrap">
     <p class="k">접속 URL</p>
@@ -10003,7 +10102,7 @@ response = requests.get("https://api.sj-lab.co.kr/open-api/v1/convenience-store"
       <li><em>운영 로그인 페이지</em><span class="url">https://api.sj-lab.co.kr/auth/login.html</span></li>
       <li><em>sj-lab-authserver</em><span class="url">https://github.com/stylealist/sj-lab-authserver</span></li>
       <li><em>API 센터</em><span class="url">https://sj-lab.co.kr/openapi/</span></li>
-      <li><em>기록 원본</em><span class="url">sj-lab/history/history_v1.0.md ~ v1.35.md, v2.0.md ~ v4.21.md</span></li>
+      <li><em>기록 원본</em><span class="url">sj-lab/history/history_v1.0.md ~ v1.35.md, v2.0.md ~ v4.22.md</span></li>
     </ul>
     <p class="colophon">
       총괄 허브 <code>C:\developer\workspace\sj-lab</code> 기준 · 커밋과 push는 사용자가 요청할 때만 수행합니다 ·
