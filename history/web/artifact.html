@@ -533,7 +533,8 @@
       <button type="button" class="vchip" role="tab" data-ver="4.20" aria-controls="pane-v4.20" title="네 저장소 커밋·푸시 · 아파트 핀까지 남은 두 가지 확정(표 1개 · 키 1개, 키는 즉시 발급)"><span class="pv">v4.20</span><span class="pt">올리고 핀 준비 확정</span></button>
       <button type="button" class="vchip" role="tab" data-ver="4.21" aria-controls="pane-v4.21" title="아파트 영역 전국 재수집(거대 영역 0개) · 지도 이동 3배 빠르게 · 선택상자·왼쪽 패널 새로 · 평수 정상화(84㎡=34평)"><span class="pv">v4.21</span><span class="pt">영역·속도·가독성</span></button>
       <button type="button" class="vchip" role="tab" data-ver="4.22" aria-controls="pane-v4.22" title="운영 지도 오류의 진짜 원인은 권한 부족 · 지역 경계 세 단계 숨김 · 목록에서 누르면 지도 이동·확대 · 패널 머리말 밝게"><span class="pv">v4.22</span><span class="pt">권한·경계·이동</span></button>
-      <button type="button" class="vchip" role="tab" data-ver="4.23" aria-controls="pane-v4.23" title="10·11월 실거래 93,205건 채움 · 광주·전남 0건은 원천 API 문제로 확인 · 단지 거래 내역 500건 스크롤 보기 · 줌아웃하면 토스트로 알림"><span class="pv">v4.23<span class="dot" title="최신" aria-label="최신"></span></span><span class="pt">수집·거래내역</span></button>
+      <button type="button" class="vchip" role="tab" data-ver="4.23" aria-controls="pane-v4.23" title="10·11월 실거래 93,205건 채움 · 광주·전남 0건은 원천 API 문제로 확인 · 단지 거래 내역 500건 스크롤 보기 · 줌아웃하면 토스트로 알림"><span class="pv">v4.23</span><span class="pt">수집·거래내역</span></button>
+      <button type="button" class="vchip" role="tab" data-ver="4.24" aria-controls="pane-v4.24" title="전월세 보증금이 93% 비어 있던 원인은 천 단위 쉼표 · 최근 5년 반 복구(7%→99.9%) · 중복 19만 행 제거로 거래 건수 정상화 · VACUUM은 효과 없었음(실측)"><span class="pv">v4.24<span class="dot" title="최신" aria-label="최신"></span></span><span class="pt">보증금 복구</span></button>
     </div>
   </div>
 </nav>
@@ -10231,6 +10232,192 @@ response = requests.get("https://api.sj-lab.co.kr/open-api/v1/convenience-store"
 </section>
 </div>
 
+<!-- ===================== v4.24 ===================== -->
+<div class="vpane" data-ver="4.24" id="pane-v4.24" hidden>
+<header class="masthead">
+  <div class="wrap">
+    <div class="stamp">
+      <span class="ver">v4.24</span>
+      <span>2026-11-12 ~ 16</span>
+      <span>보증금 복구</span>
+    </div>
+    <h1>전월세 보증금이 93% 비어 있던<br>이유는 쉼표 한 글자였습니다</h1>
+    <p class="plainline">1,188만 건 중 보증금이 있던 건 7%뿐 — 2011년까지 전 기간을 99.95%로 되살렸습니다</p>
+    <p class="dek">
+      전월세를 눌러도 대부분 금액 대신 <b>"보증금 없음"</b>이 보였습니다. 원천이 금액을
+      <code>"48,000"</code> 처럼 <b>천 단위 쉼표를 넣어</b> 주는데, 숫자로 바꾸다 실패하면
+      <b>오류도 없이 조용히 빈 값</b>이 됐습니다. 쉼표가 없는 1,000만원 미만만 저장된 것입니다.
+    </p>
+    <dl class="facts">
+      <div><dt>보증금 있는 행</dt><dd class="ok">7.1% → 99.95%</dd></div>
+      <div><dt>복구한 기간</dt><dd class="ok">2011-01 ~ 2026-11</dd></div>
+      <div><dt>제거한 중복</dt><dd class="ok">14.8만 행</dd></div>
+      <div><dt>완료</dt><dd class="ok">191 / 191 개월</dd></div>
+    </dl>
+  </div>
+</header>
+
+<section class="band">
+  <div class="wrap">
+    <p class="eyebrow">하나</p>
+    <h2>증거가 아주 깔끔했습니다</h2>
+    <p>
+      과거 데이터에서 <b>보증금의 최댓값이 해마다 전부 <code>999</code></b> 였습니다.
+      쉼표가 없는 값만 변환에 성공한 것입니다.
+    </p>
+    <div class="tbl">
+      <table>
+        <thead><tr><th>연도</th><th>보증금 있는 행</th><th>최댓값</th></tr></thead>
+        <tbody>
+          <tr><td>2015</td><td>2.9%</td><td><b>999</b></td></tr>
+          <tr><td>2020</td><td>3.5%</td><td><b>999</b></td></tr>
+          <tr><td>2024</td><td>5.1%</td><td><b>999</b></td></tr>
+        </tbody>
+      </table>
+    </div>
+    <p>
+      쉼표를 떼는 처리는 <b>이미 지난달에 고쳐져</b> 있었습니다. 그래서 <b>코드는 고칠 것이 없고
+      과거 데이터를 다시 받는 일만</b> 남았습니다. 원천에 직접 물어 2015·2020·2024·2025년 모두
+      보증금을 정상으로 돌려주는 것을 확인한 뒤 시작했습니다.
+    </p>
+  </div>
+</section>
+
+<section class="band">
+  <div class="wrap">
+    <p class="eyebrow">둘</p>
+    <h2>다시 받기만 하면 같은 계약이 두 줄로 남습니다</h2>
+    <p>
+      같은 거래를 두 번 넣지 않게 막는 장치의 <b>기준에 금액이 들어 있습니다.</b> 그래서 같은
+      계약이 <b>보증금 빈 채로 한 번</b>, <b>48,000으로 한 번</b> 들어오면 서로 다른 거래로 보여
+      두 줄이 남습니다. 실제로 2026년 5~10월이 그 상태였고 <b>화면의 거래 건수가 부풀어</b> 있었습니다.
+    </p>
+    <p>
+      그래서 <b>한 달 받고 → 그 달의 빈 쪽을 지우고 → 다음 달</b>로 갑니다.
+      <b>순서가 중요합니다</b> — 먼저 지우면 다시 받기가 실패할 때 데이터가 빕니다. 이 순서면
+      지우는 시점에 이미 대체할 행이 손에 있습니다.
+    </p>
+    <p>
+      지우는 대상도 좁게 잡았습니다. <b>금액이 들어간 짝이 있는 빈 행만</b> 지우고, 짝이 없는 빈 행은
+      건드리지 않습니다 — 금액은 몰라도 "그 달에 거래가 있었다"는 사실은 맞기 때문입니다.
+    </p>
+  </div>
+</section>
+
+<section class="band">
+  <div class="wrap">
+    <p class="eyebrow">셋</p>
+    <h2>결과 — 2011년까지 전 기간이 복구됐습니다</h2>
+    <div class="tbl">
+      <table>
+        <thead><tr><th></th><th>시작 전</th><th>완료</th></tr></thead>
+        <tbody>
+          <tr><td>전체 행</td><td>11,889,562</td><td><b>11,741,227</b></td></tr>
+          <tr><td>보증금 있는 행</td><td>844,789</td><td><b class="ok">11,735,773</b></td></tr>
+          <tr><td><b>비율</b></td><td><b>7.1%</b></td><td><b class="ok">99.95%</b></td></tr>
+          <tr><td>남은 빈 행</td><td>11,044,773</td><td><b>5,454</b> · 원천에 없는 건</td></tr>
+          <tr><td>최대 보증금</td><td>999 만원</td><td><b class="ok">138억</b></td></tr>
+        </tbody>
+      </table>
+    </div>
+    <p>연도별로는 <b>2011년부터 2026년까지 전부 100%</b> 입니다(소수점 아래만 차이).</p>
+    <p>
+      <b>전체 행이 14.8만 줄었습니다</b> — 같은 계약이 두 줄로 남아 있던 것들이고, 그만큼 화면의
+      전월세 거래 건수가 부풀어 있었습니다. 2026년이 가장 심해 <b>92.4만 → 73.2만건</b>으로
+      바뀌었습니다. 다른 해는 쌍둥이 없이 금액만 채워졌습니다. 정리 후 남은 쌍둥이는
+      <b class="ok">0건</b>으로 확인했습니다.
+    </p>
+  </div>
+</section>
+
+<section class="band">
+  <div class="wrap">
+    <p class="eyebrow">넷</p>
+    <h2>느려서 고생했고, 짐작은 두 번 틀렸습니다</h2>
+    <p>
+      처음 50개월은 <b>한 달에 1.6분</b>이었는데 2022-12 지점에서 갑자기 <b>12분</b>으로 뛰었습니다.
+      점점 느려진 게 아니라 <b>계단처럼</b> 바뀌었습니다.
+    </p>
+    <p>
+      <b>짐작① 지운 자리가 쌓여서다 → 틀렸습니다.</b> 죽은 자리 197만 개를 청소해 0으로 만들었는데
+      (16.5분 걸림) <b>12분 → 11분, 사실상 그대로</b>였습니다.
+    </p>
+    <p>
+      진짜 원인은 <b>저장장치</b>였습니다. 표 5GB 중 <b>중복검사 장치만 2.4GB</b>인데 DB 메모리에
+      들어가지 않아, 행을 넣을 때마다 <b>디스크에서</b> 뒤집니다(초당 5.5MB). 초반이 빨랐던 것은
+      캐시에 여유가 있었기 때문이고, <b>그 여유가 사라지는 지점이 그 계단</b>이었습니다.
+    </p>
+    <p>
+      <b>짐작② 동시에 여러 개 돌리면 빨라진다 → 조금 맞았습니다(+16%).</b>
+      시간의 70~95%가 DB 대기였으므로 겹치지 않는 기간을 맡긴 2번째를 붙였습니다.
+      초당 105행 → <b>122행</b>. 기대한 2배가 아니라 16%였습니다 — 디스크가 이미 포화라는 뜻이라
+      3번째는 붙이지 않았습니다.
+    </p>
+    <p>
+      <b>짐작③ 디스크가 느린 것이다 → 이것도 절반만 맞았습니다.</b> 다음 날 체크포인트 통계를
+      보니 <b>가동 76분 동안 강제 체크포인트가 37회</b>(2분마다) 돌고 있었고, 디스크 쓰기 시간이
+      <b>가동 시간의 70%</b> 였습니다. WAL 공간이 1GB(기본값)뿐이라 꽉 찰 때마다 어쩔 수 없이
+      체크포인트를 돌리고, 그때 변경 페이지를 통째로 다시 기록해 쓰기량이 몇 배로 불어난 것입니다.
+      <b>디스크가 느린 게 아니라 디스크를 체크포인트에 쓰고 있었습니다.</b>
+    </p>
+    <p>
+      <b>WAL 공간을 3GB로 늘리고 압축을 켰습니다</b>(둘 다 재시작 없이 적용). 강제 체크포인트가
+      <b>37회 → 0회</b>가 됐습니다. 다만 속도는 15%만 빨라졌습니다 — 남은 벽은 캐시였습니다.
+      DB 캐시가 <b>128MB</b>인데 뒤져야 하는 중복검사 장치가 <b>2.4GB</b>라, 적중률 94.9%로도
+      빗나간 5%가 484만 번의 디스크 읽기가 됩니다. 그래서 <b>DB를 재시작한 직후에는 5배 빠르다가
+      300만 행쯤 넣으면 다시 느려지는</b> 일이 이틀 연속 똑같이 일어났습니다.
+    </p>
+    <p class="plainline">
+      교훈 둘 — ① 초반 속도로 전체를 추산하면 안 됩니다(1.6분/월로 잡으면 5시간, 실제는 10분/월).
+      ② 느릴 때 "디스크가 느리다"로 끝내지 말고 <b>체크포인트 통계를 먼저 볼 것.</b>
+    </p>
+  </div>
+</section>
+
+<section class="band">
+  <div class="wrap">
+    <p class="eyebrow">다섯</p>
+    <h2>세 번에 나눠 했고, 멈출 때마다 손실이 없었습니다</h2>
+    <div class="tbl">
+      <table>
+        <thead><tr><th>날짜</th><th>한 일</th><th>끝낸 달</th></tr></thead>
+        <tbody>
+          <tr><td>11-12</td><td>시작 · 2026 → 2022</td><td>52개월</td></tr>
+          <tr><td>11-13</td><td>2021 → 2011 + 2019 · 2016</td><td>91개월</td></tr>
+          <tr><td>11-16</td><td>2018-01 · 2017 · 2015 앞부분 · 2014</td><td>48개월</td></tr>
+        </tbody>
+      </table>
+    </div>
+    <p>
+      달마다 진행 상태를 파일에 적어 두어 <b>끝낸 달은 건너뛰고 이어서</b> 했습니다.
+      멈출 때는 진행 중이던 달의 수집이 끝나기를 기다린 뒤 정리까지 마쳐
+      <b>쌍둥이 행을 남기지 않았습니다.</b>
+    </p>
+    <p>
+      <b>사고도 두 번 있었습니다.</b> 11-12 밤에는 절전 시간이 "없음"인데도
+      <b>Modern Standby</b> 로 네 번 절전에 들어가 프로세스가 멈췄고, 그 사이 DB 가 연결을
+      끊었습니다(작업이 도는 동안만 절전을 막는 장치를 만들어 해결). 11-13 아침에는
+      <b>기동 확인을 수집 주소로 보내</b> 같은 달 수집이 5번 동시에 돌아 호출 한도에 걸렸고,
+      2026-10 에서 6개 시군구가 빠졌습니다(11-16 에 그 달만 다시 받아 메웠습니다).
+    </p>
+  </div>
+</section>
+
+<section class="band">
+  <div class="wrap">
+    <p class="eyebrow">함께 발견</p>
+    <h2>공개 저장소에 비밀값이 적혀 있습니다</h2>
+    <p>
+      수집기 설정 파일에 <b>DB 접속 주소·계정·비밀번호</b>(그 계정은 표의 소유자 = 전체 권한)와
+      <b>공공데이터 서비스 키</b>가 환경변수가 아니라 <b>글자 그대로</b> 들어 있고, 그 저장소는
+      <b>공개</b>입니다. 규칙상 상의 없이 건드리지 않고 <b>보고만</b> 했습니다.
+      고치는 구조는 이미 준비돼 있습니다 — 환경변수로 빼고 로컬은 로컬 설정, 운영은 k8s Secret 으로.
+      <b>남은 개선 항목 중 가장 급합니다.</b>
+    </p>
+  </div>
+</section>
+</div>
+
 <footer>
   <div class="wrap">
     <p class="k">접속 URL</p>
@@ -10242,7 +10429,7 @@ response = requests.get("https://api.sj-lab.co.kr/open-api/v1/convenience-store"
       <li><em>운영 로그인 페이지</em><span class="url">https://api.sj-lab.co.kr/auth/login.html</span></li>
       <li><em>sj-lab-authserver</em><span class="url">https://github.com/stylealist/sj-lab-authserver</span></li>
       <li><em>API 센터</em><span class="url">https://sj-lab.co.kr/openapi/</span></li>
-      <li><em>기록 원본</em><span class="url">sj-lab/history/history_v1.0.md ~ v1.35.md, v2.0.md ~ v4.23.md</span></li>
+      <li><em>기록 원본</em><span class="url">sj-lab/history/history_v1.0.md ~ v1.35.md, v2.0.md ~ v4.24.md</span></li>
     </ul>
     <p class="colophon">
       총괄 허브 <code>C:\developer\workspace\sj-lab</code> 기준 · 커밋과 push는 사용자가 요청할 때만 수행합니다 ·

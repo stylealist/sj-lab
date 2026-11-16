@@ -31,6 +31,7 @@ psql -h <호스트> -p 5432 -U <계정> -d sjlab -f map/map_facility_office_work
 | `estate/estate_read_role.sql` | 위 `estate_apt.sql` | **부동산 조회 서비스가 DB에 붙지 못함** — `GET /estate/status` 가 `ready:false`, 조회는 503. 서비스·화면은 뜨고 "준비되지 않았다"고 안내함(2026-10-12 추가) |
 | `estate/estate_grant_openapi_svc.sql` | 위 `estate_apt.sql` | **운영 부동산 조회가 막힘** — `GET /estate/status` 가 `reason: CONNECT_FAILED`. 운영이 `openapi-db-credentials`(계정 `openapi_svc`)를 공유하는데 그 계정에 estate 읽기 권한이 없기 때문(2026-10-13 추가, **지금 필요한 스크립트**) |
 | `estate/estate_apt_complex.sql` | 위 `estate_apt.sql` | **지도 기능이 막힘** — 단지 좌표를 담을 표가 없어 지오코딩 배치가 500. 지금 화면(지역·단지·평형)은 그대로 동작(2026-10-14 추가) |
+| `estate/estate_apt_rent_deposit_cleanup.sql` | 위 `estate_apt.sql` | **DML(DELETE)** — 표 생성이 아니라 자료 정리. 안 돌리면 **전월세 거래 건수가 실제보다 많게 보임**(같은 계약이 "보증금 빈 행 + 받은 행" 두 줄로 남음). **전월세를 재수집한 뒤에** 돌릴 것(순서를 바꾸면 안 됨). 재수집 드라이버는 `scripts/estate-rent-deposit-refill.ps1` (2026-11-12 추가) |
 | `estate/estate_apt_complex_index.sql` | 위 `estate_apt.sql` | 화면은 그대로 되지만 **새 지역에서 단지를 처음 누를 때 2초** 걸림(그 시군구를 끝까지 훑기 때문. 두 번째부터는 0.05~0.15초). 인덱스 2개로 약 700MB~1GB 를 더 쓰므로 **용량과 맞바꾸는 선택**이고 급하지 않음(2026-11-11 추가, 제안) |
 
 - **스키마를 바꾸지 말 것**: `qfield` 스키마는 `sj-qfieldsync` 워커가 관리하며, 프로젝트 이름 패턴이 아닌

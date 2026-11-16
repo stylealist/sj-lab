@@ -121,6 +121,163 @@ API 는 2006년 것까지 정상으로 돌려주는데 **코드가 받아 와서
 Select-String -Path .local-stack\estate-backfill.log -Pattern "호출 실패"
 ```
 
+### 함정 8 — 수집 엔드포인트를 "기동 확인용"으로 부르지 말 것
+
+스케줄러가 떴는지 보려고 `/apis/housing/aptRents?from=200001&to=200001` 을 호출하면
+**그 달 수집이 실제로 돌아간다**(시군구 251개 호출). 거기에 짧은 타임아웃(`curl -m 3`)으로
+재시도 루프를 돌리면 **서버에서는 수집이 5개가 동시에 돌고** 호출 한도에 걸려
+`재시도 4번이 모두 실패` 가 쏟아진다(2026-11-12 실제 발생. 데이터 없는 달이라 적재 피해는 없었다).
+
+또한 `aptRentsBackfill` 은 건너뛴 건수를 **static 카운터**(`DataConverter.resetSkippedCount()`)로
+세므로, **두 백필을 동시에 돌리면 `skipped` 숫자가 서로 섞인다.** 한 번에 하나만 돌릴 것.
+
+→ 기동 확인은 로그로 한다(수집을 일으키지 않는다).
+
+```powershell
+Select-String -Path .local-stack\scheduler-8130.log -Pattern "Started SchedulerRestApplication"
+```
+
+### 함정 9 — 보증금·금액은 쉼표 때문에 조용히 null 이 된다
+
+원천은 금액을 `"48,000"` 처럼 **천 단위 쉼표가 들어간 문자열**로 준다. 쉼표를 떼지 않으면
+숫자 변환이 실패해 **예외 없이 조용히 null** 이 되고, **쉼표가 없는 1,000 미만 값만 저장된다.**
+전월세 보증금이 그렇게 들어가 **1,104만 행(93%)이 빈 값**이 됐다(2026-10-12 발견).
+
+- 진단법: `max(금액컬럼)` 이 **999** 에서 멈춰 있으면 이 함정이다.
+- 처리는 `DataTypeUtil.numeric()` 에 들어 있다 — 새 숫자 컬럼은 `toLong`/`toInt`/`toDecimal` 로 받을 것.
+- **재수집으로 고쳐지지만 그냥 받으면 중복이 된다** — 유니크 키에 금액이 들어 있어 "빈 금액 행"과
+  "제대로 받은 행"이 다른 키가 되기 때문이다. 재수집 뒤에 빈 쪽을 지워야 한다
+  (`db/estate/estate_apt_rent_deposit_cleanup.sql`, 드라이버는 `scripts/estate-rent-deposit-refill.ps1`).
+
+### 함정 10 — 1,000만 행이 넘으면 속도가 계단처럼 떨어진다 (VACUUM 으로는 안 고쳐진다)
+
+보증금 복구 재적재(2026-11-12) 중 **달당 소요가 1.6분 → 12분으로 갑자기 4배** 뛰었다.
+점점 느려진 것이 아니라 **2023-01(3.3분)과 2022-12(13.6분) 사이에서 계단처럼** 바뀌었고,
+특정 지역이 아니라 시군구당 0.62초 → 2.86초로 **고르게** 느려졌다.
+
+**죽은 자리(dead tuple) 때문이 아니다.** 그렇게 짐작해 `VACUUM (ANALYZE)` 를 돌려
+197만 개(14.4%)를 0으로 만들었는데(16.5분 소요) **12분 → 11분, 사실상 그대로였다.**
+
+진짜 원인은 VACUUM 로그에 있었다.
+
+```
+avg read rate: 5.5 MB/s
+buffer usage: 142,647 hits / 569,743 misses   ← 대부분 디스크에서 읽음
+WAL usage: 1,407,046,607 bytes
+```
+
+표 5GB 중 **중복검사 인덱스만 2.4GB**(`ux_apt_rent_natural`, 13개 컬럼)인데 DB 메모리에 들어가지
+않는다. 행을 넣을 때마다 `ON CONFLICT` 가 그 인덱스를 디스크에서 뒤진다. 초반이 빨랐던 것은
+캐시에 여유가 있었기 때문이고, **여유가 사라지는 지점이 그 계단**이다. 저장장치 속도의 한계다.
+
+→ **대책은 셋뿐이고, VACUUM 은 그중에 없다.**
+  1. 그냥 기다린다(무인으로 돌고 끊겨도 재개된다). **최신 달부터 과거로** 내려가게 짜서
+     중간에 멈춰도 값진 구간이 먼저 끝나게 할 것.
+  2. 받을 기간을 줄인다.
+  3. 조회용 인덱스를 임시로 뗀다(행마다 쓰는 인덱스 5→3개, 25~30% 단축). 운영 중인 사이트가
+     그 인덱스를 쓰면 그동안 느려진다 — 맞바꾸는 선택이다.
+
+**계획을 세울 때 초반 속도로 전체를 추산하지 말 것.** 1.6분/월로 191개월을 잡으면 5시간이지만
+실제는 25시간이었다.
+
+## 4-1. 전월세 보증금 복구 — 멈추고 이어서 하기 (2026-11-12 시작, 진행 중)
+
+보증금이 빈 1,104만 행을 되살리는 재적재다. 배경과 원인은 위 **함정 9**, 속도는 **함정 10**.
+
+```powershell
+# 1) 스케줄러 (CCTV 는 기동 시 1회 수집되는 것이 정상)
+$env:JAVA_HOME = "C:\Program Files\Java\jdk-17"
+& "$env:JAVA_HOME\bin\java.exe" -jar C:\developer\workspace\sj-lab-scheduler\target\sj-lab-scheduler.jar `
+  --spring.profiles.active=local --server.port=8130 --apis.request-delay-ms=50 `
+  --eureka.client.enabled=false --eureka.client.register-with-eureka=false --eureka.client.fetch-registry=false
+
+# 2) 기동 확인 — 로그로 한다(수집 주소로 부르면 수집이 돌아간다. 함정 8)
+Select-String -Path .local-stack\scheduler-8130.log -Pattern "Started SchedulerRestApplication"
+
+# 3) 드라이버 둘을 나란히 (기간이 겹치지 않게 · tag 를 다르게)
+powershell -ExecutionPolicy Bypass -File scripts\estate-rent-deposit-refill.ps1 -fromYm 202103 -toYm 201401
+powershell -ExecutionPolicy Bypass -File scripts\estate-rent-deposit-refill.ps1 -fromYm 201302 -toYm 201101 -tag b -vacuumEveryMonths 0
+
+# 4) 진행 보기
+Get-Content .local-stack\rent-deposit-refill.log   -Tail 5
+Get-Content .local-stack\rent-deposit-refill-b.log -Tail 5
+```
+
+- **끝낸 달은 상태 파일(`.local-stack\rent-deposit-refill*.json`)을 보고 건너뛴다** — 같은 명령을
+  다시 줘도 안전하다. `-fromYm` 을 넉넉히 과거로 잡아도 이미 한 달은 지나간다.
+- **멈출 때**: 드라이버를 종료한 뒤 **스케줄러에 이미 들어간 그 달의 수집이 끝나기를 기다리고**
+  그 달만 정리(DELETE)한 다음 스케줄러를 내린다. 안 그러면 그 달에 쌍둥이 행이 남아
+  **화면의 거래 건수가 부풀어 보인다.**
+- **진행 중인 달 확인**: `Select-String -Path .local-stack\scheduler-8130.log -Pattern "대상 1개월"` 의 마지막 줄.
+- **`skipped` 숫자는 나란히 돌릴 때 믿지 말 것**(static 카운터). 달별로는 이렇게 센다.
+
+```powershell
+Select-String -Path .local-stack\scheduler-8130.log -Pattern "재시도 4번이 모두 실패" |
+  ForEach-Object { [regex]::Match($_.Line, "DEAL_YMD=(\d+)").Groups[1].Value } |
+  Group-Object | Select-Object Name, Count
+```
+
+**남은 구간(2026-11-13 11:00 기준)**: `201801 ~ 201509`(29개월) · `201507 ~ 201401`(19개월) ·
+`202610` 다시 받기(6개 시군구 건너뜀). 그 밖의 전 기간(2011-01 ~ 2026-11)은 **복구 완료**.
+
+```powershell
+# 다음에 이어서 할 때 (두 드라이버가 가운데서 만난다)
+powershell -ExecutionPolicy Bypass -File scripts\estate-rent-deposit-refill.ps1 -fromYm 201801 -toYm 201401
+powershell -ExecutionPolicy Bypass -File scripts\estate-rent-deposit-refill.ps1 -fromYm 201507 -toYm 201401 -tag b -vacuumEveryMonths 0
+```
+
+### 함정 11 — 밤새 돌릴 때 Modern Standby 로 멈춘다
+
+절전 시간을 "없음(0)"으로 둬도 요즘 노트북은 **Modern Standby** 로 알아서 저전력 상태에 들어간다.
+그러면 드라이버와 스케줄러가 멈추고, 멈춘 사이 DB 가 유휴 연결을 끊어
+`FATAL: terminating connection due to administrator command` 로 그 달 수집이 죽는다.
+2026-11-12 밤에 실제로 당했다(밤새 네 번 절전 · Hikari 가 `clock leap detected (6h13m)` 를 남김).
+
+→ 긴 작업 전에 `scripts\keep-awake.ps1` 을 띄울 것. 전원 설정을 바꾸지 않고 그 프로세스가 살아
+있는 동안만 절전을 막는다(드라이버에도 같은 장치가 들어 있다).
+
+```powershell
+Start-Process powershell -ArgumentList "-ExecutionPolicy","Bypass","-File","scripts\keep-awake.ps1","-hours","20" -WindowStyle Hidden
+```
+
+**주의**: `SetThreadExecutionState` 에 넘기는 플래그는 **반드시 `[uint32]` 로 캐스트**할 것.
+Windows PowerShell 5.1 은 `0x80000041` 을 부호 있는 Int32 로 읽어 변환 오류로 **조용히 실패**한다
+(오류도 없이 "켜짐"으로 보인다). 반환값이 0 이 아닌지로 성공을 확인할 것.
+
+### 함정 12 — 느린 원인은 디스크가 아니라 **강제 체크포인트**일 수 있다
+
+`max_wal_size` 가 기본값(1GB)이면 대량 적재 중 WAL 이 2분마다 차고, 그때마다 **강제 체크포인트**가
+돈다. 체크포인트 직후에는 변경 페이지가 통째로(full page image) WAL 에 다시 기록되므로 쓰기량이
+몇 배로 불어난다. 2026-11-13 실측(가동 76분).
+
+```
+정상(시간) 체크포인트     4 회
+강제 체크포인트         37 회     ← 2분마다
+체크포인트 쓰기 시간  3,162 초     ← 가동 시간의 70%
+```
+
+확인 쿼리와 처방은 `db/estate/estate_db_wal_tuning.sql`. **둘 다 재시작 없이 바뀐다.**
+
+```sql
+SELECT num_timed, num_requested FROM pg_stat_checkpointer;  -- requested 가 크면 이 함정
+```
+
+적용 결과(`max_wal_size` 1GB→3GB · `wal_compression` on): **강제 체크포인트 37회 → 0회**.
+다만 **속도는 15% 만 빨라졌다** — 남은 벽은 캐시였다(아래).
+
+### 함정 13 — `shared_buffers` 가 작으면 속도가 5배씩 흔들린다
+
+이 DB 는 `shared_buffers` 가 **128MB** 인데 전월세 표의 중복검사 인덱스 하나가 **2.4GB** 다.
+적중률은 94.9% 로 좋아 보이지만 조회가 9,400만 번이라 **빗나간 5%가 484만 번의 디스크 읽기**가
+되고, 초당 약 4MB(이 디스크의 한계)에 묶인다.
+
+그래서 **DB 를 재시작한 직후에는 5배 빠르다가 300만 행쯤 넣으면 다시 느려진다**(2026-11-12·13
+양일 모두 같은 양상). 하드웨어가 빨라진 것이 아니라 그때 필요한 부분이 캐시에 있었을 뿐이다.
+
+→ 근본 해결은 `shared_buffers` 를 1~2GB 로 올리는 것. **`context = postmaster` 라 재시작이
+필요**하고 k8s 차트의 메모리 제한과 함께 봐야 하므로, 사용자와 시점을 정해 따로 진행할 것.
+그 전에는 **초반 속도로 전체를 추산하지 말 것** — 1.5분/월로 잡으면 5시간, 실제는 10분/월이었다.
+
 ## 5. 속도에 대해 (측정으로 확인한 것)
 
 병목은 **API 가 아니라 DB 적재**다. 로그 시각으로 나눠 재면 이렇게 나온다.
