@@ -534,7 +534,10 @@
       <button type="button" class="vchip" role="tab" data-ver="4.21" aria-controls="pane-v4.21" title="아파트 영역 전국 재수집(거대 영역 0개) · 지도 이동 3배 빠르게 · 선택상자·왼쪽 패널 새로 · 평수 정상화(84㎡=34평)"><span class="pv">v4.21</span><span class="pt">영역·속도·가독성</span></button>
       <button type="button" class="vchip" role="tab" data-ver="4.22" aria-controls="pane-v4.22" title="운영 지도 오류의 진짜 원인은 권한 부족 · 지역 경계 세 단계 숨김 · 목록에서 누르면 지도 이동·확대 · 패널 머리말 밝게"><span class="pv">v4.22</span><span class="pt">권한·경계·이동</span></button>
       <button type="button" class="vchip" role="tab" data-ver="4.23" aria-controls="pane-v4.23" title="10·11월 실거래 93,205건 채움 · 광주·전남 0건은 원천 API 문제로 확인 · 단지 거래 내역 500건 스크롤 보기 · 줌아웃하면 토스트로 알림"><span class="pv">v4.23</span><span class="pt">수집·거래내역</span></button>
-      <button type="button" class="vchip" role="tab" data-ver="4.24" aria-controls="pane-v4.24" title="전월세 보증금이 93% 비어 있던 원인은 천 단위 쉼표 · 최근 5년 반 복구(7%→99.9%) · 중복 19만 행 제거로 거래 건수 정상화 · VACUUM은 효과 없었음(실측)"><span class="pv">v4.24<span class="dot" title="최신" aria-label="최신"></span></span><span class="pt">보증금 복구</span></button>
+      <button type="button" class="vchip" role="tab" data-ver="4.24" aria-controls="pane-v4.24" title="전월세 보증금이 93% 비어 있던 원인은 천 단위 쉼표 · 최근 5년 반 복구(7%→99.9%) · 중복 19만 행 제거로 거래 건수 정상화 · VACUUM은 효과 없었음(실측)"><span class="pv">v4.24</span><span class="pt">보증금 복구</span></button>
+      <button type="button" class="vchip" role="tab" data-ver="4.25" aria-controls="pane-v4.25" title="쿠버네티스 작업은 사용자가 직접 실행하고 에이전트는 명령만 만든다(규칙·명령 모음 신설) · 비밀값 Secret 전환은 준비했다가 되돌림"><span class="pv">v4.25</span><span class="pt">k8s 실행 규칙</span></button>
+      <button type="button" class="vchip" role="tab" data-ver="4.26" aria-controls="pane-v4.26" title="단지명으로 전국 검색 — 종전에는 시군구를 먼저 골라야 찾을 수 있었다 · 944ms를 메모리 색인으로 6~17ms로 · 예열을 순서대로 붙였다가 13초 대기가 생겨 전용 스레드로 분리"><span class="pv">v4.26</span><span class="pt">전국 단지 검색</span></button>
+      <button type="button" class="vchip" role="tab" data-ver="4.27" aria-controls="pane-v4.27" title="전월세만 있는 단지 3,053개가 상세에서 404 였던 문제 — 매매가 없으면 전월세 표에서 같은 모양으로 만들어 돌려준다"><span class="pv">v4.27<span class="dot" title="최신" aria-label="최신"></span></span><span class="pt">전월세만 있는 단지</span></button>
     </div>
   </div>
 </nav>
@@ -10418,6 +10421,269 @@ response = requests.get("https://api.sj-lab.co.kr/open-api/v1/convenience-store"
 </section>
 </div>
 
+<!-- ===================== v4.25 ===================== -->
+<div class="vpane" data-ver="4.25" id="pane-v4.25" hidden>
+<header class="masthead">
+  <div class="wrap">
+    <div class="stamp">
+      <span class="ver">v4.25</span>
+      <span>2026-11-16</span>
+      <span>k8s 실행 규칙</span>
+    </div>
+    <h1>쿠버네티스는 사람이 실행하고,<br>에이전트는 명령을 만듭니다</h1>
+    <p class="plainline">명령 모음 문서를 새로 만들었습니다 — 비밀값 Secret 전환은 준비했다가 되돌렸습니다</p>
+    <p class="dek">
+      <code>kubectl</code> 로 하는 모든 것(Secret 생성, 파드 재시작, 롤백, 조회)과 Jenkins 잡 실행,
+      외부 포털 키 재발급은 <b>사용자가 직접</b> 합니다. 에이전트는 <b>그대로 복사해 쓰는 명령</b>을
+      만들어 문서에 쌓습니다.
+    </p>
+    <dl class="facts">
+      <div><dt>새 문서</dt><dd class="ok">k8s 명령 모음</dd></div>
+      <div><dt>되돌린 저장소</dt><dd>4곳 · 변경 0건</dd></div>
+      <div><dt>보관</dt><dd>trash/2026-11-16</dd></div>
+    </dl>
+  </div>
+</header>
+
+<section class="band">
+  <div class="wrap">
+    <p class="eyebrow">하나</p>
+    <h2>실행 주체를 문서로 고정했습니다</h2>
+    <p>
+      그렇게 정한 실제 이유도 있습니다 — <b>작업 PC 에는 kubectl 프로그램만 있고 클러스터 접속
+      설정이 없습니다.</b> 에이전트가 돌려도 실패하므로, 다음에 같은 시도를 반복하지 않도록
+      그 사실까지 적어 두었습니다.
+    </p>
+    <p>
+      새로 만든 <b>명령 모음</b>에는 클러스터 붙기 · 상태 보기 · <b>파드가 안 뜰 때 진단</b> ·
+      재시작/롤백 · Secret 보기/만들기 · ArgoCD 확인이 들어 있습니다. 비밀값이 들어가는 명령은
+      값을 적지 않고 <b>입력받는 형태</b>로 만듭니다(셸 기록에 남지 않게).
+    </p>
+  </div>
+</section>
+
+<section class="band">
+  <div class="wrap">
+    <p class="eyebrow">둘</p>
+    <h2>비밀값 전환은 되돌렸습니다</h2>
+    <p>
+      공개 저장소에 평문으로 있는 운영 DB 접속 정보와 API 키를 환경변수·Secret 으로 옮기는
+      작업을 준비했다가 <b>요청에 따라 전부 되돌렸습니다.</b> 커밋 전이라 깨끗하게 되돌아갔고
+      네 저장소 모두 <b>변경 0건</b>입니다.
+    </p>
+    <p>
+      준비했던 스크립트와 문서는 <b>지우지 않고 보관</b>했습니다(<code>trash/2026-11-16/</code>) —
+      다시 할 때 그대로 쓸 수 있습니다. 보관한 파일에 비밀값은 들어 있지 않습니다.
+    </p>
+    <p class="plainline">
+      되돌렸으므로 노출 상태는 그대로입니다. 조사해 둔 내용은 기록에 남겨, 다시 시작할 때
+      처음부터 조사하지 않아도 되게 했습니다.
+    </p>
+  </div>
+</section>
+</div>
+<!-- ===================== v4.26 ===================== -->
+<div class="vpane" data-ver="4.26" id="pane-v4.26" hidden>
+<header class="masthead">
+  <div class="wrap">
+    <div class="stamp">
+      <span class="ver">v4.26</span>
+      <span>2026-11-17</span>
+      <span>전국 단지 검색</span>
+    </div>
+    <h1>이름만 알아도<br>단지를 찾을 수 있습니다</h1>
+    <p class="plainline">종전에는 시군구를 먼저 골라야 했습니다 — 이제 "래미안" 만 치면 전국에서 찾습니다</p>
+    <p class="dek">
+      지도 위에 검색창이 생겼습니다. 단지명 일부를 넣으면 전국에서 찾고, 고르면
+      <b>지도가 그 단지로 날아가고 상세가 열리고 지역 조건까지 맞춰집니다.</b>
+      호갱노노식 지도에서 가장 컸던 기능 공백이었습니다.
+    </p>
+    <dl class="facts">
+      <div><dt>검색 속도</dt><dd class="ok">6~17ms</dd></div>
+      <div><dt>찾는 범위</dt><dd class="ok">전국 44,616개</dd></div>
+      <div><dt>좌표 보유</dt><dd class="ok">98.8%</dd></div>
+      <div><dt>키보드</dt><dd class="ok">↑↓ · Enter · Esc</dd></div>
+    </dl>
+  </div>
+</header>
+
+<section class="band">
+  <div class="wrap">
+    <p class="eyebrow">하나</p>
+    <h2>고르면 세 가지가 함께 일어납니다</h2>
+    <p>
+      ① <b>지도가 그 단지로 날아갑니다</b>(핀이 보이는 배율까지 당깁니다) ②
+      <b>왼쪽에 단지 상세가 열립니다</b> ③ <b>지역 조건이 그 단지에 맞춰집니다</b> —
+      다른 지역 단지를 골라도 바로 보입니다.
+    </p>
+    <p>
+      같은 이름의 단지가 많아서(44,616개 중 서로 다른 이름이 36,168개) 목록에
+      <b>시군구·읍면동과 준공연도, 거래 건수</b>를 함께 보여 줍니다. 좌표가 없는 단지(1.2%)는
+      <b>"위치 없음"</b>을 붙입니다 — 고르면 지도가 움직이지 않아 아무 일도 안 일어난 것처럼
+      보이기 때문입니다.
+    </p>
+    <p>
+      <b>검색창은 지도 위 왼쪽 위에 떠 있습니다.</b> 처음에는 헤더에 넣었는데 ① 헤더 오른쪽이
+      이미 꽉 차 <b>둘째 줄로 밀려</b> 접기 버튼과 겹쳐 보이고 ② <b>헤더를 접으면 검색창도
+      사라져</b> 지도 위로 옮겼습니다. 왼쪽 패널을 접거나 펼치면 패널과 같은 속도로 함께
+      비켜섭니다.
+    </p>
+    <p>
+      키보드로만도 쓸 수 있습니다 — <b>↑·↓</b> 로 옮기고 <b>Enter</b> 로 고르고(아무것도 안
+      골랐으면 첫 결과) <b>Esc</b> 로 닫습니다. 검색창은 마우스 없이 쓰는 사람이 가장 많이 쓰는
+      입구입니다.
+    </p>
+  </div>
+</section>
+
+<section class="band">
+  <div class="wrap">
+    <p class="eyebrow">둘</p>
+    <h2>느리지 않게 만드는 데 공을 들였습니다</h2>
+    <p>
+      단지 표를 그냥 검색하면 <b>944ms</b> 가 걸립니다(실측). 그 표에 지도용 도형이 들어 있어
+      행이 넓고, 이름 부분검색은 인덱스를 쓸 수 없어 전수 조회가 되기 때문입니다.
+      <b>키를 칠 때마다 1초가 걸리면 검색창으로 쓸 수 없습니다.</b>
+    </p>
+    <div class="tbl">
+      <table>
+        <thead><tr><th></th><th>소요</th></tr></thead>
+        <tbody>
+          <tr><td>DB 를 매번 검색</td><td>944ms</td></tr>
+          <tr><td><b>메모리 색인</b></td><td><b class="ok">6~17ms</b></td></tr>
+        </tbody>
+      </table>
+    </div>
+    <p>
+      그래서 단지 표(44,616행)를 <b>메모리에 올려 두고 거기서 찾습니다</b>(6시간마다 갱신, 약 7MB).
+      거래 표(990만 행)는 단지 키에 인덱스가 없어 전국 이름 검색이 애초에 불가능합니다.
+    </p>
+  </div>
+</section>
+
+<section class="band">
+  <div class="wrap">
+    <p class="eyebrow">셋</p>
+    <h2>고치면서 발견한 것 — 예열 순서</h2>
+    <p>
+      색인 올리기(9초)를 기존 예열 뒤에 순서대로 붙였더니, <b>그 앞의 지역 목록 예열이 27초를
+      먹어 색인 차례가 너무 늦게 왔습니다.</b> 그 사이에 검색한 사람이 <b>13초를 기다리는 것</b>을
+      로그로 확인했습니다 — 색인 적재가 예열 스레드가 아니라 <b>요청 스레드</b>에서 돌았습니다.
+    </p>
+    <p>
+      둘을 떼어 나란히 돌리도록 고쳤습니다. 지금은 기동 직후 전용 스레드에서 <b>8.9초</b>에 끝나고
+      사용자 요청은 기다리지 않습니다.
+    </p>
+  </div>
+</section>
+
+<section class="band">
+  <div class="wrap">
+    <p class="eyebrow">넷</p>
+    <h2>확인한 것</h2>
+    <p>
+      빌드 통과(백엔드·프론트) · 검색 <b>6~17ms</b> · 1자 입력은 0건 · <code>q</code> 없음과
+      <code>limit=999</code> 는 400 · 공백 무시 확인(<b>"래미안 퍼스티지"</b> → "래미안퍼스티지") ·
+      순서 확인("은마" 는 <b>강남구 대치동 17,361건</b>이 1등) · 화면이 실제로 부르는 경로로도
+      14~15ms · 좌표가 정확한지까지 확인.
+    </p>
+  </div>
+</section>
+
+<section class="band">
+  <div class="wrap">
+    <p class="eyebrow">판단 필요</p>
+    <h2>공개 API 에는 열지 않았습니다</h2>
+    <p>
+      규칙대로 공개 API 에 열 수 있는지 봤고 <b>네 조건은 모두 만족</b>합니다(조회 · 로그인 불필요 ·
+      응답 작음 · 개인정보 아님). 다만 공개 API 는 <b>중계 대상이 지도 백엔드 하나</b>이고 부동산
+      엔드포인트는 아직 하나도 열려 있지 않아, 이번 것을 열면 <b>구조 변경</b>이 됩니다.
+      규칙이 "애매하면 열지 말고 먼저 물어본다"이므로 열지 않았습니다.
+    </p>
+  </div>
+</section>
+</div>
+<!-- ===================== v4.27 ===================== -->
+<div class="vpane" data-ver="4.27" id="pane-v4.27" hidden>
+<header class="masthead">
+  <div class="wrap">
+    <div class="stamp">
+      <span class="ver">v4.27</span>
+      <span>2026-11-17</span>
+      <span>전월세만 있는 단지</span>
+    </div>
+    <h1>매매 기록이 없는 단지도<br>열립니다</h1>
+    <p class="plainline">검색으로 찾은 단지를 눌렀더니 "거래 기록을 찾지 못했습니다" — 3,053개 단지가 같은 문제였습니다</p>
+    <p class="dek">
+      단지 상세가 <b>매매 표만 보고 있었습니다.</b> 전월세 거래만 있는 단지는 그 표에 행이 없어
+      <b>"없는 단지"로 처리</b>됐습니다. 이제 매매가 비면 전월세 표에서 같은 모양으로 만들어 돌려줍니다.
+    </p>
+    <dl class="facts">
+      <div><dt>단지 표 전체</dt><dd>44,616개</dd></div>
+      <div><dt>전월세만 있는 단지</dt><dd class="bad">3,053개 (6.8%)</dd></div>
+      <div><dt>전에는</dt><dd class="bad">404 · 거래 기록 없음</dd></div>
+      <div><dt>지금은</dt><dd class="ok">전월세 탭으로 열림</dd></div>
+    </dl>
+  </div>
+</header>
+
+<section class="band">
+  <div class="wrap">
+    <p class="eyebrow">하나</p>
+    <h2>어제 생긴 기능이 어제까지 숨어 있던 문제를 드러냈습니다</h2>
+    <p>
+      전에는 <b>시군구를 골라야</b> 단지를 찾을 수 있었고, 그 목록이 매매 표에서 나왔습니다. 그래서
+      전월세만 있는 단지는 <b>애초에 목록에 없었습니다.</b> 어제 전국 검색이 생겨 고를 수 있게 되자
+      바로 404 가 났습니다 — 기능이 늘면 가려져 있던 자리도 함께 드러납니다.
+    </p>
+    <p>
+      예로 받은 <b>서대문구 연희동 덕운포레스트힐</b>(<code>11410-3674</code>)은 2007년 준공에
+      <b>전월세 66건 · 매매 0건</b> 입니다. 전체를 세어 보니 <b>3,053개</b>가 같은 상태였고,
+      매매도 전월세도 없는 단지는 <b>하나도 없었습니다.</b>
+    </p>
+  </div>
+</section>
+
+<section class="band">
+  <div class="wrap">
+    <p class="eyebrow">둘</p>
+    <h2>전월세 표에서 같은 모양으로 만듭니다</h2>
+    <p>
+      전월세 표에도 단지 키·지번·준공연도가 있어 <b>같은 키로 만들 수 있습니다.</b> 응답 모양을
+      바꾸지 않고, 어느 쪽에서 만들었는지만 한 가지(<code>trade_available</code>)로 알립니다 —
+      모양이 갈라지면 화면이 두 갈래 코드를 들어야 합니다.
+    </p>
+    <ul class="notes">
+      <li><b>전월세 탭을 먼저 펴 줍니다</b> — 매매 탭이 열리면 빈 화면만 보입니다</li>
+      <li><b>"매매 거래 기록이 없습니다 — 전월세 66건만 있습니다"</b> 라고 적습니다. 빈 화면만 보이면 고장으로 읽힙니다</li>
+      <li>검색 목록에도 <b>"전월세만"</b> 표식을 붙입니다 — 고르기 전에 아는 쪽이 낫습니다</li>
+      <li><b>매매도 전월세도 없으면 그대로 404</b> 입니다 — 없는 단지는 없다고 해야 맞습니다</li>
+    </ul>
+  </div>
+</section>
+
+<section>
+  <div class="wrap">
+    <p class="eyebrow">셋</p>
+    <h2>확인한 것</h2>
+    <div class="tbl">
+      <table>
+        <thead><tr><th>확인</th><th>전</th><th>후</th></tr></thead>
+        <tbody>
+          <tr><td>덕운포레스트힐(전월세만)</td><td class="bad">404</td><td class="ok">전월세 66건 · 55평 · 최근 보증금 4억/월세 250</td></tr>
+          <tr><td>은마(매매 2,948건)</td><td>정상</td><td class="ok">그대로</td></tr>
+          <tr><td>검색 목록</td><td>건수만</td><td class="ok">매매·전월세 건수를 따로</td></tr>
+          <tr><td>콘솔 경고(테두리 속성 섞임)</td><td class="bad">경고</td><td class="ok">사라짐</td></tr>
+        </tbody>
+      </table>
+    </div>
+    <p class="promptnote">
+      검색창 테두리를 줄임말(<code>border</code>)로 두고 포커스에서 낱개(<code>borderColor</code>)만
+      바꿔 경고가 났습니다. 포커스를 풀 때 테두리가 사라질 수 있는 설정이라 함께 고쳤습니다.
+    </p>
+  </div>
+</section>
+</div>
 <footer>
   <div class="wrap">
     <p class="k">접속 URL</p>
@@ -10429,7 +10695,7 @@ response = requests.get("https://api.sj-lab.co.kr/open-api/v1/convenience-store"
       <li><em>운영 로그인 페이지</em><span class="url">https://api.sj-lab.co.kr/auth/login.html</span></li>
       <li><em>sj-lab-authserver</em><span class="url">https://github.com/stylealist/sj-lab-authserver</span></li>
       <li><em>API 센터</em><span class="url">https://sj-lab.co.kr/openapi/</span></li>
-      <li><em>기록 원본</em><span class="url">sj-lab/history/history_v1.0.md ~ v1.35.md, v2.0.md ~ v4.24.md</span></li>
+      <li><em>기록 원본</em><span class="url">sj-lab/history/history_v1.0.md ~ v1.35.md, v2.0.md ~ v4.27.md</span></li>
     </ul>
     <p class="colophon">
       총괄 허브 <code>C:\developer\workspace\sj-lab</code> 기준 · 커밋과 push는 사용자가 요청할 때만 수행합니다 ·

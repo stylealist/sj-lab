@@ -99,7 +99,8 @@
 | `GET /estate/{propertyType}/rent/monthly?...` | 같음 | `estate.v_apt_rent_monthly` | 전월세 추세 |
 | `GET /estate/{propertyType}/trade/ranking?sidoCd=...` | 같음 | `estate.apt_trade` | 지역 순위(시도 범위) |
 | `GET /estate/{propertyType}/complexes?sggCd=&umdNm=&q=` | 같음 | `estate.apt_trade` | 단지 찾기 |
-| `GET /estate/{propertyType}/complexes/{aptSeq}` | 같음 | `estate.apt_trade` | 단지 기본 + 평형별 요약 |
+| `GET /estate/{propertyType}/complexes/search?q=&limit=` | 같음 | `estate.apt_complex` + `public.g_sgg` (메모리 색인 6시간) | 지도 위 전국 단지 검색(`ComplexSearch.js`) |
+| `GET /estate/{propertyType}/complexes/{aptSeq}` | 같음 | `estate.apt_trade`, 매매가 없으면 `estate.apt_rent` | 단지 기본 + 평형별 요약(`trade_available`) |
 | `GET /estate/{propertyType}/complexes/{aptSeq}/monthly` | 같음 | `estate.apt_trade` | 단지(평형) 매매 추세 |
 | `GET /estate/{propertyType}/complexes/{aptSeq}/rent/monthly` | 같음 | `estate.apt_rent` | 단지(평형) 전월세 추세 |
 | `GET /estate/{propertyType}/complexes/{aptSeq}/trades` | 같음 | `estate.apt_trade` | 단지(평형) 매매 거래 내역 |
@@ -149,6 +150,12 @@
   - **읍면동 경계는 화면에 그리지 않는다**(2026-10-28 사용자 요청, 프론트 `EstateMap.js`). 선이 촘촘하고 지역 평균가 라벨까지 붙어 단지 영역·핀과 겹치면 읽히지 않는다. 경계는 계속 받아 두고 패널에서 읍면동을 고를 때 지도를 옮기는 데만 쓴다.
   - **전국(시도) 평균은 990만 건을 모두 읽어 28초다**(2026-10-15 실측). 그래서 ① 기동 시 **화면 기본 기간(최근 12개월)으로 미리 계산**하고 ② 캐시에 없으면 **경계만 먼저 보내고(`stats_pending:true`) 뒤에서 계산**한다(화면이 6초 뒤 한 번 더 묻는다) ③ 지도가 "지금 어느 시도인가"만 알려고 부를 때는 **`stats=0`**(경계만)으로 불러 무거운 집계를 깨우지 않는다. **이 세 가지를 지울 경우 첫 화면이 수십 초 멈춘다.**
   - **단지 거래 내역은 매매·전월세 둘 다 500건까지 보여 준다**(2026-11-11). 종전에는 매매 12건만 "최근 거래"로 보였다. 전월세 목록 API(`/complexes/{aptSeq}/rent/trades`)를 새로 열었고 매매와 **파라미터·상한이 같다**(기본 50 · 최대 500). 화면은 높이를 제한한 상자 안에서 스크롤하고 표 머리말을 위에 붙인다. **단지 조회는 시군구 하나를 끝까지 훑으므로**(`apt_seq` 에 인덱스가 없다) 그 시군구를 처음 건드릴 때 2초가 들고 그다음은 0.05~0.15초다 — 상세의 네 호출이 같은 스캔을 함께 써서 **호출을 늘려도 느려지지 않는다.** 없애려면 `(sgg_cd, apt_seq)` 인덱스가 필요하다(제안 스크립트 `db/estate/estate_apt_complex_index.sql`, 실행은 담당자).
+  - **매매 거래가 없는 단지도 상세가 열린다**(2026-11-17). 단지 표 44,616개 중 **3,053개(6.8%)는
+    전월세만** 있어, 매매 표만 보던 상세가 **404** 였다(전국 검색으로 고를 수 있게 되자 드러났다 —
+    덕운포레스트힐 `11410-3674`). 이제 매매가 비면 `estate.apt_rent` 에서 **같은 키로** 만들고
+    `trade_available: false` 로 알린다. 화면은 전월세 탭을 먼저 펴고 그 사실을 적는다. 둘 다
+    없으면 그때는 404 다. 검색 응답에도 `trade_count`·`rent_count` 가 따로 담겨 목록에서 미리
+    "전월세만" 을 알린다.
   - **단지 상세는 지도 왼쪽 패널에서 본다**(2026-10-21, `ComplexDetail.js`). 핀이나 목록에서 단지를
     고르면 패널의 지역 보기가 그 단지 상세로 바뀌고 **평형별 · 월 단위 매매와 전월세**를 한 화면에서
     본다(새 API 는 없다 — 이미 있는 `/complexes/{aptSeq}` 계열 4개를 쓴다). 2026-10-15 ~ 10-21 에는

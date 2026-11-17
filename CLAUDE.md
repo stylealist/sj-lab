@@ -20,6 +20,7 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 - @docs/system-architecture.md — DB → 백엔드 → Eureka → 게이트웨이 → 프론트 전체 구조, API 계약 표, 저장소를 넘나드는 변경 체크리스트
 - @docs/dev-environment.md — 로컬 저장소 경로, 포트·라우팅(8100=게이트웨이, 4000=지도, 4100=API 활용 페이지, 8761=Eureka), CORS
 - @docs/mcp.md — GitHub/DB MCP 설정과 비밀값 관리 규칙
+- `docs/k8s-runbook.md` — **쿠버네티스 실행 명령 모음(사용자 실행용)**. 상태 보기·파드가 안 뜰 때·재시작/롤백·Secret 보기/만들기·ArgoCD 확인. 에이전트는 실행하지 않고 이 문서에 명령을 누적한다
 - `docs/k8s-secrets.md` — 운영 k8s Secret·Jenkins Credential 이름·용도·없을 때 증상. 차트의 `secretKeyRef`/`pullSecret`을 바꾸면 이 문서도 같이 고칠 것
 - `docs/openapi-expose-checklist.md` — **백엔드에 새 조회 기능을 만들면 공개 API(`sj-lab-openapi`)에도 같은 작업에서 함께 열기**. 열 수 있는지 판단하는 4가지 기준, 카탈로그 항목 형식, 함께 고칠 문서, 확인 방법
 - `docs/backfill-workflow.md` — **공공데이터 과거 기간을 대량으로 받는 작업(backfill)의 절차와 함정**. 띄우는 순서(스케줄러 → 드라이버 → 완료 감시기), 중단·재개, 실제로 부딪힌 함정 7가지(적재 코드의 기간 필터·키 이중 인코딩·타임아웃 없음·429를 빈 결과로 넘기기·키×엔드포인트별 한도·로그 오류로 사망·클라이언트 타임아웃 시 커서 전진), 속도 측정 결과. **새 백필을 시작하기 전에 읽을 것**
@@ -44,6 +45,10 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 - **백엔드에 새 조회(GET) 기능을 추가하면 공개 API(`sj-lab-openapi`)에 열 수 있는지 판단하고, 열 수 있으면 같은 작업에서 카탈로그(`api-catalog.json`)에 함께 추가할 것** — 기준·절차는 `docs/openapi-expose-checklist.md`. 애매하면 열지 말고 사용자에게 먼저 물어볼 것.
 - `.claude/hooks/guard.sh`가 `git reset --hard`, `git push --force`, 그리고 `claude` 문자열이 들어간 Bash 명령을 차단합니다. 차단되면 우회하지 말고 다른 도구(Read/Grep/PowerShell)로 해결할 것.
 - 현재는 개발DB와 운영DB를 동일하게 사용 중
+- **쿠버네티스 작업은 에이전트가 실행하지 않는다(2026-11-16 사용자 지정).** `kubectl` 로 하는 모든 것(Secret 생성·갱신, 파드 재시작, 롤백, 조회)과 Jenkins 잡 실행은 **사용자가 직접** 한다. 에이전트는 **그대로 복사해 쓸 수 있는 명령을 만들어 주고** 그 명령을 `docs/k8s-runbook.md` 에 **누적해 적는다**(새 작업이 생기면 그 문서에 블록을 추가할 것).
+  - 작업 PC 에는 kubeconfig 가 없다(`kubectl config current-context` → `current-context is not set`). 그래서 에이전트가 돌려도 실패한다 — 추측하지 말고 명령만 전달할 것.
+  - 비밀값이 들어가는 명령은 **값을 적지 말 것.** 서버에서 직접 할 때는 `read -s` 로 입력받는 형태로 만든다(셸 히스토리에 남지 않게).
+  - 외부 포털 키 재발급(공공데이터포털·ITS·생활안전지도·QFieldCloud)도 사용자만 할 수 있다.
 
 작업 규칙:
 - **작업 범위**: `docs/dev-environment.md`의 "로컬 저장소 경로" 표에 명시된 저장소 안에서만 작업할 것. 표에 없는 경로를 읽거나 고쳐야 하면 먼저 사용자에게 확인하고, 승인되면 그 표와 `additionalDirectories`에 추가할 것.
