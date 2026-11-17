@@ -537,7 +537,7 @@
       <button type="button" class="vchip" role="tab" data-ver="4.24" aria-controls="pane-v4.24" title="전월세 보증금이 93% 비어 있던 원인은 천 단위 쉼표 · 최근 5년 반 복구(7%→99.9%) · 중복 19만 행 제거로 거래 건수 정상화 · VACUUM은 효과 없었음(실측)"><span class="pv">v4.24</span><span class="pt">보증금 복구</span></button>
       <button type="button" class="vchip" role="tab" data-ver="4.25" aria-controls="pane-v4.25" title="쿠버네티스 작업은 사용자가 직접 실행하고 에이전트는 명령만 만든다(규칙·명령 모음 신설) · 비밀값 Secret 전환은 준비했다가 되돌림"><span class="pv">v4.25</span><span class="pt">k8s 실행 규칙</span></button>
       <button type="button" class="vchip" role="tab" data-ver="4.26" aria-controls="pane-v4.26" title="단지명으로 전국 검색 — 종전에는 시군구를 먼저 골라야 찾을 수 있었다 · 944ms를 메모리 색인으로 6~17ms로 · 예열을 순서대로 붙였다가 13초 대기가 생겨 전용 스레드로 분리"><span class="pv">v4.26</span><span class="pt">전국 단지 검색</span></button>
-      <button type="button" class="vchip" role="tab" data-ver="4.27" aria-controls="pane-v4.27" title="전월세만 있는 단지 3,053개가 상세에서 404 였던 문제 — 매매가 없으면 전월세 표에서 같은 모양으로 만들어 돌려준다"><span class="pv">v4.27<span class="dot" title="최신" aria-label="최신"></span></span><span class="pt">전월세만 있는 단지</span></button>
+      <button type="button" class="vchip" role="tab" data-ver="4.27" aria-controls="pane-v4.27" title="전월세만 있는 단지 3,053개가 상세에서 404 였던 문제 — 매매가 없으면 전월세 표에서 같은 모양으로 만들어 돌려준다 · 운영 확인 중 필수 값 누락이 502 였던 것도 400 으로"><span class="pv">v4.27<span class="dot" title="최신" aria-label="최신"></span></span><span class="pt">전월세만 있는 단지</span></button>
     </div>
   </div>
 </nav>
@@ -10662,9 +10662,29 @@ response = requests.get("https://api.sj-lab.co.kr/open-api/v1/convenience-store"
   </div>
 </section>
 
-<section>
+<section class="band">
   <div class="wrap">
     <p class="eyebrow">셋</p>
+    <h2>운영에서 하나 더 찾았습니다 — 필수 값을 빼면 502</h2>
+    <p>
+      운영에서 검색을 <code>q</code> <b>없이</b> 불러 보니 <b>502 "부동산 데이터를 조회하지
+      못했습니다"</b> 가 나왔습니다. <b>부르는 쪽 잘못인데 서버가 실패한 것처럼</b> 보여 원인을
+      찾기 어렵습니다 — 필수 값 누락을 따로 받지 않아 맨 아래 포괄 처리로 떨어진 것이었습니다.
+    </p>
+    <p>
+      이제 <b>400 과 빠진 값의 이름</b>을 돌려줍니다(빈 값으로 보낸 경우와 같아졌습니다).
+      검색뿐 아니라 <b>필수 값을 쓰는 모든 조회</b>에 함께 적용됩니다.
+    </p>
+    <p class="promptnote">
+      v4.26 기록에 "q 없음 → 400" 으로 적었던 것은 <b>빈 값만 확인하고 둘을 같다고 본 것</b>입니다.
+      그 줄은 정정해 두었습니다.
+    </p>
+  </div>
+</section>
+
+<section>
+  <div class="wrap">
+    <p class="eyebrow">넷</p>
     <h2>확인한 것</h2>
     <div class="tbl">
       <table>
@@ -10674,6 +10694,9 @@ response = requests.get("https://api.sj-lab.co.kr/open-api/v1/convenience-store"
           <tr><td>은마(매매 2,948건)</td><td>정상</td><td class="ok">그대로</td></tr>
           <tr><td>검색 목록</td><td>건수만</td><td class="ok">매매·전월세 건수를 따로</td></tr>
           <tr><td>콘솔 경고(테두리 속성 섞임)</td><td class="bad">경고</td><td class="ok">사라짐</td></tr>
+          <tr><td>필수 값(<code>q</code>)을 빼고 호출</td><td class="bad">502 조회 실패</td><td class="ok">400 · 빠진 값 이름</td></tr>
+          <tr><td><b>운영</b> 덕운포레스트힐</td><td class="bad">404</td><td class="ok">전월세 66건으로 열림</td></tr>
+          <tr><td><b>운영</b> 배포 직후 1~2분</td><td class="bad">요청 절반이 500</td><td class="ok">옛 파드가 Eureka 에서 빠진 뒤 200 연속 15회</td></tr>
         </tbody>
       </table>
     </div>
