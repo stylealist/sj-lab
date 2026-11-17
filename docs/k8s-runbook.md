@@ -132,6 +132,26 @@ kubectl describe application <이름> -n argocd | findstr /i "sync health messag
 화면에서 손으로 만든 것입니다 — 자동 동기화 여부는 위 명령으로 확인하세요.
 저장소에 있는 정의는 `argocd/`(ArgoCD 자신)와 `docs/argocd/sj-lab-estate-application.yaml` 뿐입니다.
 
+## 5-1. DB 에 SQL 한 줄 돌리기 (psql 이 없을 때)
+
+작업 PC 에 `psql` 이 없고 DB 툴(DBeaver 등)은 문장을 트랜잭션으로 감싸 **`CREATE INDEX
+CONCURRENTLY` 같은 명령이 거부될 때**(`SQL Error [25001] ... cannot run inside a transaction
+block`) 쓰는 길입니다. DB 파드 안의 `psql` 은 기본이 auto-commit 입니다.
+
+```powershell
+# 1) DB 파드 이름 찾기(네임스페이스는 환경에 맞게)
+kubectl get pods -A | findstr /i postgres
+
+# 2) 그 파드 안에서 한 줄 실행 — 비밀번호는 파드 안 환경변수를 그대로 쓴다(셸에 적지 않는다)
+kubectl exec -n <네임스페이스> <파드이름> -- sh -lc "psql -U $POSTGRES_USER -d sjlab -c \"<SQL 한 줄>\""
+```
+
+- **비밀값을 명령에 적지 말 것** — 파드 안의 `$POSTGRES_USER`·`$PGPASSWORD` 를 쓰거나,
+  대화형(`-it` + `psql`)으로 들어가 실행합니다.
+- `CONCURRENTLY` 는 **한 명령에 하나씩**. 여러 문장을 묶어 보내면 같은 오류가 납니다.
+- 오래 걸리는 작업(인덱스 만들기 수 분)은 연결이 끊기면 중단되므로, 끊겼을 때 **못 쓰는
+  인덱스가 남았는지**(`indisvalid`) 확인하는 쿼리까지 스크립트에 함께 적어 둡니다.
+
 ## 6. 참고 — 누가 무엇을 하는가
 
 | 작업 | 누가 |

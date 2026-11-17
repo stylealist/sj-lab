@@ -113,6 +113,27 @@
 
     <div class="card">
       <div class="ver-head">
+        <span class="tag">v4.28</span>
+        <span class="ver-title">단지 조회 인덱스 — 새 지역 첫 조회 2초가 0.2초<span class="ver-note">실행 완료</span></span>
+        <span class="date">2026-11-17</span>
+      </div>
+      <ul>
+        <li><b>새 지역에서 단지를 처음 누르면 약 2초</b> 걸립니다 — 단지 키에 인덱스가 없어 <b>시군구 전체를 읽은 뒤 단지를 골라내기</b> 때문입니다(같은 지역 두 번째부터는 0.05~0.15초)</li>
+        <li>오늘 실제로 재어 보니 <b>118,800행을 읽고 버려 122건을 돌려줬고</b>(약 39MB 읽기) <b>1,870ms</b> 였습니다</li>
+        <li><b>어제 만든 전국 검색 때문에 더 자주 만나게 됐습니다</b> — 다른 지역 단지를 바로 고르게 됐기 때문입니다. 오늘 고친 전월세만 있는 단지 3,053개도 같은 방식으로 찾습니다</li>
+        <li><b>인덱스 2개로 사라집니다. 코드는 고칠 것이 없습니다</b> — 지금 쿼리가 그대로 그 인덱스를 탑니다</li>
+        <li><b>용량과 맞바꿉니다</b> — 둘 합쳐 약 <b>550~650MB</b>. 만드는 동안 수집이 막히지 않게 <code>CONCURRENTLY</code> 로 만들고(한 줄씩, 트랜잭션 밖), 되돌리기는 한 줄입니다</li>
+        <li><b>표를 바꾸는 작업이라 실행은 담당자가 합니다</b>(프로젝트 규칙). 스크립트 <code>db/estate/estate_apt_complex_index.sql</code> 에 실행·확인·되돌리기가 모두 적혀 있습니다</li>
+        <li><b>실행하다 막혔습니다</b> — DB 툴이 문장을 트랜잭션으로 감싸 <code>CREATE INDEX CONCURRENTLY</code> 가 거부됐습니다(<code>cannot run inside a transaction block</code>). 커밋 모드를 바꾸지 않는 길로 <b>CONCURRENTLY 를 떼고</b> 했습니다 — 조회는 영향이 없고(읽기와 충돌하지 않는 락) 막히는 건 쓰기(수집)뿐인데 그 시간대에 수집이 없었습니다</li>
+        <li><b>진짜 위험은 "만든 뒤"였습니다</b> — 수동 커밋 툴에서는 커밋할 때까지 락이 유지되고 이 DB 는 관련 타임아웃이 둘 다 0 이라 무한정 기다립니다. 커밋 없이 창을 닫으면 작업이 날아가므로 스크립트에 <b>"★ 여기서 Commit ★"</b> 을 박아 두었습니다</li>
+        <li><b>결과</b> — DB 쿼리 <b>1,870ms → 33ms</b>(두 번째 0.4ms) · 매매 500건 0.9ms · <b>운영에서 처음 누르는 지역의 단지 상세가 약 2초 → 160~190ms</b>(두 번째 70ms) · 전월세만 있는 단지도 96ms</li>
+        <li><b>용량은 예상보다 적었습니다</b> — 추정 550~650MB 였는데 실제는 <b>377MB</b> 입니다. 코드 변경은 없습니다(기존 쿼리가 그대로 새 인덱스를 탑니다)</li>
+      </ul>
+      <p><a href="../history_v4.28.md">history_v4.28.md 원문 보기</a></p>
+    </div>
+
+    <div class="card">
+      <div class="ver-head">
         <span class="tag">v4.27</span>
         <span class="ver-title">전월세만 있는 단지도 열립니다 — 3,053개가 404 였습니다<span class="ver-note">상세 404 수정</span></span>
         <span class="date">2026-11-17</span>

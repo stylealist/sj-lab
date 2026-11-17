@@ -537,7 +537,8 @@
       <button type="button" class="vchip" role="tab" data-ver="4.24" aria-controls="pane-v4.24" title="전월세 보증금이 93% 비어 있던 원인은 천 단위 쉼표 · 최근 5년 반 복구(7%→99.9%) · 중복 19만 행 제거로 거래 건수 정상화 · VACUUM은 효과 없었음(실측)"><span class="pv">v4.24</span><span class="pt">보증금 복구</span></button>
       <button type="button" class="vchip" role="tab" data-ver="4.25" aria-controls="pane-v4.25" title="쿠버네티스 작업은 사용자가 직접 실행하고 에이전트는 명령만 만든다(규칙·명령 모음 신설) · 비밀값 Secret 전환은 준비했다가 되돌림"><span class="pv">v4.25</span><span class="pt">k8s 실행 규칙</span></button>
       <button type="button" class="vchip" role="tab" data-ver="4.26" aria-controls="pane-v4.26" title="단지명으로 전국 검색 — 종전에는 시군구를 먼저 골라야 찾을 수 있었다 · 944ms를 메모리 색인으로 6~17ms로 · 예열을 순서대로 붙였다가 13초 대기가 생겨 전용 스레드로 분리"><span class="pv">v4.26</span><span class="pt">전국 단지 검색</span></button>
-      <button type="button" class="vchip" role="tab" data-ver="4.27" aria-controls="pane-v4.27" title="전월세만 있는 단지 3,053개가 상세에서 404 였던 문제 — 매매가 없으면 전월세 표에서 같은 모양으로 만들어 돌려준다 · 운영 확인 중 필수 값 누락이 502 였던 것도 400 으로"><span class="pv">v4.27<span class="dot" title="최신" aria-label="최신"></span></span><span class="pt">전월세만 있는 단지</span></button>
+      <button type="button" class="vchip" role="tab" data-ver="4.27" aria-controls="pane-v4.27" title="전월세만 있는 단지 3,053개가 상세에서 404 였던 문제 — 매매가 없으면 전월세 표에서 같은 모양으로 만들어 돌려준다 · 운영 확인 중 필수 값 누락이 502 였던 것도 400 으로"><span class="pv">v4.27</span><span class="pt">전월세만 있는 단지</span></button>
+      <button type="button" class="vchip" role="tab" data-ver="4.28" aria-controls="pane-v4.28" title="단지 조회가 122건을 주려고 12만 행을 읽고 버리던 것(1,870ms) — 인덱스 2개로 33ms · 운영 첫 조회 2초에서 160~190ms"><span class="pv">v4.28<span class="dot" title="최신" aria-label="최신"></span></span><span class="pt">단지 조회 인덱스</span></button>
     </div>
   </div>
 </nav>
@@ -10707,6 +10708,109 @@ response = requests.get("https://api.sj-lab.co.kr/open-api/v1/convenience-store"
   </div>
 </section>
 </div>
+<!-- ===================== v4.28 ===================== -->
+<div class="vpane" data-ver="4.28" id="pane-v4.28" hidden>
+<header class="masthead">
+  <div class="wrap">
+    <div class="stamp">
+      <span class="ver">v4.28</span>
+      <span>2026-11-17</span>
+      <span>단지 조회 인덱스</span>
+    </div>
+    <h1>122건을 주려고<br>12만 행을 읽고 있었습니다</h1>
+    <p class="plainline">새 지역에서 단지를 처음 누르면 2초였습니다 — 인덱스 2개로 <b>0.2초</b>가 됐습니다</p>
+    <p class="dek">
+      단지 키에 인덱스가 없어 <b>시군구 전체를 읽은 뒤 단지를 골라냅니다.</b> 어제 만든 전국
+      검색으로 다른 지역 단지를 바로 고르는 일이 많아져 이 기다림을 더 자주 만나게 됐습니다.
+    </p>
+    <dl class="facts">
+      <div><dt>읽고 버리는 행</dt><dd class="bad">118,800행</dd></div>
+      <div><dt>돌려주는 행</dt><dd>122건</dd></div>
+      <div><dt>쿼리</dt><dd class="ok">1,870ms → 33ms</dd></div>
+      <div><dt>운영 첫 조회</dt><dd class="ok">2초 → 0.2초</dd></div>
+      <div><dt>추가 용량</dt><dd>377MB</dd></div>
+    </dl>
+  </div>
+</header>
+
+<section class="band">
+  <div class="wrap">
+    <p class="eyebrow">하나</p>
+    <h2>오늘 실제로 재어 봤습니다</h2>
+    <div class="flow">
+      <div class="frow"><span class="fk">좁히는 조건</span><span class="fv">시군구 하나(<code>sgg_cd = '41117'</code>) — <b>단지는 조건이 아니라 걸러내기</b></span></div>
+      <div class="frow"><span class="fk">버린 행</span><span class="fv"><b>118,800행</b>을 읽고 버려 <b>122건</b>을 돌려줬습니다</span></div>
+      <div class="frow"><span class="fk">읽은 양</span><span class="fv">4,994블록 · 약 <b>39MB</b></span></div>
+      <div class="frow"><span class="fk">시간</span><span class="fv"><b>1,870ms</b> — 같은 지역 두 번째부터는 0.05~0.15초(디스크 캐시)</span></div>
+    </div>
+    <p class="promptnote">
+      오늘 고친 <b>전월세만 있는 단지 3,053개</b>의 상세도 같은 방식으로 찾으므로 수혜 대상이 늘었습니다.
+    </p>
+  </div>
+</section>
+
+<section class="band">
+  <div class="wrap">
+    <p class="eyebrow">둘</p>
+    <h2>코드는 고칠 것이 없습니다</h2>
+    <p>
+      <code>(시군구, 단지키, 연, 월)</code> 인덱스를 매매·전월세에 하나씩 만들면 <b>지금 쿼리가
+      그대로 그 인덱스를 탑니다.</b> 단지 행만 바로 찾으니 기다림이 사라집니다.
+    </p>
+    <ul class="notes">
+      <li><b>용량과 맞바꿉니다</b> — 둘 합쳐 약 550~650MB(같은 표의 "시군구·연·월" 인덱스가 전월세 213MB·매매 119MB, 거기에 단지 키 한 칸이 붙는 정도)</li>
+      <li><b>만드는 동안 수집이 막히지 않습니다</b> — <code>CONCURRENTLY</code> 로 만듭니다(그래서 한 줄씩, 트랜잭션 밖에서)</li>
+      <li><b>되돌리기는 한 줄</b> 이고, 지워도 화면은 그대로 동작합니다 — 첫 조회가 다시 2초로 돌아갈 뿐입니다</li>
+      <li><b>실행은 담당자가 합니다</b>(표를 바꾸는 작업이라 프로젝트 규칙입니다). 스크립트에 확인 쿼리와 되돌리기까지 적어 두었습니다</li>
+    </ul>
+  </div>
+</section>
+
+<section class="band">
+  <div class="wrap">
+    <p class="eyebrow">셋</p>
+    <h2>실행하다 막혔습니다 — 툴이 트랜잭션으로 감쌉니다</h2>
+    <p>
+      DB 툴에서 <code>CREATE INDEX CONCURRENTLY</code> 가 거부됐습니다
+      (<code>cannot run inside a transaction block</code>). 툴이 기본으로 <b>수동 커밋</b>이라
+      문장을 트랜잭션으로 감싸기 때문입니다 — 스크립트 문제가 아니라 <b>실행 모드</b> 문제입니다.
+      커밋 모드를 바꾸지 않는 길로 <b>CONCURRENTLY 를 떼고</b> 했습니다.
+    </p>
+    <ul class="notes">
+      <li><b>조회는 영향이 없습니다</b> — 걸리는 락은 읽기와 충돌하지 않습니다. 막히는 건 쓰기(수집)뿐이고 그 시간대에 수집이 없었습니다(cron 06:00 · 07:00)</li>
+      <li><b>오히려 빠르고 안전합니다</b> — 표를 한 번만 읽고 병렬로 만들며, 중단되면 깔끔히 롤백됩니다(CONCURRENTLY 는 못 쓰는 인덱스가 남습니다)</li>
+      <li><b>진짜 위험은 "만든 뒤"였습니다</b> — 수동 커밋 툴에서는 <b>커밋할 때까지 락이 유지</b>되고, 이 DB 는 관련 타임아웃이 둘 다 0 이라 무한정 기다립니다. 커밋 없이 창을 닫으면 몇 분 걸린 작업이 날아갑니다</li>
+      <li>그래서 스크립트에 <b>"★ 여기서 Commit ★"</b> 을 박아 두었습니다</li>
+    </ul>
+    <p class="promptnote">
+      처음에 제가 락을 ACCESS EXCLUSIVE 라고 했는데 실제로는 SHARE 입니다 — 조회가 멈추는지
+      아닌지가 갈리는 차이라 바로 정정했습니다.
+    </p>
+  </div>
+</section>
+
+<section>
+  <div class="wrap">
+    <p class="eyebrow">넷</p>
+    <h2>결과</h2>
+    <div class="tbl">
+      <table>
+        <thead><tr><th>확인</th><th>전</th><th>후</th></tr></thead>
+        <tbody>
+          <tr><td>조회 계획</td><td class="bad">시군구를 훑고 단지를 걸러내기</td><td class="ok">단지 행을 바로 찾기(Index Scan)</td></tr>
+          <tr><td>DB 쿼리 — 첫 조회</td><td class="bad">1,870ms · 4,994블록</td><td class="ok">33ms · 121블록</td></tr>
+          <tr><td>DB 쿼리 — 두 번째</td><td>-</td><td class="ok">0.4ms · 디스크 읽기 없음</td></tr>
+          <tr><td>매매 쪽(500건)</td><td class="bad">같은 방식으로 느림</td><td class="ok">0.9ms · 정렬도 불필요</td></tr>
+          <tr><td><b>운영</b> 처음 누르는 지역의 단지 상세</td><td class="bad">약 2초</td><td class="ok">160~190ms (두 번째 70ms)</td></tr>
+          <tr><td><b>운영</b> 전월세만 있는 단지</td><td class="bad">(어제까지 404)</td><td class="ok">96ms</td></tr>
+          <tr><td>추가 용량</td><td>추정 550~650MB</td><td class="ok">실제 377MB · 둘 다 정상</td></tr>
+          <tr><td>코드 변경</td><td>-</td><td class="ok">없음 — 기존 쿼리가 그대로 탑니다</td></tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+</section>
+</div>
 <footer>
   <div class="wrap">
     <p class="k">접속 URL</p>
@@ -10718,7 +10822,7 @@ response = requests.get("https://api.sj-lab.co.kr/open-api/v1/convenience-store"
       <li><em>운영 로그인 페이지</em><span class="url">https://api.sj-lab.co.kr/auth/login.html</span></li>
       <li><em>sj-lab-authserver</em><span class="url">https://github.com/stylealist/sj-lab-authserver</span></li>
       <li><em>API 센터</em><span class="url">https://sj-lab.co.kr/openapi/</span></li>
-      <li><em>기록 원본</em><span class="url">sj-lab/history/history_v1.0.md ~ v1.35.md, v2.0.md ~ v4.27.md</span></li>
+      <li><em>기록 원본</em><span class="url">sj-lab/history/history_v1.0.md ~ v1.35.md, v2.0.md ~ v4.28.md</span></li>
     </ul>
     <p class="colophon">
       총괄 허브 <code>C:\developer\workspace\sj-lab</code> 기준 · 커밋과 push는 사용자가 요청할 때만 수행합니다 ·
