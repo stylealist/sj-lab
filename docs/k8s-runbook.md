@@ -152,6 +152,32 @@ kubectl exec -n <네임스페이스> <파드이름> -- sh -lc "psql -U $POSTGRES
 - 오래 걸리는 작업(인덱스 만들기 수 분)은 연결이 끊기면 중단되므로, 끊겼을 때 **못 쓰는
   인덱스가 남았는지**(`indisvalid`) 확인하는 쿼리까지 스크립트에 함께 적어 둡니다.
 
+## 5-2. JVM 보안 완화 옵션 확인 (CVE-2026-114938 · Java4Shell)
+
+OpenJDK **17.0.6 이상 x86-64(AVX-512 VBMI)** 의 Base64 디코드 인트린식 결함입니다(ARM64 해당 없음,
+패치 2026-11-17 공개). 2026-11-18 에 **Java 서비스 7개 + geoserver 차트의 `JAVA_TOOL_OPTIONS` 에
+`-XX:-UseBASE64Intrinsics` 를 덧붙여** 임시로 막아 두었습니다.
+
+```powershell
+# 1) 이 파드가 애초에 영향받는지 / 완화가 먹었는지 — false 면 인트린식이 꺼진 것(정상)
+kubectl exec -n sj-lab <파드이름> -- java -XX:+PrintFlagsFinal -version | findstr UseBASE64Intrinsics
+
+# 2) 환경변수가 제대로 들어갔는지(타임존이 함께 남아 있어야 한다)
+kubectl exec -n sj-lab <파드이름> -- printenv JAVA_TOOL_OPTIONS
+
+# 3) 롤아웃이 끝났는지
+kubectl get pods -n sj-lab -o wide
+kubectl rollout status deploy/<이름> -n sj-lab
+```
+
+- **CPU 가 AVX-512 VBMI 를 지원하지 않으면 이 플래그는 원래 `false`** 입니다 — 그때는 넣어도
+  바뀌는 것이 없습니다(영향 없음).
+- **임시 완화입니다.** 해결은 **패치된 JDK 베이스 이미지로 재빌드**(Jenkins 잡 재실행)이고,
+  Dockerfile 이 `eclipse-temurin:17-jdk-alpine`(떠다니는 태그)이라 **코드 변경 없이 잡만 다시**
+  돌리면 됩니다. 재빌드 뒤에는 이 옵션을 **빼는 것이 맞습니다**(Base64 성능).
+- 같은 이름의 환경변수를 따로 또 선언하면 **뒤엣것만 남아 `-Duser.timezone=Asia/Seoul` 이
+  사라집니다.** 반드시 한 값에 이어 붙일 것.
+
 ## 6. 참고 — 누가 무엇을 하는가
 
 | 작업 | 누가 |

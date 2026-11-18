@@ -538,7 +538,8 @@
       <button type="button" class="vchip" role="tab" data-ver="4.25" aria-controls="pane-v4.25" title="쿠버네티스 작업은 사용자가 직접 실행하고 에이전트는 명령만 만든다(규칙·명령 모음 신설) · 비밀값 Secret 전환은 준비했다가 되돌림"><span class="pv">v4.25</span><span class="pt">k8s 실행 규칙</span></button>
       <button type="button" class="vchip" role="tab" data-ver="4.26" aria-controls="pane-v4.26" title="단지명으로 전국 검색 — 종전에는 시군구를 먼저 골라야 찾을 수 있었다 · 944ms를 메모리 색인으로 6~17ms로 · 예열을 순서대로 붙였다가 13초 대기가 생겨 전용 스레드로 분리"><span class="pv">v4.26</span><span class="pt">전국 단지 검색</span></button>
       <button type="button" class="vchip" role="tab" data-ver="4.27" aria-controls="pane-v4.27" title="전월세만 있는 단지 3,053개가 상세에서 404 였던 문제 — 매매가 없으면 전월세 표에서 같은 모양으로 만들어 돌려준다 · 운영 확인 중 필수 값 누락이 502 였던 것도 400 으로"><span class="pv">v4.27</span><span class="pt">전월세만 있는 단지</span></button>
-      <button type="button" class="vchip" role="tab" data-ver="4.28" aria-controls="pane-v4.28" title="단지 조회가 122건을 주려고 12만 행을 읽고 버리던 것(1,870ms) — 인덱스 2개로 33ms · 운영 첫 조회 2초에서 160~190ms"><span class="pv">v4.28<span class="dot" title="최신" aria-label="최신"></span></span><span class="pt">단지 조회 인덱스</span></button>
+      <button type="button" class="vchip" role="tab" data-ver="4.28" aria-controls="pane-v4.28" title="단지 조회가 122건을 주려고 12만 행을 읽고 버리던 것(1,870ms) — 인덱스 2개로 33ms · 운영 첫 조회 2초에서 160~190ms"><span class="pv">v4.28</span><span class="pt">단지 조회 인덱스</span></button>
+      <button type="button" class="vchip" role="tab" data-ver="4.29" aria-controls="pane-v4.29" title="OpenJDK Base64 가속 코드 결함(CVE-2026-114938)을 서버 8대에 임시 완화 옵션으로 막음 — 해결은 패치 이미지 재빌드"><span class="pv">v4.29<span class="dot" title="최신" aria-label="최신"></span></span><span class="pt">자바 보안 결함 완화</span></button>
     </div>
   </div>
 </nav>
@@ -10811,6 +10812,83 @@ response = requests.get("https://api.sj-lab.co.kr/open-api/v1/convenience-store"
   </div>
 </section>
 </div>
+<!-- ===================== v4.29 ===================== -->
+<div class="vpane" data-ver="4.29" id="pane-v4.29" hidden>
+<header class="masthead">
+  <div class="wrap">
+    <div class="stamp">
+      <span class="ver">v4.29</span>
+      <span>2026-11-18</span>
+      <span>자바 보안 결함 임시 막기</span>
+    </div>
+    <h1>자바 보안 결함,<br>서버 8대에 임시로 막아 두었습니다</h1>
+    <p class="plainline">OpenJDK 의 Base64 가속 코드 결함(CVE-2026-114938) — 가속을 끄는 옵션으로 우선 막았습니다</p>
+    <p class="dek">
+      외부에서 들어온 값이 그 디코더까지 닿으면 문제가 될 수 있는 결함입니다. 패치는
+      <b>2026-11-17</b> 에 나왔고, 우리는 <b>패치 이미지로 다시 빌드하기 전까지</b> 가속을 꺼 둡니다.
+    </p>
+    <dl class="facts">
+      <div><dt>적용한 서버</dt><dd class="ok">8개 차트</dd></div>
+      <div><dt>영향 범위</dt><dd>JDK 17.0.6+ · x86-64</dd></div>
+      <div><dt>해당 없음</dt><dd>ARM64</dd></div>
+      <div><dt>성격</dt><dd class="pending">임시 완화</dd></div>
+    </dl>
+  </div>
+</header>
+
+<section class="band">
+  <div class="wrap">
+    <p class="eyebrow">하나</p>
+    <h2>한 줄 더 넣는 게 아니라 "이어 붙였습니다"</h2>
+    <p>
+      이미 쓰고 있던 설정에 <b>타임존</b>이 들어 있어서, 같은 이름으로 한 줄 더 넣으면
+      <b>뒤엣것만 남아 타임존이 사라집니다.</b> 그래서 한 값에 이어 붙였습니다.
+    </p>
+    <div class="flow">
+      <div class="frow"><span class="fk">전</span><span class="fv"><code>-Duser.timezone=Asia/Seoul</code></span></div>
+      <div class="frow"><span class="fk">후</span><span class="fv"><code>-Duser.timezone=Asia/Seoul -XX:-UseBASE64Intrinsics</code></span></div>
+      <div class="frow"><span class="fk">대상</span><span class="fv">게이트웨이 · 디스커버리 · 지도 백엔드 · 로그인 · 부동산 · 공개 API · 수집기 · GeoServer</span></div>
+      <div class="frow"><span class="fk">해당 없음</span><span class="fv">파이썬으로 도는 두 서비스</span></div>
+    </div>
+  </div>
+</section>
+
+<section class="band">
+  <div class="wrap">
+    <p class="eyebrow">둘</p>
+    <h2>이건 임시입니다 — 진짜 해결은 재빌드</h2>
+    <p>
+      <b>패치된 자바가 들어간 이미지로 다시 빌드하는 것</b>이 해결입니다. 다행히 설정이 자바 버전을
+      고정하지 않아 <b>코드 한 줄 고치지 않고 빌드만 다시 돌리면</b> 됩니다. 그 뒤에는 이 옵션을
+      <b>빼는 것이 맞습니다</b>(Base64 처리가 조금 느려지므로).
+    </p>
+    <ul class="notes">
+      <li>차트마다 <b>왜 넣었고 언제 빼야 하는지</b>를 주석으로 남겼습니다</li>
+      <li>확인·제거 절차는 명령 모음 문서(런북)에 <b>5-2절</b>로 추가했습니다</li>
+      <li><b>CPU 가 해당 기능을 지원하지 않는 서버라면 원래부터 꺼져 있습니다</b> — 그때는 넣어도 변화가 없는 것이 정상입니다</li>
+    </ul>
+  </div>
+</section>
+
+<section>
+  <div class="wrap">
+    <p class="eyebrow">셋</p>
+    <h2>확인한 것 · 확인하실 것</h2>
+    <div class="tbl">
+      <table>
+        <thead><tr><th>항목</th><th>결과</th></tr></thead>
+        <tbody>
+          <tr><td>차트 8개 문법·렌더링</td><td class="ok">모두 통과, 값이 의도대로 들어감</td></tr>
+          <tr><td>수정 전 최신 내려받기</td><td class="ok">빌드 서버 자동 커밋을 먼저 받아 충돌 없음</td></tr>
+          <tr><td>올리기</td><td class="ok">push 완료 → 배포 도구가 순차 반영(롤아웃 중 짧은 오류는 정상)</td></tr>
+          <tr><td>파드에서 옵션이 먹었는지</td><td class="pending">사용자 확인 — 런북 5-2절</td></tr>
+          <tr><td>타임존이 함께 남아 있는지</td><td class="pending">사용자 확인 — 런북 5-2절</td></tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+</section>
+</div>
 <footer>
   <div class="wrap">
     <p class="k">접속 URL</p>
@@ -10822,7 +10900,7 @@ response = requests.get("https://api.sj-lab.co.kr/open-api/v1/convenience-store"
       <li><em>운영 로그인 페이지</em><span class="url">https://api.sj-lab.co.kr/auth/login.html</span></li>
       <li><em>sj-lab-authserver</em><span class="url">https://github.com/stylealist/sj-lab-authserver</span></li>
       <li><em>API 센터</em><span class="url">https://sj-lab.co.kr/openapi/</span></li>
-      <li><em>기록 원본</em><span class="url">sj-lab/history/history_v1.0.md ~ v1.35.md, v2.0.md ~ v4.28.md</span></li>
+      <li><em>기록 원본</em><span class="url">sj-lab/history/history_v1.0.md ~ v1.35.md, v2.0.md ~ v4.29.md</span></li>
     </ul>
     <p class="colophon">
       총괄 허브 <code>C:\developer\workspace\sj-lab</code> 기준 · 커밋과 push는 사용자가 요청할 때만 수행합니다 ·
