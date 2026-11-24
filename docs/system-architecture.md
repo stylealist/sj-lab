@@ -107,6 +107,12 @@
 | `GET /estate/{propertyType}/complexes/{aptSeq}/rent/trades` | 같음 | `estate.apt_rent` | 단지(평형) 전월세 거래 내역 |
 | `GET /estate/{propertyType}/map/regions?level=sido\|sgg\|emd&sidoCd=&sggCd=&fromYm=&toYm=&stats=` | 같음 | `public.g_sido/g_sgg/g_emd` + `estate.apt_trade` | 지도 경계 색칠(`EstateMap.js`) |
 | `GET /estate/{propertyType}/map/complexes?bbox=&fromYm=&toYm=&limit=` | 같음 | `estate.apt_complex` + `estate.apt_trade`, 매매가 없는 단지는 `estate.apt_rent` | 지도 아파트 핀(`EstateMap.js`, `trade_available`) |
+| `GET /estate/member/status` | `MemberController`(sj-lab-estate) | 없음(표 유무 확인) | 회원 기능 켤지 판단(`App.js`) — **로그인 불필요** |
+| `GET /estate/member/me` | 같음 | `member.estate_*` | 내 정보(`MyEstate.js`) |
+| `GET /estate/member/favorites` · `/favorites/keys` | 같음 | `member.estate_favorite` + `estate.apt_trade`·`apt_rent`(새 거래 수) | 관심 단지 목록 · 별 모양 판단 |
+| `POST`·`DELETE /estate/member/favorites/{aptSeq}`, `POST .../seen` | 같음 | `member.estate_favorite` | 담기 · 빼기 · "새 거래" 지우기 |
+| `GET`·`DELETE /estate/member/recent`, `POST /estate/member/recent/{aptSeq}` | 같음 | `member.estate_recent` | 최근 본 단지 |
+| `GET /estate/member/notes`, `GET`·`PUT`·`DELETE /estate/member/notes/{aptSeq}` | 같음 | `member.estate_note` | 단지 메모 |
 
 **공개 API(`sj-lab-openapi`, 게이트웨이 `/open-api/**`)**: 지도·시설물 데이터를 외부에서 쓸 수 있게 여는 서비스다. `GET /open-api/catalog` 가 공개 API 목록(경로·파라미터·예시)을 내려주고, 활용 페이지는 그 JSON으로 화면을 그린다. `GET /open-api/v1/...` 는 카탈로그에 **정의된 경로·파라미터만** mapservice-rest 로 올려보내고 응답을 그대로 전달한다 (정의 밖은 404·400). **DB를 직접 읽지 않는다** — 같은 SQL이 두 저장소에 생기면 뷰가 바뀔 때 한쪽만 고쳐지기 때문이다.
 - 공개 범위는 `src/main/resources/catalog/api-catalog.json` 한 파일이 정한다(현재 12개, 모두 GET). 공공데이터 6종 · 시설물 목록/상세/아이콘 · 행정구역 3단계. **내업 쓰기·사진·첨부 중계는 열지 않는다.**
@@ -174,6 +180,23 @@
     띄우고 머리말을 끌어 옮길 수 있다.
   - **핀 GeoJSON 은 DB 가 조립하고 응답도 캐시한다**(2026-10-28). 행 목록을 `Map` 으로 옮기는 것만으로 단지 381개에 400ms 가 들었다(DB 쿼리는 62ms). `json_agg` 로 한 행·한 컬럼으로 받고, bbox(화면이 1km 격자로 끊어 보낸다)를 키로 10분 캐시한다. 좌표 진행률도 1분 캐시 — 화면 안내용 숫자인데 핀마다 4.4만 행을 다시 셌다. 실측 **지도 이동 1회 1.4~1.9초 → 200~570ms**(재방문 100ms 대).
   - **아파트 핀(`/map/complexes`)은 `estate.apt_complex` 가 있어야 나온다.** 표가 없으면 오류가 아니라 **빈 목록 + `coordinates_ready:false` + 사유**로 답하고, 화면이 "좌표 받은 단지 N / 44,581개"를 띄운다. 핀 쿼리는 **bbox 로 단지를 먼저 고르고 그 단지들의 시군구에서만 거래를 묶는다** — 단지별로 하나씩 조회하면 300개 × 100ms 가 된다(`apt_seq` 에는 인덱스가 없다).
+- **회원 기능이 있다**(2026-11-24, `/estate/member/**`). 로그인한 사람의 **관심 단지 · 최근 본 단지 ·
+  단지 메모 · 내 정보**다. 화면은 왼쪽 패널의 "내 단지" 탭(`MyEstate.js`)과 단지 상세 맨 위의
+  관심 담기·메모(`FavoriteBar.js`), 그리고 2~4개를 나란히 놓는 비교 창(`ComplexCompare.js`)이다.
+  - **조회 전용 규칙의 유일한 예외다.** 실거래 커넥션은 종전대로 읽기 전용이고, 회원 데이터는
+    전용 스키마(`member`)에 **별도 커넥션**(`estate-member-pool`)으로만 쓴다. DB 권한도 그렇게
+    나눠 둔다 — 서비스 계정은 `estate` 에는 조회만, `member` 에만 쓰기다. 같은 구조가 이미 있다
+    (`mapservice-rest` 도 조회 서비스지만 내업 기록은 직접 쓴다). **새 서비스를 만들지 않아**
+    차트·Jenkins 잡·ArgoCD 등록이 필요 없었다.
+  - **누구인지는 토큰으로만 정한다** — 확인은 `sj-lab-authserver` 의 `GET /auth/me` 에 위임하고
+    토큰 → 계정을 60초 기억한다(JWT 서명 키를 서비스마다 복사하지 않기 위해. 공개 API 와 같은 방식).
+  - **표가 없으면 오류가 아니라 기능만 꺼진다** — `GET /member/status` 가 `ready:false` 로 답하고
+    화면이 관심 단추를 숨긴다. 스크립트는 `db/estate/estate_member.sql`(실행은 담당자, **미실행**)이고
+    60초마다 다시 확인하므로 실행하면 재기동 없이 켜진다.
+  - **"새 거래" 알림은 저장하지 않고 그때그때 센다** — 관심 단지마다 "담은(또는 마지막으로 열어 본)
+    시점의 최근 계약일"을 적어 두고 그보다 뒤의 거래를 센다. 단지마다 따로 묻지 않고
+    `left join lateral` 로 한 질의에 가져오며, **2026-11-17 의 `(sgg_cd, apt_seq)` 인덱스가 전제다**
+    (없으면 단지 하나에 2초). 밀어 주는 알림(푸시·메일)은 아니고 화면 배지다.
 - **지도용 좌표는 따로 받는다**(2026-10-14 준비 완료, 키 발급 대기). 실거래 API 가 좌표를 주지 않아 단지 4.5만 개를 지오코딩해 `estate.apt_complex` 에 넣는다 — scheduler 의 `/scheduler/estate/complex/*` 와 `scripts/estate-geocode.ps1`. 절차·함정은 `docs/estate-geocode-workflow.md`, 왜 그 API 인지는 `docs/estate-map-plan.md`.
 - **프론트(`sj-lab-estate-web`, 로컬 4200)**: 활용 페이지와 같은 구성(React 18 + Webpack, 인라인 스타일, 차트 라이브러리 없이 SVG). 헤더와 접기 버튼은 지도 사이트와 같은 톤이고 **실거래 · 소개 · 저장소 · 문의** 세 화면이 있다. API 는 dev server 프록시(`/estate` → 8100)로 넘긴다. **authserver `login.html` 의 `ALLOWED_REDIRECT_ORIGINS` 에 주소를 넣어야** 로그인 후 되돌아온다(2026-10-12 `localhost:4200` 누락 때문에 허브 카드를 눌러도 페이지가 열리지 않았다).
 

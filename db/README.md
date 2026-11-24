@@ -32,13 +32,15 @@ psql -h <호스트> -p 5432 -U <계정> -d sjlab -f map/map_facility_office_work
 | `estate/estate_grant_openapi_svc.sql` | 위 `estate_apt.sql` | **운영 부동산 조회가 막힘** — `GET /estate/status` 가 `reason: CONNECT_FAILED`. 운영이 `openapi-db-credentials`(계정 `openapi_svc`)를 공유하는데 그 계정에 estate 읽기 권한이 없기 때문(2026-10-13 추가, **지금 필요한 스크립트**) |
 | `estate/estate_apt_complex.sql` | 위 `estate_apt.sql` | **지도 기능이 막힘** — 단지 좌표를 담을 표가 없어 지오코딩 배치가 500. 지금 화면(지역·단지·평형)은 그대로 동작(2026-10-14 추가) |
 | `estate/estate_apt_rent_deposit_cleanup.sql` | 위 `estate_apt.sql` | **DML(DELETE)** — 표 생성이 아니라 자료 정리. 안 돌리면 **전월세 거래 건수가 실제보다 많게 보임**(같은 계약이 "보증금 빈 행 + 받은 행" 두 줄로 남음). **전월세를 재수집한 뒤에** 돌릴 것(순서를 바꾸면 안 됨). 재수집 드라이버는 `scripts/estate-rent-deposit-refill.ps1` (2026-11-12 추가) |
+| `estate/estate_member.sql` | 위 `estate_apt.sql` | **회원 기능만 막힘** — 관심 단지·최근 본 단지·메모를 담을 표(`member` 스키마 3개)가 없어 `GET /estate/member/status` 가 `ready:false`·`NO_TABLE` 로 답하고 화면이 관심 단추를 숨김. **지도·시세 조회는 전혀 영향 없음.** 서비스가 60초마다 다시 확인하므로 실행하면 **재기동 없이** 켜진다. 권한도 이 스크립트가 준다(`openapi_svc` 에 `member` 스키마만 쓰기 — `estate` 는 조회만 그대로) (2026-11-24 추가, **미실행**) |
 | `estate/estate_apt_complex_index.sql` | 위 `estate_apt.sql` | **2026-11-17 실행 완료** — 새 지역에서 단지를 처음 누를 때 약 2초였던 것이 **160~190ms**(DB 쿼리 1,870ms → 33ms, 두 번째 0.4ms). 인덱스 2개 **377MB** 추가. 실행은 `CONCURRENTLY` 없이 DB 툴에서 했다(툴이 트랜잭션으로 감싸 25001 오류가 나기 때문 — 스크립트 6절) |
 
 - **스키마를 바꾸지 말 것**: `qfield` 스키마는 `sj-qfieldsync` 워커가 관리하며, 프로젝트 이름 패턴이 아닌
   표를 "삭제된 프로젝트 표"로 보고 지웁니다(2026-09-16·09-18 실제로 두 번 삭제됨). 앱이 쓰는 표는 `map`,
   공개 API 관련 표는 `api` 스키마에 둡니다.
 - **스키마별 용도**(2026-10-06 정리): `map` 지도·시설물 / `api` 공개 API 키·사용량 /
-  `estate` 부동산 실거래(아파트 매매·전월세) / `ai` **AI·RAG 관련 표만**(아파트 데이터는 `estate` 로 이전) /
+  `estate` 부동산 실거래(아파트 매매·전월세) / `member` **사람이 화면에서 만드는 데이터**(관심 단지·메모,
+  2026-11-24 추가) / `ai` **AI·RAG 관련 표만**(아파트 데이터는 `estate` 로 이전) /
   `qfield` 현장조사 동기화(워커 관리).
 - **`estate_drop_legacy_apt.sql` 은 되돌릴 수 없습니다** — 옛 `ai.apt_trades`(1,075만 행, 2006~2025)와
   `ai.apt_rents`(1,253만 행, 2011~2025)가 사라집니다. 그래서 DROP 문은 **주석 처리해 두었고**,

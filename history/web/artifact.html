@@ -540,7 +540,9 @@
       <button type="button" class="vchip" role="tab" data-ver="4.27" aria-controls="pane-v4.27" title="전월세만 있는 단지 3,053개가 상세에서 404 였던 문제 — 매매가 없으면 전월세 표에서 같은 모양으로 만들어 돌려준다 · 운영 확인 중 필수 값 누락이 502 였던 것도 400 으로"><span class="pv">v4.27</span><span class="pt">전월세만 있는 단지</span></button>
       <button type="button" class="vchip" role="tab" data-ver="4.28" aria-controls="pane-v4.28" title="단지 조회가 122건을 주려고 12만 행을 읽고 버리던 것(1,870ms) — 인덱스 2개로 33ms · 운영 첫 조회 2초에서 160~190ms"><span class="pv">v4.28</span><span class="pt">단지 조회 인덱스</span></button>
       <button type="button" class="vchip" role="tab" data-ver="4.29" aria-controls="pane-v4.29" title="OpenJDK Base64 가속 코드 결함(CVE-2026-114938)을 서버 8대에 임시 완화 옵션으로 막음 — 해결은 패치 이미지 재빌드"><span class="pv">v4.29</span><span class="pt">자바 보안 결함 완화</span></button>
-      <button type="button" class="vchip" role="tab" data-ver="4.30" aria-controls="pane-v4.30" title="전월세만 있는 아파트 3,053개가 지도에 아예 안 뜨던 문제 — 청록 말풍선으로 올렸다 · 전월세 집계는 그 6.8% 단지에만 붙여 속도를 지켰다"><span class="pv">v4.30<span class="dot" title="최신" aria-label="최신"></span></span><span class="pt">전월세 단지 지도 표시</span></button>
+      <button type="button" class="vchip" role="tab" data-ver="4.30" aria-controls="pane-v4.30" title="전월세만 있는 아파트 3,053개가 지도에 아예 안 뜨던 문제 — 청록 말풍선으로 올렸다 · 전월세 집계는 그 6.8% 단지에만 붙여 속도를 지켰다"><span class="pv">v4.30</span><span class="pt">전월세 단지 지도 표시</span></button>
+      <button type="button" class="vchip" role="tab" data-ver="4.31" aria-controls="pane-v4.31" title="지도 핀을 평형·가격·연식으로 거르기 · 관심 단지와 메모를 계정에 저장(새 거래 알림 포함) · 2~4개를 나란히 비교 · 새 서비스를 만들지 않고 연결만 따로 열어 해결"><span class="pv">v4.31</span><span class="pt">거르기 · 관심 단지</span></button>
+      <button type="button" class="vchip" role="tab" data-ver="4.32" aria-controls="pane-v4.32" title="헤더만 어둡고 아래는 전부 흰색이라 작은 단추들이 튀던 것 — 화면 전체를 딥 네이비로 통일하고 색을 한 파일에 모았다 · 확대 단추 정렬·위치 · 관심 단지·메모를 실제로 돌려 확인(조회 전용 계정 문제와 본문 오류 502도 함께 고침)"><span class="pv">v4.32<span class="dot" title="최신" aria-label="최신"></span></span><span class="pt">화면 톤 통일</span></button>
     </div>
   </div>
 </nav>
@@ -10978,6 +10980,255 @@ response = requests.get("https://api.sj-lab.co.kr/open-api/v1/convenience-store"
   </div>
 </section>
 </div>
+
+<!-- ===================== v4.31 ===================== -->
+<div class="vpane" data-ver="4.31" id="pane-v4.31" hidden>
+<header class="masthead">
+  <div class="wrap">
+    <div class="stamp">
+      <span class="ver">v4.31</span>
+      <span>2026-11-24</span>
+      <span>거르기 · 관심 단지 · 회원 기능</span>
+    </div>
+    <h1>조건으로 거르고,<br>마음에 둔 단지를 계정에 담습니다</h1>
+    <p class="plainline">지도에 조건 단추가 생기고, 관심 단지·메모·비교·새 거래 알림이 들어왔습니다</p>
+    <p class="dek">
+      서울 한 구만 당겨도 말풍선이 수백 개라 조건 없이는 눈으로 하나씩 읽어야 했습니다. 그리고
+      마음에 둔 단지를 <b>다시 찾아갈 방법</b>이 없었습니다 — 매번 검색해야 했습니다.
+    </p>
+    <dl class="facts">
+      <div><dt>거르는 기준</dt><dd class="ok">평형 · 가격 · 연식</dd></div>
+      <div><dt>관심 단지</dt><dd class="ok">계정에 저장</dd></div>
+      <div><dt>비교</dt><dd>2~4개 나란히</dd></div>
+      <div><dt>남은 일</dt><dd class="pending">DB 스크립트 1회</dd></div>
+    </dl>
+  </div>
+</header>
+
+<section class="band">
+  <div class="wrap">
+    <p class="eyebrow">하나</p>
+    <h2>조건 단추 — 누르는 즉시 걸러집니다</h2>
+    <p>
+      서버에 다시 묻지 않고 <b>이미 받아 둔 핀 안에서</b> 거릅니다. 그래서 멈칫거림이 없습니다.
+      대신 <b>"75개 중 12개"</b> 처럼 적어 둡니다 — 핀이 확 줄었을 때 "이 동네에 아파트가 없다"로
+      읽히지 않게요.
+    </p>
+    <div class="flow">
+      <div class="frow"><span class="fk">평형</span><span class="fv">20평 미만 · 20평대 · 30평대 · 40평 이상</span></div>
+      <div class="frow"><span class="fk">가격</span><span class="fv">5억 미만 · 5~10억 · 10~20억 · 20억 이상</span></div>
+      <div class="frow"><span class="fk">연식</span><span class="fv">5년 · 10년 · 20년 이내 · 20년 이상</span></div>
+    </div>
+    <ul class="notes">
+      <li><b>가격을 고르면 전월세만 있는 단지는 숨깁니다</b> — 그 금액은 매매가가 아니라 보증금이라 같은 자로 재면 "싼 아파트"로 둔갑합니다</li>
+      <li><b>보고 있던 단지는 남깁니다</b> — 사라지면 왼쪽 상세만 남아 어디 것인지 알 수 없습니다</li>
+    </ul>
+  </div>
+</section>
+
+<section class="band">
+  <div class="wrap">
+    <p class="eyebrow">둘</p>
+    <h2>내 단지 — 관심 · 최근 · 메모 · 내 정보</h2>
+    <p>
+      왼쪽 패널에 <b>"내 단지"</b> 탭이 생겼습니다. <b>브라우저가 아니라 계정에 저장</b>하므로
+      다른 기기에서도 그대로 보입니다.
+    </p>
+    <div class="flow">
+      <div class="frow"><span class="fk">관심</span><span class="fv">담아 둔 단지 · <b>"새 거래 3"</b> 처럼 담은 뒤 올라온 실거래를 알려 줍니다</span></div>
+      <div class="frow"><span class="fk">최근</span><span class="fv">열어 본 단지를 순서대로(최대 30개)</span></div>
+      <div class="frow"><span class="fk">메모</span><span class="fv">단지마다 적어 둔 내 한마디 — 빈칸으로 저장하면 지워집니다</span></div>
+      <div class="frow"><span class="fk">내 정보</span><span class="fv">계정과 개수, 새 거래가 있는 단지 수</span></div>
+      <div class="frow"><span class="fk">비교</span><span class="fv">관심 단지 <b>2~4개</b>를 가운데 창에 나란히 — 줄마다 가장 좋은 값을 파랗게</span></div>
+    </div>
+    <ul class="notes">
+      <li><b>알림은 저장하지 않고 그때그때 셉니다</b> — 담은 시점의 "가장 최근 계약일" 을 적어 두고 그 뒤의 거래를 셉니다. 열어 보면 표시가 사라집니다</li>
+      <li><b>지난주에 넣은 인덱스가 전제입니다</b> — 없으면 단지 하나에 2초라 이 기능을 쓸 수 없습니다</li>
+      <li>밀어 주는 알림(푸시·메일)은 아닙니다 — 화면에 들어왔을 때 배지로 보여 줍니다</li>
+    </ul>
+  </div>
+</section>
+
+<section class="band">
+  <div class="wrap">
+    <p class="eyebrow">셋</p>
+    <h2>서버를 하나 더 만들지 않았습니다</h2>
+    <p>
+      회원 데이터는 <b>"써야"</b> 하는데 부동산 서버는 <b>읽기 전용</b>이었습니다. 보통이면 서버를
+      새로 만들지만, 그러면 <b>배포 설정 · 빌드 잡 · 배포 등록</b>이 세트로 따라옵니다. 대신
+      <b>이미 같은 일을 하는 곳의 방식</b>을 따랐습니다 — 지도 백엔드도 읽기 위주지만 현장
+      시설물의 "내업 기록" 은 직접 씁니다.
+    </p>
+    <div class="flow">
+      <div class="frow"><span class="fk">실거래</span><span class="fv">연결을 <b>읽기 전용 그대로</b> — 수집 데이터는 건드릴 수 없습니다</span></div>
+      <div class="frow"><span class="fk">회원</span><span class="fv">쓰기가 되는 <b>작은 연결을 따로</b>, 전용 영역에만</span></div>
+      <div class="frow"><span class="fk">DB 권한</span><span class="fv">실거래는 읽기만 · 회원 영역에만 쓰기</span></div>
+      <div class="frow"><span class="fk">결과</span><span class="fv"><b>배포 설정은 한 줄도 바뀌지 않았습니다</b></span></div>
+    </div>
+  </div>
+</section>
+
+<section>
+  <div class="wrap">
+    <p class="eyebrow">넷</p>
+    <h2>확인한 것 · 남은 것</h2>
+    <div class="tbl">
+      <table>
+        <thead><tr><th>항목</th><th>결과</th></tr></thead>
+        <tbody>
+          <tr><td>서버 빌드·기동</td><td class="ok">통과</td></tr>
+          <tr><td>화면 빌드</td><td class="ok">통과</td></tr>
+          <tr><td>표가 없을 때 조용히 꺼지는지</td><td class="ok">확인 — "준비 안 됨" 으로 답하고 지도·시세는 정상</td></tr>
+          <tr><td>로그인 없이 부르면</td><td class="ok">확인 — "로그인이 필요합니다"</td></tr>
+          <tr><td>조건으로 거르기</td><td class="ok">받아 둔 핀으로만 동작 — DB 와 무관</td></tr>
+          <tr><td><b>관심 담기·메모·비교 실제 동작</b></td><td class="pending">DB 스크립트 실행 후</td></tr>
+        </tbody>
+      </table>
+    </div>
+    <ul class="notes">
+      <li>회원 데이터를 담을 표가 아직 없습니다 — <b>스크립트 한 번 실행</b>이면 되고, <b>실행 전에도 화면은 정상</b>입니다(관심 단추만 숨습니다)</li>
+      <li>실행하면 <b>재기동 없이</b> 켜집니다(서버가 60초마다 다시 확인합니다)</li>
+      <li><b>→ 그 뒤 v4.32 에서 스크립트를 실행하고 전부 확인했습니다.</b></li>
+    </ul>
+  </div>
+</section>
+</div>
+
+<!-- ===================== v4.32 ===================== -->
+<div class="vpane" data-ver="4.32" id="pane-v4.32" hidden>
+<header class="masthead">
+  <div class="wrap">
+    <div class="stamp">
+      <span class="ver">v4.32</span>
+      <span>2026-11-24</span>
+      <span>화면 톤 통일 · 회원 기능 확인</span>
+    </div>
+    <h1>헤더만 어두웠던 화면을<br>전체 같은 톤으로 맞췄습니다</h1>
+    <p class="plainline">작은 단추들이 하나하나 튀던 문제 — 색을 한 파일에 모아 화면 전체를 딥 네이비로</p>
+    <p class="dek">
+      종전에는 <b>헤더만 어둡고 그 아래가 전부 흰색</b>이었습니다. 대비가 너무 세서 조건·관심
+      담기·메모 같은 작은 단추들이 눈에 먼저 들어왔습니다. 이제 헤더에서 아래로 <b>한 덩어리</b>로
+      이어집니다.
+    </p>
+    <dl class="facts">
+      <div><dt>색을 모은 곳</dt><dd class="ok">파일 1개</dd></div>
+      <div><dt>톤을 맞춘 화면</dt><dd>지도 · 패널 · 소개 · 문의</dd></div>
+      <div><dt>관심 단지·메모</dt><dd class="ok">실제 동작 확인</dd></div>
+      <div><dt>함께 고친 것</dt><dd>2가지</dd></div>
+    </dl>
+  </div>
+</header>
+
+<section class="band">
+  <div class="wrap">
+    <p class="eyebrow">하나</p>
+    <h2>확대·축소 단추가 어긋나 있었습니다</h2>
+    <p>
+      오른쪽 여백이 <b>확대 단추는 0.7em, 출처(ⓘ) 단추는 0.5em</b> 으로 서로 달라 위아래가
+      맞지 않았습니다(사용자 지적). 두 값을 <b>하나로 묶어</b> 맞추고 확대 단추를 한 칸 위로
+      올렸습니다 — 따로 적어 두면 또 어긋납니다.
+    </p>
+  </div>
+</section>
+
+<section class="band">
+  <div class="wrap">
+    <p class="eyebrow">둘</p>
+    <h2>색을 한 파일에 모았습니다</h2>
+    <p>
+      종전에는 흰 카드 색을 <b>파일마다 직접</b> 적어 두었습니다. 색 하나를 바꾸려면 파일 열 개를
+      고쳐야 했고, 한 군데를 빠뜨리면 그 조각만 톤에서 떨어져 나갔습니다.
+    </p>
+    <div class="flow">
+      <div class="frow"><span class="fk">지도 위</span><span class="fv">검색창 · 조건 거르개 · 단계 배지 · 핀 설명 · 확대 단추</span></div>
+      <div class="frow"><span class="fk">왼쪽 패널</span><span class="fv">바탕 · 머리말 · 탭 · 지역 선택 · 단지 목록 · 표 · 그래프</span></div>
+      <div class="frow"><span class="fk">내 단지</span><span class="fv">관심 · 최근 · 메모 · 내 정보 · 비교 창</span></div>
+      <div class="frow"><span class="fk">그 밖</span><span class="fv">소개 · 문의 · 준비 중 화면, 바깥 바탕</span></div>
+    </div>
+    <ul class="notes">
+      <li><b>지도와 단지 말풍선은 그대로 둡니다</b> — 배경 지도가 밝아 말풍선은 흰 바탕이 가장 잘 읽힙니다. 어둡게 한 것은 <b>화면의 틀</b>입니다</li>
+      <li>작은 단추들은 <b>평소에 조용하게</b>, 켜졌을 때만 색이 생깁니다(관심 담기는 담은 뒤에만, 조건은 걸었을 때만)</li>
+    </ul>
+  </div>
+</section>
+
+<section class="band">
+  <div class="wrap">
+    <p class="eyebrow">셋</p>
+    <h2>관심 단지·메모 — 실제로 돌려 봤습니다</h2>
+    <p>DB 스크립트를 실행해 주셔서, 지난 기록에서 "확인 전" 으로 남겼던 것을 모두 확인했습니다.</p>
+    <div class="tbl">
+      <table>
+        <thead><tr><th>확인</th><th>결과</th></tr></thead>
+        <tbody>
+          <tr><td>회원 표 준비 상태</td><td class="ok">준비됨</td></tr>
+          <tr><td>관심 담기 · 같은 단지 두 번</td><td class="ok">정상(두 번 눌러도 안전)</td></tr>
+          <tr><td>"새 거래" 기준일</td><td class="ok">담은 시점으로 들어감 → 담자마자 0건</td></tr>
+          <tr><td>메모 저장 → 다시 읽기</td><td class="ok">정상, 한글도 정상</td></tr>
+          <tr><td>빈 메모로 저장</td><td class="ok">지워짐</td></tr>
+          <tr><td>최근 본 단지</td><td class="ok">쌓이고, 다시 보면 시각만 갱신</td></tr>
+          <tr><td>로그인 없이 호출</td><td class="ok">"로그인이 필요합니다"</td></tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+</section>
+
+<section>
+  <div class="wrap">
+    <p class="eyebrow">넷</p>
+    <h2>확인하다 찾은 것 두 가지</h2>
+    <div class="flow">
+      <div class="frow"><span class="fk">① 담기 실패</span><span class="fv">조회 전용 계정에는 "모든 작업을 읽기 전용으로" 가 걸려 있어 <b>코드에서 쓰기 가능으로 바꿔도 계정 기본값이 이깁니다.</b> 회원용 연결에만 "이 연결은 쓴다" 를 명시했습니다(실거래 연결은 종전대로 읽기 전용)</span></div>
+      <div class="frow"><span class="fk">② 본문 오류</span><span class="fv">요청 본문을 잘못 보내면 <b>502</b> 였습니다 — 보낸 쪽 잘못인데 "서버가 실패했다"로 보입니다. <b>400</b> 으로 바꿨습니다(지난주 필수 값 누락과 같은 종류의 문제)</span></div>
+    </div>
+    <ul class="notes">
+      <li>로컬 접속 계정도 운영과 같은 것으로 맞췄습니다 — 그 전에는 로컬만 조회 전용이라 담기가 되지 않았습니다</li>
+    </ul>
+  </div>
+</section>
+
+<section class="band">
+  <div class="wrap">
+    <p class="eyebrow">다섯</p>
+    <h2>보시면서 바로 고친 것들</h2>
+    <p>화면을 띄워 보시고 짚어 주신 것들입니다 — 톤을 한 번에 맞히지 못해 몇 번 오갔습니다.</p>
+    <div class="flow">
+      <div class="frow"><span class="fk">핀 색</span><span class="fv">말풍선도 같은 톤으로. 단 <b>패널보다 한 단 밝게</b> — 30px 짜리는 큰 면과 같은 색이면 "검은 점" 으로 보입니다</span></div>
+      <div class="frow"><span class="fk">전체 밝기</span><span class="fv">기준색을 헤더 <b>왼쪽 → 오른쪽</b> 으로. 헤더는 오른쪽이 밝아, 그 아래 넓은 면은 밝은 쪽에 맞추는 것이 이어져 보입니다</span></div>
+      <div class="frow"><span class="fk">글자</span><span class="fv">바탕을 밝히면 <b>옅은 글자가 함께 묻힙니다</b> — 투명도를 같이 올렸습니다</span></div>
+      <div class="frow"><span class="fk">높이</span><span class="fv">검색바와 조건 단추에 <b>명시된 높이가 없어</b> 각자 여백으로 정해져 1~2px 어긋났습니다 → 공통 값으로</span></div>
+      <div class="frow"><span class="fk">스크롤바</span><span class="fv">가로·세로 모두 톤에 맞췄습니다(막대 반투명 · 길과 모서리는 투명)</span></div>
+    </div>
+  </div>
+</section>
+
+<section>
+  <div class="wrap">
+    <p class="eyebrow">여섯</p>
+    <h2>"안 보인다" 는 지적에서 두 개를 더 찾았습니다</h2>
+    <p>
+      영역 배지 글자가 안 보인다고 알려 주셔서 전부 훑었더니, <b>같은 원인으로 안 보이던 곳이
+      두 개 더</b> 있었습니다. 밝은 바탕에서 쓰던 진한 색이 그대로 남아 있던 것입니다.
+    </p>
+    <div class="tbl">
+      <table>
+        <thead><tr><th>위치</th><th>전 → 후</th><th>대비(전 → 후)</th></tr></thead>
+        <tbody>
+          <tr><td>단지 영역 배지</td><td>진한 주황 → 밝은 주황</td><td class="ok">1.37 → 5.95</td></tr>
+          <tr><td>그래프 <b>매매 선</b></td><td>진한 남색 → 밝은 파랑</td><td class="ok">1.24 → 5.76</td></tr>
+          <tr><td>그래프 <b>전월세 선</b></td><td>진한 녹색 → 청록</td><td class="ok">2.35 → 8.71</td></tr>
+        </tbody>
+      </table>
+    </div>
+    <ul class="notes">
+      <li>글자가 읽히려면 <b>4.5 : 1</b> 이 기준입니다 — 1.2~2.4 는 배경과 거의 같은 색이라는 뜻이고, 그래프 두 개는 <b>선이 안 보여 추세를 읽을 수 없는</b> 상태였습니다</li>
+      <li><b>눈으로 가늠하지 않고 계산해서</b> 확인했습니다. 지금 모든 조합이 4.5 : 1 이상입니다</li>
+      <li>같은 일이 또 생기지 않게, 하드코딩으로 남은 색을 찾는 방법을 규칙 문서에 적어 두었습니다</li>
+    </ul>
+  </div>
+</section>
+</div>
 <footer>
   <div class="wrap">
     <p class="k">접속 URL</p>
@@ -10989,7 +11240,7 @@ response = requests.get("https://api.sj-lab.co.kr/open-api/v1/convenience-store"
       <li><em>운영 로그인 페이지</em><span class="url">https://api.sj-lab.co.kr/auth/login.html</span></li>
       <li><em>sj-lab-authserver</em><span class="url">https://github.com/stylealist/sj-lab-authserver</span></li>
       <li><em>API 센터</em><span class="url">https://sj-lab.co.kr/openapi/</span></li>
-      <li><em>기록 원본</em><span class="url">sj-lab/history/history_v1.0.md ~ v1.35.md, v2.0.md ~ v4.30.md</span></li>
+      <li><em>기록 원본</em><span class="url">sj-lab/history/history_v1.0.md ~ v1.35.md, v2.0.md ~ v4.32.md</span></li>
     </ul>
     <p class="colophon">
       총괄 허브 <code>C:\developer\workspace\sj-lab</code> 기준 · 커밋과 push는 사용자가 요청할 때만 수행합니다 ·
