@@ -539,7 +539,8 @@
       <button type="button" class="vchip" role="tab" data-ver="4.26" aria-controls="pane-v4.26" title="단지명으로 전국 검색 — 종전에는 시군구를 먼저 골라야 찾을 수 있었다 · 944ms를 메모리 색인으로 6~17ms로 · 예열을 순서대로 붙였다가 13초 대기가 생겨 전용 스레드로 분리"><span class="pv">v4.26</span><span class="pt">전국 단지 검색</span></button>
       <button type="button" class="vchip" role="tab" data-ver="4.27" aria-controls="pane-v4.27" title="전월세만 있는 단지 3,053개가 상세에서 404 였던 문제 — 매매가 없으면 전월세 표에서 같은 모양으로 만들어 돌려준다 · 운영 확인 중 필수 값 누락이 502 였던 것도 400 으로"><span class="pv">v4.27</span><span class="pt">전월세만 있는 단지</span></button>
       <button type="button" class="vchip" role="tab" data-ver="4.28" aria-controls="pane-v4.28" title="단지 조회가 122건을 주려고 12만 행을 읽고 버리던 것(1,870ms) — 인덱스 2개로 33ms · 운영 첫 조회 2초에서 160~190ms"><span class="pv">v4.28</span><span class="pt">단지 조회 인덱스</span></button>
-      <button type="button" class="vchip" role="tab" data-ver="4.29" aria-controls="pane-v4.29" title="OpenJDK Base64 가속 코드 결함(CVE-2026-114938)을 서버 8대에 임시 완화 옵션으로 막음 — 해결은 패치 이미지 재빌드"><span class="pv">v4.29<span class="dot" title="최신" aria-label="최신"></span></span><span class="pt">자바 보안 결함 완화</span></button>
+      <button type="button" class="vchip" role="tab" data-ver="4.29" aria-controls="pane-v4.29" title="OpenJDK Base64 가속 코드 결함(CVE-2026-114938)을 서버 8대에 임시 완화 옵션으로 막음 — 해결은 패치 이미지 재빌드"><span class="pv">v4.29</span><span class="pt">자바 보안 결함 완화</span></button>
+      <button type="button" class="vchip" role="tab" data-ver="4.30" aria-controls="pane-v4.30" title="전월세만 있는 아파트 3,053개가 지도에 아예 안 뜨던 문제 — 청록 말풍선으로 올렸다 · 전월세 집계는 그 6.8% 단지에만 붙여 속도를 지켰다"><span class="pv">v4.30<span class="dot" title="최신" aria-label="최신"></span></span><span class="pt">전월세 단지 지도 표시</span></button>
     </div>
   </div>
 </nav>
@@ -10889,6 +10890,94 @@ response = requests.get("https://api.sj-lab.co.kr/open-api/v1/convenience-store"
   </div>
 </section>
 </div>
+
+<!-- ===================== v4.30 ===================== -->
+<div class="vpane" data-ver="4.30" id="pane-v4.30" hidden>
+<header class="masthead">
+  <div class="wrap">
+    <div class="stamp">
+      <span class="ver">v4.30</span>
+      <span>2026-11-24</span>
+      <span>전월세만 있는 아파트</span>
+    </div>
+    <h1>지도에 없던 아파트 3,053개를<br>보이게 했습니다</h1>
+    <p class="plainline">전월세 거래만 있는 단지 — 데이터는 있는데 지도에서 찾을 수 없었습니다</p>
+    <p class="dek">
+      전국 아파트 단지 <b>44,616개 중 3,053개(6.8%)</b> 는 매매 기록 없이 전월세만 있습니다.
+      지난주에 그 단지들의 <b>상세 화면</b>은 열어 뒀지만, <b>지도 핀은 매매 기록만 보고</b> 있어서
+      이름을 알고 검색하지 않으면 닿을 수 없었습니다.
+    </p>
+    <dl class="facts">
+      <div><dt>보이게 된 단지</dt><dd class="ok">3,053개</dd></div>
+      <div><dt>전체에서</dt><dd>6.8%</dd></div>
+      <div><dt>말풍선 색</dt><dd>청록</dd></div>
+      <div><dt>실제 데이터 확인</dt><dd class="pending">로컬 기동 후</dd></div>
+    </dl>
+  </div>
+</header>
+
+<section class="band">
+  <div class="wrap">
+    <p class="eyebrow">하나</p>
+    <h2>색을 다르게 둔 이유</h2>
+    <p>
+      전월세만 있는 단지에는 매매가가 없으니 <b>보증금</b>을 적습니다. 그런데 말풍선 모양과 색이
+      똑같고 숫자만 다르면, 사람들은 그 숫자를 <b>매매가로 읽습니다.</b> 그래서 색을 바꿨습니다 —
+      다만 <b>모양까지 바꾸지는 않았습니다</b>(그러면 아파트가 아닌 다른 지점처럼 보입니다).
+    </p>
+    <div class="flow">
+      <div class="frow"><span class="fk">매매 있음</span><span class="fv">파랑 말풍선 · 위 <code>34평</code> / 아래 <code>12.5억</code></span></div>
+      <div class="frow"><span class="fk">전월세만</span><span class="fv">청록 말풍선 · 위 <code>34평 전세</code> / 아래 <code>5.5억</code></span></div>
+      <div class="frow"><span class="fk">월세뿐일 때</span><span class="fv">위 <code>34평 월세</code> / 아래 <code>1억/120</code>(보증금/월세)</span></div>
+      <div class="frow"><span class="fk">마우스를 올리면</span><span class="fv">"매매 거래 없음" 을 분명히 적습니다</span></div>
+    </div>
+    <ul class="notes">
+      <li>전세가 <b>한 건이라도</b> 있으면 전세 보증금을 적습니다 — 전세와 월세를 함께 적으면 두 금액이 섞여 읽히지 않습니다</li>
+    </ul>
+  </div>
+</section>
+
+<section class="band">
+  <div class="wrap">
+    <p class="eyebrow">둘</p>
+    <h2>느려지지 않게 한 두 가지</h2>
+    <p>
+      기능을 더하면 보통 느려집니다. 전월세 기록은 <b>1,000만 건이 넘는 큰 표</b>라 특히 그렇습니다.
+      그래서 두 가지를 미리 막았습니다.
+    </p>
+    <div class="flow">
+      <div class="frow"><span class="fk">① 필요한 곳만</span><span class="fv">화면의 모든 단지(최대 300개)가 아니라 <b>전월세만 있는 단지에만</b> 전월세를 셉니다 — 보통 한 화면에 0~20개</span></div>
+      <div class="frow"><span class="fk">② 고르는 순서</span><span class="fv">종전 <b>매매 건수 순</b> → 지금 <b>매매 + 전월세 건수 순</b></span></div>
+    </div>
+    <ul class="notes">
+      <li>②가 없으면 서울처럼 단지가 많은 곳에서는 <b>매매 0건인 단지가 항상 꼴찌</b>라 잘려 나가, 고쳐도 지도에 못 올랐습니다</li>
+      <li>철거된 옛 단지를 지도에서 빼는 규칙은 <b>그대로</b>입니다 — 이제 그 판단을 매매 <b>또는</b> 전월세로 합니다</li>
+    </ul>
+  </div>
+</section>
+
+<section>
+  <div class="wrap">
+    <p class="eyebrow">셋</p>
+    <h2>확인한 것 · 아직 확인하지 못한 것</h2>
+    <div class="tbl">
+      <table>
+        <thead><tr><th>항목</th><th>결과</th></tr></thead>
+        <tbody>
+          <tr><td>서버 쪽 문법·기동</td><td class="ok">통과</td></tr>
+          <tr><td>화면 쪽 빌드</td><td class="ok">통과</td></tr>
+          <tr><td><b>실제 데이터로 돌려 보기</b></td><td class="pending">아직 — 작업 시점에 로컬이 꺼져 있었습니다</td></tr>
+          <tr><td>청록 말풍선이 보이는지</td><td class="pending">로컬 기동 후 — 서대문구 연희동 근처</td></tr>
+          <tr><td>지도 이동 속도</td><td class="pending">로컬 기동 후 — 종전 실측 200~570ms</td></tr>
+        </tbody>
+      </table>
+    </div>
+    <ul class="notes">
+      <li>속도를 지키려고 손을 많이 썼지만 <b>실제 측정은 아직입니다</b> — 숨기지 않고 적어 둡니다</li>
+    </ul>
+  </div>
+</section>
+</div>
 <footer>
   <div class="wrap">
     <p class="k">접속 URL</p>
@@ -10900,7 +10989,7 @@ response = requests.get("https://api.sj-lab.co.kr/open-api/v1/convenience-store"
       <li><em>운영 로그인 페이지</em><span class="url">https://api.sj-lab.co.kr/auth/login.html</span></li>
       <li><em>sj-lab-authserver</em><span class="url">https://github.com/stylealist/sj-lab-authserver</span></li>
       <li><em>API 센터</em><span class="url">https://sj-lab.co.kr/openapi/</span></li>
-      <li><em>기록 원본</em><span class="url">sj-lab/history/history_v1.0.md ~ v1.35.md, v2.0.md ~ v4.29.md</span></li>
+      <li><em>기록 원본</em><span class="url">sj-lab/history/history_v1.0.md ~ v1.35.md, v2.0.md ~ v4.30.md</span></li>
     </ul>
     <p class="colophon">
       총괄 허브 <code>C:\developer\workspace\sj-lab</code> 기준 · 커밋과 push는 사용자가 요청할 때만 수행합니다 ·

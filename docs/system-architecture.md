@@ -106,7 +106,7 @@
 | `GET /estate/{propertyType}/complexes/{aptSeq}/trades` | 같음 | `estate.apt_trade` | 단지(평형) 매매 거래 내역 |
 | `GET /estate/{propertyType}/complexes/{aptSeq}/rent/trades` | 같음 | `estate.apt_rent` | 단지(평형) 전월세 거래 내역 |
 | `GET /estate/{propertyType}/map/regions?level=sido\|sgg\|emd&sidoCd=&sggCd=&fromYm=&toYm=&stats=` | 같음 | `public.g_sido/g_sgg/g_emd` + `estate.apt_trade` | 지도 경계 색칠(`EstateMap.js`) |
-| `GET /estate/{propertyType}/map/complexes?bbox=&fromYm=&toYm=&limit=` | 같음 | `estate.apt_complex` + `estate.apt_trade` | 지도 아파트 핀(`EstateMap.js`) |
+| `GET /estate/{propertyType}/map/complexes?bbox=&fromYm=&toYm=&limit=` | 같음 | `estate.apt_complex` + `estate.apt_trade`, 매매가 없는 단지는 `estate.apt_rent` | 지도 아파트 핀(`EstateMap.js`, `trade_available`) |
 
 **공개 API(`sj-lab-openapi`, 게이트웨이 `/open-api/**`)**: 지도·시설물 데이터를 외부에서 쓸 수 있게 여는 서비스다. `GET /open-api/catalog` 가 공개 API 목록(경로·파라미터·예시)을 내려주고, 활용 페이지는 그 JSON으로 화면을 그린다. `GET /open-api/v1/...` 는 카탈로그에 **정의된 경로·파라미터만** mapservice-rest 로 올려보내고 응답을 그대로 전달한다 (정의 밖은 404·400). **DB를 직접 읽지 않는다** — 같은 SQL이 두 저장소에 생기면 뷰가 바뀔 때 한쪽만 고쳐지기 때문이다.
 - 공개 범위는 `src/main/resources/catalog/api-catalog.json` 한 파일이 정한다(현재 12개, 모두 GET). 공공데이터 6종 · 시설물 목록/상세/아이콘 · 행정구역 3단계. **내업 쓰기·사진·첨부 중계는 열지 않는다.**
@@ -156,6 +156,13 @@
     `trade_available: false` 로 알린다. 화면은 전월세 탭을 먼저 펴고 그 사실을 적는다. 둘 다
     없으면 그때는 404 다. 검색 응답에도 `trade_count`·`rent_count` 가 따로 담겨 목록에서 미리
     "전월세만" 을 알린다.
+  - **그 단지들이 지도 핀에도 올라온다**(2026-11-24). 상세는 열어 뒀지만 **핀 쿼리가 매매 표만 봐서
+    지도에서는 보이지 않았다** — 들어갈 길이 전국 검색뿐이었다. 핀 응답에 `trade_available` 과
+    `rent_count`·`main_deposit`·`main_monthly_rent` 가 더해지고, 화면은 **청록 말풍선에 "34평 전세
+    5.5억"** 으로 그린다(같은 색이면 보증금을 매매가로 읽는다). **전월세 표는 그 6.8% 단지에만
+    조인한다** — 화면의 모든 단지에 걸면 매매와 같은 크기의 조인이 하나 더 붙는다. 단지를 고르는
+    순서도 `trade_count` → `trade_count + rent_count` 로 바꿨다(전월세만 있는 단지는 `trade_count=0`
+    이라 도심에서 `limit` 에 잘려 나갔다).
   - **단지 상세는 지도 왼쪽 패널에서 본다**(2026-10-21, `ComplexDetail.js`). 핀이나 목록에서 단지를
     고르면 패널의 지역 보기가 그 단지 상세로 바뀌고 **평형별 · 월 단위 매매와 전월세**를 한 화면에서
     본다(새 API 는 없다 — 이미 있는 `/complexes/{aptSeq}` 계열 4개를 쓴다). 2026-10-15 ~ 10-21 에는
