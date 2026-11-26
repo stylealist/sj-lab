@@ -152,6 +152,15 @@ function loadEstateDbCredentials {
     Write-Host '  주의: 부동산 DB 접속 정보가 없어 조회 API 는 503 입니다(/estate/status 는 정상).'
     Write-Host '        .claude\settings.local.json 의 env 에 ESTATE_DB_DSN 또는 ESTATE_DB_URL 등을 넣으세요.'
   }
+
+  # 목표가 도달을 카카오톡으로 알리는 기능(2026-11-26). 키가 없으면 그 기능만 꺼지고
+  # 화면이 연결 단추를 숨긴다 — 기동과 다른 기능에는 영향이 없다.
+  # **로컬에서 시험하려면 메시지 단추가 열 주소도 로컬로 바꿔야** 한다(기본값은 운영 주소).
+  loadLocalSecrets @('KAKAO_REST_API_KEY', 'KAKAO_CLIENT_SECRET', 'KAKAO_SITE_URL')
+  if ($env:KAKAO_REST_API_KEY) {
+    if (-not $env:KAKAO_SITE_URL) { $env:KAKAO_SITE_URL = 'http://localhost:4200/' }
+    Write-Host '  카카오 알림 켜짐 (목표가 도달 시 나에게 보내기)'
+  }
 }
 
 function loadOpenapiDbCredentials {

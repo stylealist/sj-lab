@@ -542,7 +542,9 @@
       <button type="button" class="vchip" role="tab" data-ver="4.29" aria-controls="pane-v4.29" title="OpenJDK Base64 가속 코드 결함(CVE-2026-114938)을 서버 8대에 임시 완화 옵션으로 막음 — 해결은 패치 이미지 재빌드"><span class="pv">v4.29</span><span class="pt">자바 보안 결함 완화</span></button>
       <button type="button" class="vchip" role="tab" data-ver="4.30" aria-controls="pane-v4.30" title="전월세만 있는 아파트 3,053개가 지도에 아예 안 뜨던 문제 — 청록 말풍선으로 올렸다 · 전월세 집계는 그 6.8% 단지에만 붙여 속도를 지켰다"><span class="pv">v4.30</span><span class="pt">전월세 단지 지도 표시</span></button>
       <button type="button" class="vchip" role="tab" data-ver="4.31" aria-controls="pane-v4.31" title="지도 핀을 평형·가격·연식으로 거르기 · 관심 단지와 메모를 계정에 저장(새 거래 알림 포함) · 2~4개를 나란히 비교 · 새 서비스를 만들지 않고 연결만 따로 열어 해결"><span class="pv">v4.31</span><span class="pt">거르기 · 관심 단지</span></button>
-      <button type="button" class="vchip" role="tab" data-ver="4.32" aria-controls="pane-v4.32" title="헤더만 어둡고 아래는 전부 흰색이라 작은 단추들이 튀던 것 — 화면 전체를 딥 네이비로 통일하고 색을 한 파일에 모았다 · 확대 단추 정렬·위치 · 관심 단지·메모를 실제로 돌려 확인(조회 전용 계정 문제와 본문 오류 502도 함께 고침)"><span class="pv">v4.32<span class="dot" title="최신" aria-label="최신"></span></span><span class="pt">화면 톤 통일</span></button>
+      <button type="button" class="vchip" role="tab" data-ver="4.32" aria-controls="pane-v4.32" title="헤더만 어둡고 아래는 전부 흰색이라 작은 단추들이 튀던 것 — 화면 전체를 딥 네이비로 통일하고 색을 한 파일에 모았다 · 확대 단추 정렬·위치 · 관심 단지·메모를 실제로 돌려 확인(조회 전용 계정 문제와 본문 오류 502도 함께 고침)"><span class="pv">v4.32</span><span class="pt">화면 톤 통일</span></button>
+      <button type="button" class="vchip" role="tab" data-ver="4.33" aria-controls="pane-v4.33" title="관심 단지에 “얼마가 되면 알려 줘”를 적어 두면 그 뒤 거래부터 지켜보고 배지로 알린다 · 평형을 함께 고르는 것이 핵심 · 마이페이지와 지도 위 내 단지 · 헤더를 기능│설명│계정 세 덩어리로"><span class="pv">v4.33</span><span class="pt">목표가 알림</span></button>
+      <button type="button" class="vchip" role="tab" data-ver="4.34" aria-controls="pane-v4.34" title="목표가에 닿으면 카카오톡 나와의 채팅으로 알려 준다(사업자등록·심사·비용 없는 “나에게 보내기”) · 목표가·메모·관심을 마이페이지에서도 고친다 · 관심 별 토글과 연쇄 삭제 안내"><span class="pv">v4.34<span class="dot" title="최신" aria-label="최신"></span></span><span class="pt">카카오톡 알림</span></button>
     </div>
   </div>
 </nav>
@@ -11229,6 +11231,250 @@ response = requests.get("https://api.sj-lab.co.kr/open-api/v1/convenience-store"
   </div>
 </section>
 </div>
+
+<!-- ===================== v4.33 ===================== -->
+<div class="vpane" data-ver="4.33" id="pane-v4.33" hidden>
+<header class="masthead">
+  <div class="wrap">
+    <div class="stamp">
+      <span class="ver">v4.33</span>
+      <span>2026-11-25</span>
+      <span>목표가 알림 · 마이페이지</span>
+    </div>
+    <h1>담아 둔 단지가<br>원하는 값이 되면 알려 줍니다</h1>
+    <p class="plainline">관심 단지에 “34평 15억 이하가 되면 알려 줘”를 적어 두는 기능</p>
+    <p class="dek">
+      관심 단지를 담아 두어도 <b>다시 들어가 보지 않으면 소용이 없었습니다.</b> 이제 단지마다
+      원하는 값을 적어 두면, 그 뒤에 올라온 거래 중 조건에 맞는 것이 있을 때 목록과 지도에
+      <b>배지로 알려 줍니다.</b>
+    </p>
+    <dl class="facts">
+      <div><dt>알림 방식</dt><dd>화면 배지(메일·푸시 아님)</dd></div>
+      <div><dt>고르는 것</dt><dd>금액 · 매매/전세 · 이하/이상 · 평형</dd></div>
+      <div><dt>새 표</dt><dd class="ok">없음 — 컬럼 6개</dd></div>
+      <div><dt>상태</dt><dd class="ok">실행 완료 · 동작 확인</dd></div>
+    </dl>
+  </div>
+</header>
+
+<section class="band">
+  <div class="wrap">
+    <p class="eyebrow">먼저</p>
+    <h2>켜졌습니다 (2026-11-26)</h2>
+    <p>
+      DB 스크립트를 실행해 주셔서 <b>재기동 없이</b> 켜졌습니다. 저장·지우기·예외 처리까지 전부
+      확인했습니다.
+    </p>
+    <div class="tbl">
+      <table>
+        <thead><tr><th>확인</th><th>결과</th></tr></thead>
+        <tbody>
+          <tr><td>서버가 알아봄</td><td class="ok">재기동 없이 켜짐</td></tr>
+          <tr><td>목표가 저장 · 전세 목표 · 지우기</td><td class="ok">정상</td></tr>
+          <tr><td>기준일</td><td class="ok">그 단지 최근 계약일로 들어감</td></tr>
+          <tr><td>안 담은 단지 · 이상한 금액 · 로그인 없이</td><td class="ok">각각 알맞은 안내</td></tr>
+          <tr><td>화면</td><td class="ok">마이페이지 카드와 통계에 정상 표시</td></tr>
+        </tbody>
+      </table>
+    </div>
+    <ul class="notes">
+      <li><b>도달 배지는 새 거래가 들어와야 뜹니다</b> — 정한 뒤의 거래만 세기 때문입니다. 무엇이 적힐지는 조회만으로 미리 확인했습니다(같은 조건에서 기준일만 올해 1월로 두면 <b>도달 39건 · 2026-05-09 · 8.5억</b>)</li>
+      <li>확인하다 하나 고쳤습니다 — 마이페이지 통계의 <b>“목표가 도달” 칸이 <code>-</code> 로</b> 보였습니다(숫자만 받던 칸에 “0 / 1” 이라는 글을 넣어서)</li>
+      <li>남은 일은 <b>세 저장소 커밋</b>입니다</li>
+    </ul>
+  </div>
+</section>
+
+<section>
+  <div class="wrap">
+    <p class="eyebrow">하나</p>
+    <h2>어떻게 쓰는 기능인가</h2>
+    <div class="flow">
+      <div class="frow"><span class="fk">정할 때</span><span class="fv">단지 상세에서 <b>목표가</b> → 금액(억) · 매매/전세 · 이하/이상 · <b>평형</b></span></div>
+      <div class="frow"><span class="fk">닿으면</span><span class="fv">단지 상세 · 마이페이지 카드 · <b>지도 핀에 빨간 점</b> · 지도 위 “내 단지” 단추에 숫자</span></div>
+      <div class="frow"><span class="fk">알림 방식</span><span class="fv">메일이나 휴대폰 알림이 <b>아닙니다</b> — 화면에 들어왔을 때 보여 줍니다(지금 쓰는 “새 거래” 배지와 같은 방식이라 보낼 통로가 필요 없습니다)</span></div>
+    </div>
+  </div>
+</section>
+
+<section class="band">
+  <div class="wrap">
+    <p class="eyebrow">둘</p>
+    <h2>만들면서 미리 막아 둔 것 세 가지</h2>
+    <div class="tbl">
+      <table>
+        <thead><tr><th>한 일</th><th>안 그러면</th></tr></thead>
+        <tbody>
+          <tr><td><b>평형을 함께 고른다</b></td><td>한 단지에 24평·34평이 같이 있어, 단지 전체에 “15억 이하” 를 걸면 <b>작은 평형 때문에 늘 도달</b>합니다</td></tr>
+          <tr><td><b>정한 뒤의 거래만 센다</b></td><td>과거에 그 값에 닿은 적 있는 단지는 <b>정하자마자 “도달”</b> 로 떠서 알림이 뜻을 잃습니다</td></tr>
+          <tr><td><b>지도용은 가벼운 길로</b></td><td>관심 목록 전체는 단지마다 거래를 세는 무거운 조회라, 화면을 열 때마다 부르면 느려집니다</td></tr>
+        </tbody>
+      </table>
+    </div>
+    <ul class="notes">
+      <li>스크립트를 돌리기 전에 <b>실제 데이터로 미리 검증</b>했습니다(조회만) — 삼성래미안 32평 8.5억 이하에서 <b>도달 39건 · 가장 최근 2026-05-09 · 8.5억</b>, 금액과 날짜가 <b>같은 거래</b>를 가리키는 것까지 확인</li>
+      <li>스크립트를 실행하지 않아도 <b>이 기능만 꺼집니다</b> — 관심 담기·메모·지도는 전혀 영향이 없습니다</li>
+    </ul>
+  </div>
+</section>
+
+<section>
+  <div class="wrap">
+    <p class="eyebrow">셋</p>
+    <h2>헤더를 세 덩어리로 나눴습니다</h2>
+    <p>
+      실제로 쓰는 기능과 사이트 설명이 한 줄에 섞여 헷갈린다고 하셔서, 계정 영역이 원래 쓰던
+      것과 <b>똑같은 세로선</b>을 하나 더 세웠습니다.
+    </p>
+    <div class="flow">
+      <div class="frow"><span class="fk">왼쪽</span><span class="fv">실거래 · 마이페이지 <b>(실제 기능)</b></span></div>
+      <div class="frow"><span class="fk">가운데</span><span class="fv">소개 · 저장소·문의 <b>(포트폴리오 설명)</b></span></div>
+      <div class="frow"><span class="fk">오른쪽</span><span class="fv">계정 · 로그아웃</span></div>
+    </div>
+    <ul class="notes">
+      <li><b>단추 생김새는 그대로입니다</b> — 전에 소개·문의를 작은 글자 링크로 바꿨더니 더 헷갈렸습니다</li>
+      <li><b>실거래와 마이페이지는 떼어 놓지 않습니다</b> — 사이에 다른 것이 끼면 오히려 더 섞여 보입니다</li>
+    </ul>
+  </div>
+</section>
+
+<section class="band">
+  <div class="wrap">
+    <p class="eyebrow">넷</p>
+    <h2>같은 날 함께 들어간 것들</h2>
+    <div class="flow">
+      <div class="frow"><span class="fk">마이페이지</span><span class="fv">관심 단지·메모·최근 본 단지를 한 화면에 펼쳐 보고 <b>메모를 여기서 바로</b> 고칩니다</span></div>
+      <div class="frow"><span class="fk">지도 위 내 단지</span><span class="fv">지도를 떠나지 않고 담아 둔 단지를 꺼내 보고, 고르면 지도가 그 자리로 갑니다</span></div>
+      <div class="frow"><span class="fk">지도 표시</span><span class="fv">담은 단지는 <b>노란 말풍선</b>, 메모가 있으면 <b>하늘색</b> · 마우스를 올리면 메모가 쪽지로</span></div>
+      <div class="frow"><span class="fk">배경지도</span><span class="fv">일반 · 위성(하이브리드) · 지형을 그림 단추로</span></div>
+      <div class="frow"><span class="fk">고친 것</span><span class="fv">관심·메모 저장이 안 되던 로컬 오류 · 기간 선택의 물결표 위치 · 안 보이던 테두리 25곳 · 로고를 누르면 처음 화면으로</span></div>
+    </div>
+  </div>
+</section>
+
+<section>
+  <div class="wrap">
+    <p class="eyebrow">다섯</p>
+    <h2>다음에 해 볼 만한 것</h2>
+    <p>오늘 데이터를 직접 들여다보고 추린 것입니다.</p>
+    <div class="tbl">
+      <table>
+        <thead><tr><th>후보</th><th>지금 상태</th></tr></thead>
+        <tbody>
+          <tr><td><b>전세가율</b></td><td class="ok">보증금이 99.7% 채워진 것을 확인 — 바로 됩니다(강남 기준 329개 조합)</td></tr>
+          <tr><td><b>단지 주변 편의시설</b></td><td class="ok">같은 DB 의 지도 데이터에 38만 곳이 좌표와 함께 있습니다</td></tr>
+          <tr><td><b>갱신계약 인상률</b></td><td class="ok">종전 보증금이 함께 들어 있어 “재계약 때 평균 +15.0%” 가 계산됩니다</td></tr>
+          <tr><td>매수자 유형 분석</td><td>99.6% 가 개인이라 화면에 그릴 것이 없습니다 — <b>뺐습니다</b></td></tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+</section>
+</div>
+
+<!-- ===================== v4.34 ===================== -->
+<div class="vpane" data-ver="4.34" id="pane-v4.34" hidden>
+<header class="masthead">
+  <div class="wrap">
+    <div class="stamp">
+      <span class="ver">v4.34</span>
+      <span>2026-11-26</span>
+      <span>카카오톡 알림 · 어디서든 고치기</span>
+    </div>
+    <h1>목표가에 닿으면<br>카카오톡으로 알려 드립니다</h1>
+    <p class="plainline">사이트에 들어오지 않아도 알 수 있는 길이 생겼습니다</p>
+    <p class="dek">
+      담아 둔 단지가 원하는 값이 되면 <b>카카오톡 “나와의 채팅”</b> 으로 알려 줍니다.
+      사용자가 자기 카카오로 한 번 동의하면 끝이고, <b>사업자등록·심사·발송 비용이 없습니다.</b>
+    </p>
+    <dl class="facts">
+      <div><dt>방식</dt><dd>카카오 “나에게 보내기”</dd></div>
+      <div><dt>비용</dt><dd class="ok">없음</dd></div>
+      <div><dt>심사</dt><dd class="ok">없음</dd></div>
+      <div><dt>상태</dt><dd class="ok">연결·발송 확인</dd></div>
+    </dl>
+  </div>
+</header>
+
+<section class="band">
+  <div class="wrap">
+    <p class="eyebrow">하나</p>
+    <h2>왜 알림톡이 아니라 “나에게 보내기” 인가</h2>
+    <div class="tbl">
+      <table>
+        <thead><tr><th></th><th>알림톡(흔히 받는 그것)</th><th>나에게 보내기(택한 것)</th></tr></thead>
+        <tbody>
+          <tr><td>사업자등록</td><td>필요</td><td class="ok">불필요</td></tr>
+          <tr><td>템플릿 심사</td><td>영업일 2일</td><td class="ok">없음</td></tr>
+          <tr><td>비용</td><td>건당 6~8원대</td><td class="ok">없음</td></tr>
+          <tr><td>받는 사람</td><td>누구나</td><td>본인만</td></tr>
+        </tbody>
+      </table>
+    </div>
+    <ul class="notes">
+      <li>“내가 담아 둔 단지 알림” 은 <b>본인에게만 가면 충분</b>하므로 이쪽이 맞습니다</li>
+      <li><b>보내기 전에 DB 에 먼저 적습니다</b> — 카카오톡은 한 번 가면 취소할 수 없어, 서버가 여러 대일 때 같은 알림이 두 번 가는 것을 막습니다</li>
+      <li><b>토큰은 화면에 내려가지 않습니다.</b> 화면은 “연결됨/안 됨” 만 압니다</li>
+      <li>키가 없거나·표가 없거나·연결하지 않았으면 <b>조용히 꺼지고</b> 화면 배지는 그대로 돕니다</li>
+    </ul>
+  </div>
+</section>
+
+<section>
+  <div class="wrap">
+    <p class="eyebrow">둘</p>
+    <h2>이제 어디서든 고칠 수 있습니다</h2>
+    <p>
+      종전에는 <b>단지 상세에서만</b> 고칠 수 있었습니다. 모아 놓고 보는 화면에서 고치러 지도로
+      들어가야 한다면 모아 둔 보람이 없습니다.
+    </p>
+    <div class="flow">
+      <div class="frow"><span class="fk">목표가</span><span class="fv">단지 상세 <b>+ 마이페이지</b> 둘 다에서 정하고 고칩니다</span></div>
+      <div class="frow"><span class="fk">메모</span><span class="fv">취소·저장 단추가 생겼습니다(실수로 지우는 일이 없게)</span></div>
+      <div class="frow"><span class="fk">관심</span><span class="fv">✕ 대신 <b>별(★/☆)</b> 로 켜고 끕니다 — 네 화면이 같은 기호</span></div>
+      <div class="frow"><span class="fk">카카오</span><span class="fv">목표가를 정하는 그 자리에서 바로 연결합니다(단추를 마이페이지에만 두었더니 기능이 있는 줄도 몰랐습니다)</span></div>
+    </div>
+    <ul class="notes">
+      <li>입력칸은 <b>한 파일로 모았습니다</b> — 같은 칸이 두 군데 있으면 금액 단위나 평형 식이 조용히 어긋납니다</li>
+      <li><b>관심에서 제거하면 메모·목표가도 함께 지워집니다.</b> 한 동작에 어떤 것은 지워지고 어떤 것은 남는 쪽이 더 헷갈립니다 — 대신 <b>지우기 전에 무엇이 사라지는지 먼저 묻습니다</b></li>
+    </ul>
+  </div>
+</section>
+
+<section class="band">
+  <div class="wrap">
+    <p class="eyebrow">셋</p>
+    <h2>설정에서 한참 헤맸습니다</h2>
+    <p>카카오 콘솔이 개편 중이라 메뉴 위치가 달라져 있었습니다. 다음을 위해 적어 둡니다.</p>
+    <div class="tbl">
+      <table>
+        <thead><tr><th>오류</th><th>뜻</th><th>고친 곳</th></tr></thead>
+        <tbody>
+          <tr><td>KOE006</td><td>등록 안 된 돌아올 주소</td><td>앱 → 플랫폼 키 → REST API 키 <b>상세 설정</b> (끝의 <code>/</code> 까지 정확히)</td></tr>
+          <tr><td>KOE010</td><td>자격증명 거부</td><td>카카오 로그인 → <b>고급</b> → Client Secret 이 켜져 있었습니다</td></tr>
+        </tbody>
+      </table>
+    </div>
+    <ul class="notes">
+      <li><b>가짜 코드로 설정만 미리 검사할 수 있습니다</b> — 사용자가 카카오 로그인을 하지 않아도 맞는지 알 수 있어, 다음엔 한참 헤매지 않아도 됩니다</li>
+      <li>오류 본문이 <b>두 가지 형식</b>이라 한쪽을 못 읽어 로그에 “HTTP 401” 만 남았던 것도 고쳤습니다</li>
+    </ul>
+  </div>
+</section>
+
+<section>
+  <div class="wrap">
+    <p class="eyebrow">넷</p>
+    <h2>보시면서 바로 고친 것들</h2>
+    <div class="flow">
+      <div class="frow"><span class="fk">이름이 키로</span><span class="fv"><b>메모만 남기고 관심에 담지 않은 단지</b>였습니다. 이름을 함께 싣고, 서버도 비면 단지 표에서 채웁니다</span></div>
+      <div class="frow"><span class="fk">✕ 즉시 삭제</span><span class="fv">한 번 더 묻습니다 — 고치려다 잘못 누르면 되돌릴 길이 없었습니다</span></div>
+      <div class="frow"><span class="fk">“고치기” 위치</span><span class="fv"><b>줄 전체</b>를 누르면 고쳐집니다(누를 곳이 넓으면 잘못 누를 일도 줍니다)</span></div>
+      <div class="frow"><span class="fk">담기 실패</span><span class="fv">회원 질의 제한 5초에 걸렸습니다 — 담는 문장 안에 실거래를 뒤지는 조회가 둘 있어 <b>실측 5.8초</b>. 15초로 올렸습니다</span></div>
+    </div>
+  </div>
+</section>
+</div>
 <footer>
   <div class="wrap">
     <p class="k">접속 URL</p>
@@ -11240,7 +11486,7 @@ response = requests.get("https://api.sj-lab.co.kr/open-api/v1/convenience-store"
       <li><em>운영 로그인 페이지</em><span class="url">https://api.sj-lab.co.kr/auth/login.html</span></li>
       <li><em>sj-lab-authserver</em><span class="url">https://github.com/stylealist/sj-lab-authserver</span></li>
       <li><em>API 센터</em><span class="url">https://sj-lab.co.kr/openapi/</span></li>
-      <li><em>기록 원본</em><span class="url">sj-lab/history/history_v1.0.md ~ v1.35.md, v2.0.md ~ v4.32.md</span></li>
+      <li><em>기록 원본</em><span class="url">sj-lab/history/history_v1.0.md ~ v1.35.md, v2.0.md ~ v4.34.md</span></li>
     </ul>
     <p class="colophon">
       총괄 허브 <code>C:\developer\workspace\sj-lab</code> 기준 · 커밋과 push는 사용자가 요청할 때만 수행합니다 ·

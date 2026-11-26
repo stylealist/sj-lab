@@ -111,6 +111,10 @@
 | `GET /estate/member/me` | 같음 | `member.estate_*` | 내 정보(`MyEstate.js`) |
 | `GET /estate/member/favorites` · `/favorites/keys` | 같음 | `member.estate_favorite` + `estate.apt_trade`·`apt_rent`(새 거래 수) | 관심 단지 목록 · 별 모양 판단 |
 | `POST`·`DELETE /estate/member/favorites/{aptSeq}`, `POST .../seen` | 같음 | `member.estate_favorite` | 담기 · 빼기 · "새 거래" 지우기 |
+| `GET /estate/member/favorites/targets` | 같음 | `member.estate_favorite`(`target_*`) + `apt_trade`·`apt_rent` | 목표가를 정해 둔 단지만 — 지도 🔔 표시 |
+| `PUT`·`DELETE /estate/member/favorites/{aptSeq}/target` | 같음 | `member.estate_favorite` | 목표가 정하기 · 끄기 |
+| `GET /estate/member/kakao/status` · `/authorize-url` | `KakaoController`(sj-lab-estate) | `member.estate_kakao` | 카카오톡 알림 연결 상태 · 동의 화면 주소 |
+| `PUT`·`DELETE /estate/member/kakao/link`, `PUT /enabled`, `POST /test` | 같음 | `member.estate_kakao` + 카카오 API | 연결 · 해제 · 켜고 끄기 · 시험 발송 |
 | `GET`·`DELETE /estate/member/recent`, `POST /estate/member/recent/{aptSeq}` | 같음 | `member.estate_recent` | 최근 본 단지 |
 | `GET /estate/member/notes`, `GET`·`PUT`·`DELETE /estate/member/notes/{aptSeq}` | 같음 | `member.estate_note` | 단지 메모 |
 
@@ -193,6 +197,39 @@
   - **표가 없으면 오류가 아니라 기능만 꺼진다** — `GET /member/status` 가 `ready:false` 로 답하고
     화면이 관심 단추를 숨긴다. 스크립트는 `db/estate/estate_member.sql`(실행은 담당자, **미실행**)이고
     60초마다 다시 확인하므로 실행하면 재기동 없이 켜진다.
+  - **관심 단지에 "목표가" 를 적을 수 있다**(2026-11-25). "이 단지 34평이 15억 이하가 되면
+    알려 줘" 를 적어 두면, **정한 뒤에 올라온** 거래 중 조건을 만족하는 것이 있을 때 목록·지도에
+    🔔 배지가 뜬다. 새 표가 아니라 `member.estate_favorite` 에 컬럼 6개(`target_*`)를 더한 것이고
+    스크립트는 `db/estate/estate_member_target.sql`(**2026-11-26 실행 완료**). **컬럼이 없으면 이 기능만 꺼진다** —
+    `GET /member/status` 가 `target_ready:false` 로 답하고 화면이 🎯 단추만 숨긴다.
+    - **평형을 함께 적는 것이 핵심이다** — 한 단지에 24평·34평이 있어 단지 전체에 금액을 걸면
+      작은 평형 때문에 늘 도달한다. 평형 식은 다른 조회와 같은 분양 평형이다.
+    - 지도 표시는 `/favorites/targets`(정해 둔 단지만)로 받는다. 목록 전체(`/favorites`)는 단지마다
+      거래를 세는 무거운 질의라 화면을 열 때마다 부르면 안 된다.
+    - **회원 데이터라 공개 API(`sj-lab-openapi`)에는 열지 않는다** — 특정 계정의 개인 기록이다.
+  - **목표가 도달을 카카오톡으로도 알린다**(2026-11-26, `/estate/member/kakao/**`). 카카오톡
+    **"나에게 보내기"** 다 — 사용자가 자기 카카오로 한 번 동의하면 서버가 그 사람의 "나와의
+    채팅" 으로 보낸다. **사업자등록·심사·발송 비용이 없다**(알림톡은 셋 다 필요하다). 대신
+    **본인에게만** 간다.
+    - 표는 `member.estate_kakao`(갱신 토큰 보관)이고 중복 발송을 막는 컬럼
+      `estate_favorite.target_notified_ymd` 가 함께 생긴다. 스크립트
+      `db/estate/estate_member_kakao.sql`(**2026-11-26 실행 완료**).
+    - **세 겹으로 꺼진다** — 키(`KAKAO_REST_API_KEY`)가 없거나 · 표가 없거나 · 사용자가 연결하지
+      않았으면 조용히 꺼지고 화면 배지는 그대로 돈다.
+    - **키는 환경변수로만 받는다**(저장소 public). 카카오 개발자 화면의 앱 등록·동의항목
+      (`talk_message`) 설정은 **사용자가 직접** 한다(외부 포털 작업).
+    - **쓰려는 자리에서 연결시킨다**(2026-11-26) — 카카오 연결이 안 된 채 목표가를 정하면 그
+      쪽지 안에서 바로 동의 화면으로 보낸다. 연결 단추를 마이페이지에만 두었더니 **기능이 있는
+      줄도 모르고** 지나갔다. 동의 화면 주소는 화면이 조립하지 않고 서버가 준다
+      (`GET /member/kakao/authorize-url`) — 앱 키가 화면 코드에 박히지 않게 한다.
+    - **설정 오류는 코드로 구분한다** — `KOE006`(redirect URI 미등록) · `KOE010`(Client Secret
+      누락) · `KOE320`(코드만 틀림 = 자격증명 통과). **가짜 code 로 토큰을 요청하면 사용자가
+      카카오 로그인을 하지 않아도 설정이 맞는지 알 수 있다**(KOE320 이 나오면 통과).
+      자세한 내용은 `sj-lab-estate/CLAUDE.md`.
+    - 감시는 `sj-lab-estate` 안의 `@Scheduled`(기본 30분)다. 수집이 끝나는 시각이 일정하지 않아
+      간격으로 훑고, 조건이 "연결한 사람 × 목표가를 정한 단지 × 아직 안 알린 도달" 이라 평소에는
+      행이 0개다. **보내기 전에 DB 에 먼저 적고 보낸다** — 순서를 바꾸면 서버가 여러 대일 때
+      같은 알림이 두 번 간다(카카오톡은 취소할 수 없다).
   - **"새 거래" 알림은 저장하지 않고 그때그때 센다** — 관심 단지마다 "담은(또는 마지막으로 열어 본)
     시점의 최근 계약일"을 적어 두고 그보다 뒤의 거래를 센다. 단지마다 따로 묻지 않고
     `left join lateral` 로 한 질의에 가져오며, **2026-11-17 의 `(sgg_cd, apt_seq)` 인덱스가 전제다**
