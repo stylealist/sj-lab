@@ -12,6 +12,7 @@
 | `auth-demo-credentials` | `username`, `password` | sj-lab-authserver → `AUTH_DEMO_USERNAME`, `AUTH_DEMO_PASSWORD` | 선택(`optional: true`) | 파드는 정상, 로그인 페이지의 "체험용 계정으로 로그인" 버튼만 503 |
 | `openapi-db-credentials` | `url`, `username`, `password` | sj-lab-openapi → `OPENAPI_DB_URL`…, **그리고 sj-lab-estate → `ESTATE_DB_URL`…(2026-10-13 공유)** | **키 기능을 켠 경우 필수**(차트 `apiKey.enabled: true`, 2026-09-30 켜짐) | 파드가 뜨지 않음 — 접속 주소가 비면 `ApiKeyStoreConfig`가 기동을 막는다(의도된 동작). 차트를 `false`로 되돌리면 Secret 없이도 뜨고 키 API만 503 |
 | `estate-db-credentials` | `url`, `username`, `password` | **지금은 쓰지 않음** — sj-lab-estate 가 `openapi-db-credentials` 를 공유한다(2026-10-13). 계정을 분리할 때 쓰는 이름 | 선택(`optional: true`) | 파드는 정상, 부동산 조회 API만 503(`NOT_CONFIGURED`)이고 `GET /estate/status`가 `ready:false`로 답한다(의도된 동작 — 화면이 "준비되지 않았다"를 보여 줄 수 있게) |
+| `kakao-credentials` | `restApiKey`, (선택) `clientSecret` | sj-lab-estate → `KAKAO_REST_API_KEY`, `KAKAO_CLIENT_SECRET` | 선택(`optional: true`) | 파드는 정상, **카카오톡 알림만** 꺼짐 — `GET /estate/member/kakao/status` 가 `configured:false` 로 답하고 화면이 연결 단추를 숨긴다. 목표가 화면 배지·관심 담기·지도는 영향 없음 |
 
 **`openapi-db-credentials`의 계정은 `openapi_svc`입니다**(2026-09-30 분리). `api` 스키마 두 표에만 권한이 있는 전용 계정이며, superuser가 아닙니다. 다른 서비스나 사람 계정으로 되돌리지 마세요 — 이 서비스가 필요한 건 아래가 전부이고, 실제로 이 권한만으로 발급·사용량 기록·폐기가 모두 동작하는 것을 확인했습니다.
 
@@ -50,6 +51,22 @@
 - **계정을 분리하려면**: 전용 계정(`db/estate/estate_read_role.sql` 의 `estate_read`)을 만들고
   차트의 `db.secretName` 을 `estate-db-credentials` 로 되돌린 뒤 그 Secret 을 만듭니다
   (`scripts/create-estate-db-secret.ps1`). **서비스 코드는 그대로**입니다.
+
+**`kakao-credentials` 에는 카카오 개발자 앱의 REST API 키만 넣습니다**(2026-11-27 신설).
+목표가에 닿으면 카카오톡 **"나와의 채팅"** 으로 알리는 데 씁니다 — 알림톡이 아니라
+**"나에게 보내기"** 라서 사업자등록·비즈니스 채널·딜러사 계약·템플릿 심사가 필요 없고
+발송 비용도 없습니다. 대신 **본인에게만** 갑니다.
+
+| 키 | 넣는 값 | 비고 |
+|---|---|---|
+| `restApiKey` | 카카오 개발자 → 앱 키 → **REST API 키** | JavaScript 키·Admin 키가 아닙니다(길이는 같습니다) |
+| `clientSecret` | 카카오 로그인 → **고급** → Client Secret 의 코드 | **켜 두었을 때만** 넣습니다. 꺼져 있으면 넣지 마세요 |
+
+- **사용자 토큰은 Secret 이 아니라 DB(`member.estate_kakao`)에 있습니다** — 사람마다 다르고
+  갱신되기 때문입니다. 그 토큰은 로그·화면 응답에 내보내지 않습니다.
+- Redirect URI 가 **카카오 개발자 화면에 끝의 `/` 까지 똑같이** 등록돼 있어야 합니다
+  (운영 `https://sj-lab.co.kr/estate/`). 빠지면 `KOE006` 입니다.
+- 만드는 명령과 확인 방법은 `docs/k8s-runbook.md` 의 **"4-1. 카카오 알림 키"** 에 있습니다.
 
 **개발 DB 와 운영 DB 가 같은 인스턴스이므로 한 번만 실행하면 양쪽에 적용됩니다**(2026-10-12 확인).
 

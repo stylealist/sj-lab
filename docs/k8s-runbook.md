@@ -119,6 +119,98 @@ unset PW
 - DB 접속 주소는 클러스터 안 서비스 이름(`postgresql-sjlab:5432`)으로 넣습니다. 파드가
   공인 IP·NodePort 로 돌아 나갈 필요가 없고, 그 주소는 바뀔 수 있습니다.
 
+## 4-1. 카카오 알림 키 (2026-11-27)
+
+목표가에 닿으면 **카카오톡 "나와의 채팅"** 으로 알리는 기능입니다. 운영에서는 **앱 키가 없어
+꺼져 있습니다** — 아래 Secret 을 만들면 켜집니다. 키가 없어도 파드는 정상이고 그 기능만
+꺼지므로, 급하지 않으면 아무 때나 해도 됩니다.
+
+### 지금 꺼져 있는지 확인 (로그인 불필요)
+
+```powershell
+curl.exe https://api.sj-lab.co.kr/estate/member/kakao/status
+# configured:false  → 키 없음(지금 상태)
+# ready:true        → 켜짐
+```
+
+### ① Secret 만들기
+
+값이 셸 히스토리에 남지 않게 `read -s` 로 입력받습니다. **키 값을 명령에 직접 적지 마세요.**
+
+```bash
+read -rsp '카카오 REST API 키: ' KAKAO; echo
+
+kubectl create secret generic kakao-credentials -n sj-lab   --from-literal=restApiKey="$KAKAO"   --dry-run=client -o yaml | kubectl apply -f -
+
+unset KAKAO
+```
+
+카카오 개발자 화면에서 **Client Secret 을 켜 두었다면** 그 값도 함께 넣습니다(꺼 두었으면 넣지 않습니다).
+
+```bash
+read -rsp '카카오 REST API 키: ' KAKAO; echo
+read -rsp '카카오 Client Secret: ' KSEC; echo
+
+kubectl create secret generic kakao-credentials -n sj-lab   --from-literal=restApiKey="$KAKAO"   --from-literal=clientSecret="$KSEC"   --dry-run=client -o yaml | kubectl apply -f -
+
+unset KAKAO KSEC
+```
+
+### ② 파드 다시 띄우기
+
+**Secret 은 기동할 때 읽힙니다.** 만들기만 하면 반영되지 않습니다.
+
+```powershell
+kubectl rollout restart deploy/sj-lab-estate -n sj-lab
+kubectl rollout status  deploy/sj-lab-estate -n sj-lab --timeout=180s
+```
+
+### ③ 켜졌는지 확인
+
+```powershell
+# 값이 아니라 "이름이 들어갔는지" 만 본다
+kubectl exec -n sj-lab deploy/sj-lab-estate -- printenv | findstr /i "KAKAO_"
+
+curl.exe https://api.sj-lab.co.kr/estate/member/kakao/status
+# {"ready":true,"configured":true,...} 가 나오면 끝
+```
+
+### ④ 카카오 개발자 화면에도 운영 주소를 등록 (이게 빠지면 KOE006)
+
+**앱 → 플랫폼 키 → REST API 키 [상세 설정] → 카카오 로그인 리다이렉트 URI**
+
+```
+https://sj-lab.co.kr/estate/
+```
+
+**끝의 `/` 까지 정확히** 같아야 합니다. `https://sj-lab.co.kr/` 만 등록돼 있으면 **다른 주소로
+취급**돼 운영에서 `KOE006` 이 납니다(로컬에서 이미 한 번 겪었습니다).
+
+### 설정이 맞는지 미리 검사하기
+
+사용자가 카카오 로그인을 하지 않아도 **가짜 코드로 자격증명만** 확인할 수 있습니다.
+
+```powershell
+curl.exe -s -X POST https://kauth.kakao.com/oauth/token `
+  -d "grant_type=authorization_code&client_id=<REST API 키>&redirect_uri=https%3A%2F%2Fsj-lab.co.kr%2Festate%2F&code=NOT_A_REAL_CODE"
+```
+
+| 응답 | 뜻 |
+|---|---|
+| `KOE320` (invalid_grant) | **설정 통과.** 진짜 코드면 연결됩니다 |
+| `KOE010` (invalid_client) | Client Secret 이 켜져 있는데 안 보낸 것 |
+| `KOE006` | Redirect URI 가 등록돼 있지 않음 |
+
+### 끄고 싶을 때
+
+```powershell
+kubectl delete secret kakao-credentials -n sj-lab
+kubectl rollout restart deploy/sj-lab-estate -n sj-lab
+```
+
+Secret 이 없으면 **오류가 아니라 그 기능만** 꺼지고 화면이 연결 단추를 숨깁니다. 목표가 화면
+배지·관심 담기·지도는 그대로 돕니다.
+
 ## 5. ArgoCD
 
 `sj-lab-k8s-manifests` 에 push 하면 ArgoCD 가 차트를 반영합니다.
